@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}Print Office Account{% endblock %}
+
+{% block content %}
+<div class="print-account-container my-4">
+    <h1>Office Account Details</h1>
+    <p><strong>ID:</strong> {{ account.id }}</p>
+    <p><strong>Vorname:</strong> {{ account.vorname }}</p>
+    <p><strong>Nachname:</strong> {{ account.nachname }}</p>
+    <p><strong>Firma:</strong> {{ account.firma }}</p>
+    <p><strong>Email:</strong> {{ account.email }}</p>
+    <p><strong>Passwort:</strong> {{ account.passwort }}</p> <!-- Passwort im Klartext -->
+    <p><strong>Kommentar:</strong> {{ account.kommentar }}</p>
+    <p><strong>Erstelldatum:</strong> {{ account.erstelldatum }}</p>
+
+    <button onclick="window.print()" class="btn btn-primary me-2">Print</button>
+    <a href="{% url 'office_accounts' %}" class="btn btn-secondary">Back</a>
+</div>
+{% endblock %}

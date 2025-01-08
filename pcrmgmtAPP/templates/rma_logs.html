@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}RMA Logs{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <h1>RMA Logs</h1>
+    <pre>
+        {% for line in log_lines %}
+            {{ line }}
+        {% endfor %}
+    </pre>
+</div>
+{% endblock %}

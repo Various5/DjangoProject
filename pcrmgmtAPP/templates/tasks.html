@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Tasks{% endblock %}
+
+{% block content %}
+<div class="tasks-container my-4">
+    <h1 class="mb-4">Task Management</h1>
+
+    <!-- ISL Log Reader Control -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">ISL Log Reader</div>
+        <div class="card-body">
+            <p>Manages ISL log data import and processing.</p>
+            <form method="POST" action="{% url 'tasks' %}">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="script_interval" class="form-label">Script Interval (minutes):</label>
+                    <input type="number" id="script_interval" name="script_interval" value="{{ isl_script_interval }}" class="form-control" min="1" max="1440" required>
+                </div>
+                <button type="submit" name="set_interval" class="btn btn-primary">Set Interval</button>
+                <button type="submit" name="start_script" class="btn btn-success">Start Script</button>
+                <button type="submit" name="stop_script" class="btn btn-danger">Stop Script</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- RMA Email Import Control -->
+    <div class="card mb-4">
+        <div class="card-header bg-secondary text-white">RMA Email Import</div>
+        <div class="card-body">
+            <p>Automatically imports tickets from the Computacenter email inbox.</p>
+            <form method="POST" action="{% url 'tasks' %}">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="rma_script_interval" class="form-label">Script Interval (minutes):</label>
+                    <input type="number" id="rma_script_interval" name="rma_script_interval" value="{{ rma_script_interval }}" class="form-control" min="1" max="1440" required>
+                </div>
+                <button type="submit" name="set_rma_interval" class="btn btn-primary">Set Interval</button>
+                <button type="submit" name="start_rma_script" class="btn btn-success">Start Script</button>
+                <button type="submit" name="stop_rma_script" class="btn btn-danger">Stop Script</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+    <!-- Current Task Status -->
+    <div class="card mb-4">
+        <div class="card-header bg-info text-white">Current Task Status</div>
+        <div class="card-body">
+            <p><strong>ISL Log Reader:</strong> {% if script_running %}<span class="text-success">Running</span>{% else %}<span class="text-danger">Stopped</span>{% endif %}</p>
+            <p><strong>RMA Email Import:</strong> {% if rma_script_running %}<span class="text-success">Running</span>{% else %}<span class="text-danger">Stopped</span>{% endif %}</p>
+            <p><strong>Last Start Time:</strong> {% if script_start_time %}{{ script_start_time }}{% else %}Not started yet{% endif %}</p>
+        </div>
+    </div>
+{% endblock %}

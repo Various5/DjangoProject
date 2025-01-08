@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Garantie löschen{% endblock %}
+
+{% block content %}
+<div class="garantie-delete-container my-4">
+    <h1 class="mb-4">Garantie löschen</h1>
+    <p>Möchten Sie die Garantie <strong>{{ garantie.typ }}</strong> mit der Seriennummer <strong>{{ garantie.seriennummer }}</strong> wirklich löschen?</p>
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Löschen</button>
+        <a href="{% url 'garantie_list' %}" class="btn btn-secondary">Abbrechen</a>
+    </form>
+</div>
+{% endblock %}

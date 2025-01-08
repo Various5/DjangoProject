@@ -1,0 +1,20 @@
+<!-- templates/print_isl_log.html -->
+
+{% extends 'base.html' %}
+
+{% block title %}Print ISL Log{% endblock %}
+
+{% block content %}
+<div class="my-4">
+    <h1>ISL Log Details</h1>
+    <p><strong>SessionID:</strong> {{ log_entry.0 }}</p>
+    <p><strong>Startzeit:</strong> {{ log_entry.1 }}</p>
+    <p><strong>Dauer:</strong> {{ log_entry.2 }}</p>
+    <p><strong>Benutzer:</strong> {{ log_entry.3 }}</p>
+    <p><strong>NameFirma:</strong> {{ log_entry.4 }}</p>
+    <p><strong>Verrechnet:</strong> {{ log_entry.5|yesno:"Yes,No" }}</p>
+    <p><strong>Memo:</strong> {{ log_entry.6 }}</p>
+    <button onclick="window.print()" class="btn btn-primary me-2">Print</button>
+    <a href="{% url 'isl_logs' %}" class="btn btn-secondary">Back</a>
+</div>
+{% endblock %}

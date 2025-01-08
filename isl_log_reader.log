@@ -1,0 +1,2 @@
+2025-01-04 13:44:21,989 - ERROR - Error reading config.json: Expecting property name enclosed in double quotes: line 3 column 29 (char 51)
+2025-01-04 13:44:31,899 - ERROR - Error reading config.json: Expecting property name enclosed in double quotes: line 3 column 29 (char 51)

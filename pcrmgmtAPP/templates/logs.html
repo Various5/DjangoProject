@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}Logs{% endblock %}
+
+{% block content %}
+<div class="logs-container my-4">
+    <h1 class="mb-4">Logs</h1>
+
+    <!-- ISL Log Reader Logs -->
+    <h2 class="mb-4">ISL Log Reader Logs</h2>
+    <div class="mb-3">
+        <form method="POST" action="{% url 'logs' %}" onsubmit="return confirm('Are you sure you want to clear the ISL log file?');">
+            {% csrf_token %}
+            <button type="submit" name="clear_isl_log" class="btn btn-danger">
+                <i class="bi bi-trash-fill"></i> Clear ISL Log
+            </button>
+        </form>
+    </div>
+    <div class="card mb-4">
+        <div class="card-body" style="overflow-y: auto; max-height: 300px;">
+            <pre id="isl-log-entries" class="mb-0">
+{% for line in isl_log_lines %}
+<span class="
+    {% if 'INFO' in line %}
+        text-success
+    {% elif 'WARNING' in line %}
+        text-warning
+    {% elif 'ERROR' in line or 'CRITICAL' in line %}
+        text-danger
+    {% else %}
+        text-dark
+    {% endif %}
+" style="display: inline-block; margin: 0; padding: 0; line-height: 1.2;">
+    {{ line }}
+</span>
+{% endfor %}
+            </pre>
+        </div>
+    </div>
+
+    <!-- RMA Email Import Logs -->
+    <h2 class="mb-4">RMA Email Import Logs</h2>
+    <div class="mb-3">
+        <form method="POST" action="{% url 'logs' %}" onsubmit="return confirm('Are you sure you want to clear the RMA log file?');">
+            {% csrf_token %}
+            <button type="submit" name="clear_rma_log" class="btn btn-danger">
+                <i class="bi bi-trash-fill"></i> Clear RMA Log
+            </button>
+        </form>
+    </div>
+    <div class="card">
+        <div class="card-body" style="overflow-y: auto; max-height: 300px;">
+            <pre id="rma-log-entries" class="mb-0">
+{% for line in rma_log_lines %}
+<span class="
+    {% if 'INFO' in line %}
+        text-success
+    {% elif 'WARNING' in line %}
+        text-warning
+    {% elif 'ERROR' in line or 'CRITICAL' in line %}
+        text-danger
+    {% else %}
+        text-dark
+    {% endif %}
+" style="display: inline-block; margin: 0; padding: 0; line-height: 1.2;">
+    {{ line }}
+</span>
+{% endfor %}
+            </pre>
+        </div>
+    </div>
+</div>
+{% endblock %}

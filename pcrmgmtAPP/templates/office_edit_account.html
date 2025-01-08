@@ -1,0 +1,54 @@
+<!-- templates/office_edit_account.html -->
+
+{% extends 'base.html' %}
+
+{% block title %}Edit Office Account{% endblock %}
+
+{% block content %}
+<div class="edit-account-container my-4">
+    <h1 class="mb-4">Edit Office Account</h1>
+    <form method="POST">
+        {% csrf_token %}
+
+        <!-- Vorname -->
+        <div class="form-group mb-3">
+            <label for="vorname" class="form-label">Vorname:</label>
+            <input type="text" id="vorname" name="vorname" value="{{ account.vorname }}" class="form-control" required>
+        </div>
+
+        <!-- Nachname -->
+        <div class="form-group mb-3">
+            <label for="nachname" class="form-label">Nachname:</label>
+            <input type="text" id="nachname" name="nachname" value="{{ account.nachname }}" class="form-control" required>
+        </div>
+
+        <!-- Firma -->
+        <div class="form-group mb-3">
+            <label for="firma" class="form-label">Firma:</label>
+            <input type="text" id="firma" name="firma" value="{{ account.firma }}" class="form-control" required>
+        </div>
+
+        <!-- Email -->
+        <div class="form-group mb-3">
+            <label for="email" class="form-label">Email:</label>
+            <input type="email" id="email" name="email" value="{{ account.email }}" class="form-control" required>
+        </div>
+
+        <!-- Passwort -->
+        <div class="form-group mb-3">
+            <label for="password" class="form-label">Passwort:</label>
+            <input type="password" id="password" name="password" placeholder="Leave blank to keep current password" class="form-control">
+        </div>
+
+        <!-- Kommentar -->
+        <div class="form-group mb-3">
+            <label for="kommentar" class="form-label">Kommentar:</label>
+            <textarea id="kommentar" name="kommentar" class="form-control" rows="3">{{ account.kommentar }}</textarea>
+        </div>
+
+        <!-- Form Buttons -->
+        <button type="submit" class="btn btn-primary me-2">Save Changes</button>
+        <a href="{% url 'office_accounts' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

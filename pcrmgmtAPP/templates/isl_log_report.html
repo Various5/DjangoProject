@@ -1,0 +1,20 @@
+<!-- templates/isl_logs_report.html -->
+
+{% extends 'base.html' %}
+
+{% block title %}Generate ISL Logs Report{% endblock %}
+
+{% block content %}
+<div class="report-container my-4">
+    <h1 class="mb-4">Generate ISL Logs Report</h1>
+    <form method="POST" class="w-50">
+        {% csrf_token %}
+        <div class="form-group mb-3">
+            <label for="timespan_days" class="form-label">Select Timespan (days):</label>
+            <input type="number" id="timespan_days" name="timespan_days" min="1" max="365" value="30" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Generate Report</button>
+        <a href="{% url 'isl_logs' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,57 @@
+<!-- templates/edit_isl_log.html -->
+
+{% extends 'base.html' %}
+
+{% block title %}Edit ISL Log{% endblock %}
+
+{% block content %}
+<div class="edit-log-container my-4">
+    <h1 class="mb-4">Edit ISL Log</h1>
+    <form method="POST">
+        {% csrf_token %}
+
+        <!-- Startzeit -->
+        <div class="form-group mb-3">
+            <label for="startzeit" class="form-label">Startzeit:</label>
+            <input type="datetime-local" id="startzeit" name="startzeit" value="{{ log_entry.1|date:'Y-m-d\TH:i' }}" class="form-control" required>
+        </div>
+
+        <!-- Dauer -->
+        <div class="form-group mb-3">
+            <label for="dauer" class="form-label">Dauer:</label>
+            <input type="text" id="dauer" name="dauer" value="{{ log_entry.2 }}" class="form-control" required>
+        </div>
+
+        <!-- Benutzer -->
+        <div class="form-group mb-3">
+            <label for="benutzer" class="form-label">Benutzer:</label>
+            <input type="text" id="benutzer" name="benutzer" value="{{ log_entry.3 }}" class="form-control" required>
+        </div>
+
+        <!-- NameFirma -->
+        <div class="form-group mb-3">
+            <label for="name_firma" class="form-label">NameFirma:</label>
+            <input type="text" id="name_firma" name="name_firma" value="{{ log_entry.4 }}" class="form-control" required>
+        </div>
+
+        <!-- Verrechnet -->
+        <div class="form-group mb-3">
+            <label for="verrechnet" class="form-label">Verrechnet:</label>
+            <select id="verrechnet" name="verrechnet" class="form-select" required>
+                <option value="True" {% if log_entry.5 %}selected{% endif %}>True</option>
+                <option value="False" {% if not log_entry.5 %}selected{% endif %}>False</option>
+            </select>
+        </div>
+
+        <!-- Memo -->
+        <div class="form-group mb-3">
+            <label for="memo" class="form-label">Memo:</label>
+            <textarea id="memo" name="memo" class="form-control" rows="3">{{ log_entry.6 }}</textarea>
+        </div>
+
+        <!-- Form Buttons -->
+        <button type="submit" class="btn btn-primary me-2">Save Changes</button>
+        <a href="{% url 'isl_logs' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

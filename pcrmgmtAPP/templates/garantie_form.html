@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Garantie Form{% endblock %}
+
+{% block content %}
+<div class="garantie-form-container my-4">
+    <h1 class="mb-4">Garantie hinzufügen/aktualisieren</h1>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success">Speichern</button>
+        <a href="{% url 'garantie_list' %}" class="btn btn-secondary">Abbrechen</a>
+    </form>
+</div>
+{% endblock %}
