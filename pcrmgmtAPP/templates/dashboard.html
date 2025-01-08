@@ -12,7 +12,9 @@
                 <div class="card-body d-flex flex-column justify-content-center">
                     <h5 class="card-title">ISL Logs</h5>
                     <p class="card-text">View and manage ISL log entries.</p>
-                    <a href="{% url 'isl_logs' %}" class="btn btn-primary mt-auto"><i class="bi bi-file-earmark-text"></i> Go to ISL Logs</a>
+                    <a href="{% url 'isl_logs' %}" class="btn btn-primary mt-auto">
+                        <i class="bi bi-file-earmark-text"></i> Go to ISL Logs
+                    </a>
                 </div>
             </div>
         </div>
@@ -23,7 +25,9 @@
                 <div class="card-body d-flex flex-column justify-content-center">
                     <h5 class="card-title">RMA Manager</h5>
                     <p class="card-text">Manage Return Merchandise Authorizations.</p>
-                    <a href="{% url 'rma_manager' %}" class="btn btn-secondary mt-auto"><i class="bi bi-box-arrow-in-down"></i> Go to RMA Manager</a>
+                    <a href="{% url 'rma_manager' %}" class="btn btn-secondary mt-auto">
+                        <i class="bi bi-box-arrow-in-down"></i> Go to RMA Manager
+                    </a>
                 </div>
             </div>
         </div>
@@ -34,7 +38,9 @@
                 <div class="card-body d-flex flex-column justify-content-center">
                     <h5 class="card-title">Office Accounts</h5>
                     <p class="card-text">Manage office-related accounts.</p>
-                    <a href="{% url 'office_accounts' %}" class="btn btn-success mt-auto"><i class="bi bi-person-fill"></i> Go to Office Accounts</a>
+                    <a href="{% url 'office_accounts' %}" class="btn btn-success mt-auto">
+                        <i class="bi bi-person-fill"></i> Go to Office Accounts
+                    </a>
                 </div>
             </div>
         </div>
@@ -58,7 +64,9 @@
                 <div class="card-body d-flex flex-column justify-content-center">
                     <h5 class="card-title">Settings</h5>
                     <p class="card-text">Configure application settings.</p>
-                    <a href="{% url 'settings' %}" class="btn btn-warning mt-auto"><i class="bi bi-gear-fill"></i> Go to Settings</a>
+                    <a href="{% url 'settings' %}" class="btn btn-warning mt-auto">
+                        <i class="bi bi-gear-fill"></i> Go to Settings
+                    </a>
                 </div>
             </div>
         </div>
@@ -69,7 +77,9 @@
                 <div class="card-body d-flex flex-column justify-content-center">
                     <h5 class="card-title">Tasks</h5>
                     <p class="card-text">Manage background scripts and tasks.</p>
-                    <a href="{% url 'tasks' %}" class="btn btn-info mt-auto"><i class="bi bi-gear-fill"></i> Go to Tasks</a>
+                    <a href="{% url 'tasks' %}" class="btn btn-info mt-auto">
+                        <i class="bi bi-gear-fill"></i> Go to Tasks
+                    </a>
                 </div>
             </div>
         </div>
@@ -80,7 +90,9 @@
                 <div class="card-body d-flex flex-column justify-content-center">
                     <h5 class="card-title">Logs</h5>
                     <p class="card-text">View application logs.</p>
-                    <a href="{% url 'logs' %}" class="btn btn-dark mt-auto"><i class="bi bi-file-earmark-bar-graph"></i> Go to Logs</a>
+                    <a href="{% url 'logs' %}" class="btn btn-dark mt-auto">
+                        <i class="bi bi-file-earmark-bar-graph"></i> Go to Logs
+                    </a>
                 </div>
             </div>
         </div>
@@ -91,13 +103,13 @@
                 <div class="card-body d-flex flex-column justify-content-center">
                     <h5 class="card-title">Reports</h5>
                     <p class="card-text">Generate comprehensive reports.</p>
-                    <button type="button" class="btn btn-outline-primary mt-auto" data-bs-toggle="modal" data-bs-target="#reportModal">
+                    <button type="button" class="btn btn-outline-primary mt-auto"
+                            data-bs-toggle="modal" data-bs-target="#reportModal">
                         <i class="bi bi-file-earmark-bar-graph"></i> Generate Report
                     </button>
                 </div>
             </div>
         </div>
-
         <!-- Add more cards as needed -->
     </div>
 </div>
@@ -116,11 +128,13 @@
           <!-- Timespan Selection -->
           <div class="mb-3">
             <label for="timespan_days" class="form-label">Select Timespan (days):</label>
-            <input type="number" id="timespan_days" name="timespan_days" min="1" max="365" value="30" class="form-control" required>
+            <input type="number" id="timespan_days" name="timespan_days" min="1" max="365"
+                   value="30" class="form-control" required>
           </div>
           <!-- Additional Options -->
           <div class="form-check mb-3">
-            <input class="form-check-input" type="checkbox" value="include_verrechnet" id="include_verrechnet" name="include_verrechnet" checked>
+            <input class="form-check-input" type="checkbox" value="include_verrechnet"
+                   id="include_verrechnet" name="include_verrechnet" checked>
             <label class="form-check-label" for="include_verrechnet">
               Include Verrechnet Status
             </label>

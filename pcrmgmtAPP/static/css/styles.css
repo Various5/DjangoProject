@@ -1,268 +1,268 @@
-/* General Styles */
+/* -----------------------------------------------------------------
+   Common resets / base
+----------------------------------------------------------------- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0;
-    padding: 0;
-    line-height: 1.6;
+  font-family: Arial, sans-serif;
+  background-color: #ffffff;
+  color: #212529;
+  transition: background-color 0.3s, color 0.3s;
 }
 
-/* Links */
-a {
-    text-decoration: none;
-    color: inherit;
-}
-a:hover {
-    text-decoration: underline;
-}
+/* -----------------------------------------------------------------
+   Theme classes
+   (Matches your UserProfile model and references in the templates)
+----------------------------------------------------------------- */
 
-/* No Wrap for Table Content */
-.no-wrap {
-    white-space: nowrap; /* Verhindert Zeilenumbrüche */
-}
-
-/* Themes */
-body.dark {
-    background-color: #121212;
-    color: #eaeaea;
-    font-family: 'Arial', sans-serif;
-}
-
+/* 1) Light */
 body.light {
-    background-color: #f9f9f9;
-    color: #333;
-    font-family: 'Verdana', sans-serif;
+  background-color: #f8f9fa;
+  color: #212529;
+}
+body.light .navbar,
+body.light .card,
+body.light .modal-content,
+body.light .table,
+body.light .alert {
+  background-color: #fff;
+  color: #212529;
 }
 
+/* 2) Dark */
+body.dark {
+  background-color: #2b2b2b;
+  color: #e0e0e0;
+}
+body.dark .navbar,
+body.dark .card,
+body.dark .modal-content,
+body.dark .table,
+body.dark .alert {
+  background-color: #333;
+  color: #fff;
+}
+body.dark a.nav-link,
+body.dark .navbar-brand,
+body.dark .card-text,
+body.dark .card-title,
+body.dark label,
+body.dark .form-label,
+body.dark .btn-close,
+body.dark table,
+body.dark .modal-title {
+  color: #e0e0e0 !important;
+}
+
+/* 3) Modern */
 body.modern {
-    background-color: #f4f4f4;
-    color: #222;
-    font-family: 'Roboto', sans-serif;
+  background-color: #f0f0f5;
+  color: #333;
+}
+body.modern .navbar,
+body.modern .card,
+body.modern .modal-content,
+body.modern .table,
+body.modern .alert {
+  background-color: #ffffff;
+  color: #333;
+}
+body.modern .navbar {
+  background-color: #7f8c8d !important;
 }
 
+/* 4) Soft-Blue */
 body.soft-blue {
-    background-color: #dfefff;
-    color: #2c3e50;
-    font-family: 'Tahoma', sans-serif;
+  background-color: #e3f2fd; /* pale blue */
+  color: #0d47a1;
+}
+body.soft-blue .navbar,
+body.soft-blue .card,
+body.soft-blue .modal-content,
+body.soft-blue .table,
+body.soft-blue .alert {
+  background-color: #ffffff;
+  color: #0d47a1;
 }
 
+/* 5) Soft-Green */
 body.soft-green {
-    background-color: #e9f7e9;
-    color: #2d572c;
-    font-family: 'Georgia', serif;
+  background-color: #e8f5e9; /* pale green */
+  color: #1b5e20;
+}
+body.soft-green .navbar,
+body.soft-green .card,
+body.soft-green .modal-content,
+body.soft-green .table,
+body.soft-green .alert {
+  background-color: #ffffff;
+  color: #1b5e20;
 }
 
+/* 6) Vintage */
 body.vintage {
-    background-color: #fdf5e6;
-    color: #6b4226;
-    font-family: 'Courier New', monospace;
+  background-color: #faf4e6;
+  color: #5b4636;
+}
+body.vintage .navbar,
+body.vintage .card,
+body.vintage .modal-content,
+body.vintage .table,
+body.vintage .alert {
+  background-color: #fffaf0;
+  color: #5b4636;
 }
 
+/* 7) High-Contrast */
 body.high-contrast {
-    background-color: #000000;
-    color: #ffffff;
-    font-family: 'Impact', sans-serif;
+  background-color: #000000;
+  color: #ffffff;
+}
+body.high-contrast .navbar,
+body.high-contrast .card,
+body.high-contrast .modal-content,
+body.high-contrast .table,
+body.high-contrast .alert {
+  background-color: #000;
+  color: #fff;
 }
 
+/* 8) Elegant */
 body.elegant {
-    background-color: #2b2b2b;
-    color: #c9c9c9;
-    font-family: 'Georgia', serif;
+  background-color: #fafafa;
+  color: #333;
+}
+body.elegant .navbar,
+body.elegant .card,
+body.elegant .modal-content,
+body.elegant .table,
+body.elegant .alert {
+  background-color: #ffffff;
+  color: #333;
+}
+body.elegant a.navbar-brand {
+  font-family: 'Times New Roman', serif;
+  font-style: italic;
 }
 
+/* 9) Sunset */
 body.sunset {
-    background-color: #ffcccb;
-    color: #800000;
-    font-family: 'Times New Roman', serif;
+  background-color: #fce4ec; /* pinkish hue */
+  color: #ad1457;
+}
+body.sunset .navbar,
+body.sunset .card,
+body.sunset .modal-content,
+body.sunset .table,
+body.sunset .alert {
+  background-color: #fff0f5;
+  color: #ad1457;
 }
 
+/* 10) Neon */
 body.neon {
-    background-color: #0f0f0f;
-    color: #39ff14;
-    font-family: 'Comic Sans MS', cursive;
+  background-color: #000000;
+  color: #00ff99; /* neon greenish */
+}
+body.neon .navbar,
+body.neon .card,
+body.neon .modal-content,
+body.neon .table,
+body.neon .alert {
+  background-color: #111;
+  color: #0f0;
 }
 
+/* 11) Pastel */
 body.pastel {
-    background-color: #f8e1f4;
-    color: #70587c;
-    font-family: 'Lato', sans-serif;
+  background-color: #fef1e1;
+  color: #4a4a4a;
+}
+body.pastel .navbar,
+body.pastel .card,
+body.pastel .modal-content,
+body.pastel .table,
+body.pastel .alert {
+  background-color: #fffaf5;
+  color: #4a4a4a;
 }
 
-/* Navbar Styles */
-.navbar {
-    margin-bottom: 20px;
-    background-color: #1e1e1e;
-    color: #ffffff;
-}
-
-.navbar a {
-    color: #f8f9fa;
-}
-.navbar a:hover {
-    color: #d1d1d1;
-}
-
-.navbar-brand {
-    font-size: 1.25rem;
-    font-weight: bold;
-}
-
-/* Buttons */
-.btn-primary {
-    background-color: #007bff;
-    border: none;
-    color: #ffffff;
-}
-.btn-primary:hover {
-    background-color: #0056b3;
-}
-
-.btn-danger {
-    background-color: #dc3545;
-    border: none;
-    color: #ffffff;
-}
-.btn-danger:hover {
-    background-color: #a71d2a;
-}
-
-.btn-success {
-    background-color: #28a745;
-    border: none;
-    color: #ffffff;
-}
-.btn-success:hover {
-    background-color: #19692c;
-}
-
-/* Alerts */
-.alert {
-    padding: 15px;
-    border-radius: 5px;
-    margin-bottom: 20px;
-}
-
-.alert-success {
-    background-color: #d4edda;
-    color: #155724;
-}
-
-.alert-danger {
-    background-color: #f8d7da;
-    color: #721c24;
-}
-
-/* Tables */
-.table-responsive {
-    overflow-x: auto;
-}
-
-.table th, .table td {
-    padding: 12px;
-    border: 1px solid #ddd;
-}
-
-.table th {
-    background-color: #f4f4f4;
-    font-weight: bold;
-}
-
-.table tbody tr:nth-child(odd) {
-    background-color: #f9f9f9;
-}
-
-.table tbody tr:nth-child(even) {
-    background-color: #ffffff;
-}
-
-/* Indikatoren */
-.indicator-cell-verrechnet {
-    background-color: #d4edda; /* Soft Green */
-    text-align: center;
-}
-
-.indicator-cell-nicht-verrechnet {
-    background-color: #f8d7da; /* Soft Red */
-    text-align: center;
-}
-
-.indicator-verrechnet {
-    display: inline-block;
-    width: 30px;
-    height: 30px;
-    background-color: #28a745; /* Green */
-    border-radius: 5px;
-}
-
-.indicator-nicht-verrechnet {
-    display: inline-block;
-    width: 30px;
-    height: 30px;
-    background-color: #dc3545; /* Red */
-    border-radius: 5px;
-}
-/* Forms */
-.form-control {
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    padding: 10px;
-    color: #eaeaea;       /* Or another light color */
-    background-color: #2b2b2b; /* Or something suitable for dark theme */
-}
-
-
-.form-select {
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    padding: 10px;
-}
-
-/* Pagination */
-.pagination {
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
-}
-.pagination .btn {
-    margin: 0 5px;
-}
-
-/* Miscellaneous */
-.container {
-    margin-top: 20px;
-}
-
+/* -----------------------------------------------------------------
+   Utility styles for layout, spacing, etc.
+----------------------------------------------------------------- */
 .card {
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border: none;
+  border-radius: 6px;
+  margin-bottom: 1rem;
 }
 
-.card-title {
-    font-weight: bold;
+.my-4 {
+  margin-top: 1.5rem !important;
+  margin-bottom: 1.5rem !important;
+}
+.mb-3 {
+  margin-bottom: 1rem !important;
+}
+.mb-4 {
+  margin-bottom: 1.5rem !important;
+}
+.mt-auto {
+  margin-top: auto !important;
 }
 
-.card-text {
-    color: #555;
+/* Table styling for odd/even stripes */
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: rgba(0,0,0,.05);
+}
+/* Adjust for dark, neon, or high-contrast backgrounds */
+body.dark .table-striped tbody tr:nth-of-type(odd),
+body.neon .table-striped tbody tr:nth-of-type(odd),
+body.high-contrast .table-striped tbody tr:nth-of-type(odd) {
+  background-color: rgba(255,255,255,.05);
 }
 
+.form-control, .form-select {
+  border-radius: 4px;
+}
+
+/* Buttons (outline example) */
 .btn-outline-primary {
-    color: #007bff;
-    border-color: #007bff;
+  border-color: #007bff;
+  color: #007bff;
 }
 .btn-outline-primary:hover {
-    background-color: #007bff;
-    color: #ffffff;
+  background-color: #007bff;
+  color: #fff;
 }
 
-.btn-secondary {
-    background-color: #555;
-    color: #fff;
-    border: 1px solid #444;
+/* -----------------------------------------------------------------
+   Indicators for "Verrechnet" toggles, etc.
+----------------------------------------------------------------- */
+
+/* For the clickable cell background: */
+.indicator-cell-verrechnet {
+  background-color: #d4edda !important; /* a pale green */
 }
-.btn-secondary:hover {
-    background-color: #666;
+.indicator-cell-nicht-verrechnet {
+  background-color: #f8d7da !important; /* a pale red */
 }
-.border.p-3.bg-light {
-    background-color: #2b2b2b !important;
-    color: #eaeaea !important;
-    border-color: #444 !important;
+
+/* For the small circle indicators: */
+.indicator-verrechnet {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  background-color: green;
+  border-radius: 50%;
+}
+.indicator-nicht-verrechnet {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  background-color: red;
+  border-radius: 50%;
 }

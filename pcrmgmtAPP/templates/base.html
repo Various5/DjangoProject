@@ -24,10 +24,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     {% if user.is_authenticated %}
-                        <!-- Authenticated Navigation -->
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a>
-                        </li>
+                        <!-- Authenticated Navigation (in your desired order) -->
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'isl_logs' %}">ISL Logs</a>
                         </li>
@@ -36,6 +33,19 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'tasks' %}">Tasks</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'garantie_list' %}">Garantie Tracker</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'settings' %}">Settings</a>
+                        </li>
+                        <!-- If you meant to remove the duplicate "Tasks", remove the next line -->
+                        <!-- <li class="nav-item">
+                            <a class="nav-link" href="{% url 'tasks' %}">Tasks</a>
+                        </li> -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'logs' %}">Logs</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'profile' %}">Profile</a>
@@ -64,7 +74,7 @@
     <div class="container">
         {% if messages %}
             {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show mt-3" role="alert">
                     {{ message }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>

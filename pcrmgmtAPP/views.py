@@ -34,6 +34,8 @@ from django.db import models
 from .models import RMATicket
 import subprocess
 import json
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth import update_session_auth_hash
 
 logger = logging.getLogger(__name__)
 script_running = False
@@ -193,11 +195,22 @@ def clear_log(request):
         return redirect('logs')
 
 def logs(request):
-    isl_log_file = os.path.join(settings.BASE_DIR, "isl_log_reader.log")
-    rma_log_file = os.path.join(settings.BASE_DIR, "email_import.log")
+    # point to the new folder
+    isl_log_file = os.path.join(settings.BASE_DIR, "pcrmgmtAPP", "utils", "logs", "isl_log_reader.log")
+    rma_log_file = os.path.join(settings.BASE_DIR, "pcrmgmtAPP", "utils", "logs", "email_import.log")
     isl_log_lines = []
     rma_log_lines = []
 
+    if request.method == "POST":
+        # If you want to handle "clear" from the form, check which button is pressed
+        if "clear_isl_log" in request.POST:
+            open(isl_log_file, 'w').close()
+            messages.success(request, "ISL log file cleared successfully.")
+        elif "clear_rma_log" in request.POST:
+            open(rma_log_file, 'w').close()
+            messages.success(request, "RMA log file cleared successfully.")
+
+    # Then read the last 100 lines for display
     try:
         if os.path.exists(isl_log_file):
             with open(isl_log_file, "r", encoding="utf-8") as file:
@@ -212,6 +225,7 @@ def logs(request):
         'isl_log_lines': isl_log_lines,
         'rma_log_lines': rma_log_lines,
     })
+
 
 @login_required
 def dashboard(request):
@@ -869,27 +883,45 @@ def register(request):
 
     return render(request, 'registration/register.html', {'form': form})
 
+
 @login_required
 def profile(request):
     profile, created = UserProfile.objects.get_or_create(user=request.user)
+    valid_themes = [
+        'light', 'dark', 'modern', 'soft-blue', 'soft-green',
+        'vintage', 'high-contrast', 'elegant', 'sunset', 'neon', 'pastel'
+    ]
+
+    # Create the PasswordChangeForm for the current user
+    password_form = PasswordChangeForm(user=request.user)
 
     if request.method == 'POST':
-        theme = request.POST.get('theme')
-        valid_themes = [
-            'light', 'dark', 'modern', 'soft-blue', 'soft-green',
-            'vintage', 'high-contrast', 'elegant', 'sunset', 'neon', 'pastel'
-        ]
-        if theme in valid_themes:
-            profile.theme = theme
-            profile.save()
-            messages.success(request, "Theme updated successfully.")
-        else:
-            messages.error(request, "Invalid theme selected.")
+        if 'theme_change' in request.POST:
+            # Theme change
+            theme = request.POST.get('theme')
+            if theme in valid_themes:
+                profile.theme = theme
+                profile.save()
+                messages.success(request, "Theme updated successfully.")
+            else:
+                messages.error(request, "Invalid theme selected.")
+
+        elif 'password_change' in request.POST:
+            # Password change
+            password_form = PasswordChangeForm(user=request.user, data=request.POST)
+            if password_form.is_valid():
+                user = password_form.save()
+                # Keep the user logged in after password change
+                update_session_auth_hash(request, user)
+                messages.success(request, "Password changed successfully.")
+            else:
+                messages.error(request, "Please correct the errors below.")
 
     context = {
         'user': request.user,
         'profile': profile,
         'themes': valid_themes,
+        'password_form': password_form,  # Provide to template
     }
     return render(request, 'profile.html', context)
 
@@ -929,7 +961,43 @@ def rma_manager_selection(request):
 
 def general_rma(request):
     tickets = RMATicket.objects.filter(category='general')
-    return render(request, 'rma_general.html', {'tickets': tickets})
+    query = request.GET.get('q', '').strip()
+    if query:
+        tickets = tickets.filter(
+            Q(ticketnummer__icontains=query) |
+            Q(firma__icontains=query) |
+            ...
+        )
+
+    open_tickets = tickets.filter(abgeschlossen=False).order_by('-created_at')
+    closed_tickets = tickets.filter(abgeschlossen=True).order_by('-created_at')
+
+    if request.method == "POST":
+        ticketnummer = request.POST.get("ticketnummer", "").strip()
+        firma = request.POST.get("firma", "").strip()
+        modell = request.POST.get("modell", "").strip()
+        seriennummer = request.POST.get("seriennummer", "").strip()
+        fehler = request.POST.get("fehler", "").strip()
+
+        if ticketnummer:  # minimal requirement
+            RMATicket.objects.create(
+                ticketnummer=ticketnummer,
+                firma=firma,
+                modell=modell,
+                seriennummer=seriennummer,
+                fehler=fehler,
+                created_at=timezone.now(),
+                abgeschlossen=False,
+                category='general'
+            )
+            return redirect('general_rma')
+
+    return render(request, 'rma_general.html', {
+        'query': query,
+        'open_tickets': open_tickets,
+        'closed_tickets': closed_tickets,
+    })
+
 
 def computacenter_rma(request):
     tickets = RMATicket.objects.filter(category='computacenter')
@@ -955,7 +1023,7 @@ def run_email_import_script():
     while True:
         try:
             import subprocess
-            subprocess.run(["python", "email_import.py"])
+            subprocess.run(["python", "utils/email_import.py"])
         except Exception as e:
             logger.error(f"Error running email import script: {e}")
         time.sleep(900)  # 15 Minuten warten
@@ -965,7 +1033,7 @@ threading.Thread(target=run_email_import_script, daemon=True).start()
 def start_rma_email_import(request):
     try:
         # Vollständigen Pfad zum Skript angeben
-        script_path = os.path.join(settings.BASE_DIR, 'utils', 'email_import.py')
+        script_path = os.path.join(settings.BASE_DIR, 'utils/email_import.py')
         subprocess.Popen(["python", script_path])
         messages.success(request, "RMA Email Import Script started.")
     except Exception as e:

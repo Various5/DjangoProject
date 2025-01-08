@@ -1,15 +1,20 @@
 {% extends 'base.html' %}
 
-{% block title %}Garantie löschen{% endblock %}
+{% block title %}Confirm RMA Ticket Deletion{% endblock %}
 
 {% block content %}
-<div class="garantie-delete-container my-4">
-    <h1 class="mb-4">Garantie löschen</h1>
-    <p>Möchten Sie die Garantie <strong>{{ garantie.typ }}</strong> mit der Seriennummer <strong>{{ garantie.seriennummer }}</strong> wirklich löschen?</p>
+<div class="my-4">
+    <h1>Confirm Delete</h1>
+    <p>Are you sure you want to delete ticket #{{ ticket.id }} ({{ ticket.ticketnummer }})?</p>
+
     <form method="POST">
         {% csrf_token %}
-        <button type="submit" class="btn btn-danger">Löschen</button>
-        <a href="{% url 'garantie_list' %}" class="btn btn-secondary">Abbrechen</a>
+        <button type="submit" class="btn btn-danger">Yes, Delete</button>
+        {% if ticket.category == 'computacenter' %}
+            <a href="{% url 'computacenter_rma' %}" class="btn btn-secondary">Cancel</a>
+        {% else %}
+            <a href="{% url 'general_rma' %}" class="btn btn-secondary">Cancel</a>
+        {% endif %}
     </form>
 </div>
 {% endblock %}

@@ -28,16 +28,16 @@
                 {% endfor %}
             </select>
         </div>
-        <button type="submit" name="theme_change" class="btn btn-primary">Update Profile</button>
+            <button type="submit" name="theme_change" class="btn btn-primary">Update Profile</button>
     </form>
 
     <hr>
 
     <h2 class="mb-4">Change Password</h2>
     <form method="POST">
-        {% csrf_token %}
-        {{ password_form.as_p }}
-        <button type="submit" name="password_change" class="btn btn-danger">Change Password</button>
+      {% csrf_token %}
+      {{ password_form.as_p }}
+      <button type="submit" name="password_change" class="btn btn-danger">Change Password</button>
     </form>
 </div>
 {% endblock %}

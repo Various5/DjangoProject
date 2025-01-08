@@ -22,6 +22,25 @@ class RegisterForm(forms.ModelForm):
 
         if password != confirm_password:
             self.add_error('confirm_password', "Passwords do not match")
+        return cleaned_data
+
+    def save(self, commit=True):
+        """Override to ensure the password is properly hashed."""
+        user = super().save(commit=False)
+        raw_password = self.cleaned_data["password"]
+        user.set_password(raw_password)  # <--- crucial!
+        if commit:
+            user.save()
+        return user
+
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get('password')
+        confirm_password = cleaned_data.get('confirm_password')
+
+        if password != confirm_password:
+            self.add_error('confirm_password', "Passwords do not match")
 
 class SettingsForm(forms.ModelForm):
     class Meta:
