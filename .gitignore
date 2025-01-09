@@ -2,3 +2,4 @@
 /db.sqlite3
 /.log
 /pcrmgmtAPP/utils/isl_log_reader.log
+/.venv/
