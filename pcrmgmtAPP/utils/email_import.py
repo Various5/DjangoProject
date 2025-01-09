@@ -14,8 +14,10 @@ load_dotenv()
 # Set up logging
 logger = logging.getLogger("EmailLogger")
 logger.setLevel(logging.INFO)
+log_path = os.path.join(os.path.dirname(__file__), "logs", "email_import.log")
+
 if not logger.handlers:
-    email_handler = RotatingFileHandler("email_import.log", maxBytes=5*1024*1024, backupCount=3)
+    email_handler = RotatingFileHandler(log_path, maxBytes=5*1024*1024, backupCount=3)
     email_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
     email_handler.setFormatter(email_formatter)
     logger.addHandler(email_handler)
