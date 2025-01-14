@@ -7,17 +7,8 @@
     <h1 class="mb-4">Settings</h1>
     <form method="POST">
         {% csrf_token %}
-        {% if form.errors %}
-            <div class="alert alert-danger">
-                <ul>
-                    {% for field in form %}
-                        {% for error in field.errors %}
-                            <li>{{ field.label }}: {{ error }}</li>
-                        {% endfor %}
-                    {% endfor %}
-                </ul>
-            </div>
-        {% endif %}
+        <!-- We removed references to form.errors since we are not passing a form object -->
+
         <div class="form-group mb-3">
             <label for="theme" class="form-label">Select Theme:</label>
             <select name="theme" id="theme" class="form-select">

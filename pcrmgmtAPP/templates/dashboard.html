@@ -1,18 +1,18 @@
 {% extends 'base.html' %}
-
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
 <div class="dashboard my-4">
     <h1 class="mb-4">Dashboard</h1>
-    <div class="row">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+
         <!-- ISL Logs Card -->
-        <div class="col-md-4 mb-3">
-            <div class="card text-center h-100">
-                <div class="card-body d-flex flex-column justify-content-center">
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body d-flex flex-column">
                     <h5 class="card-title">ISL Logs</h5>
-                    <p class="card-text">View and manage ISL log entries.</p>
-                    <a href="{% url 'isl_logs' %}" class="btn btn-primary mt-auto">
+                    <p class="card-text text-muted">View and manage ISL log entries, generate PDFs, etc.</p>
+                    <a href="{% url 'isl_logs' %}" class="btn btn-primary mt-auto align-self-start">
                         <i class="bi bi-file-earmark-text"></i> Go to ISL Logs
                     </a>
                 </div>
@@ -20,12 +20,12 @@
         </div>
 
         <!-- RMA Manager Card -->
-        <div class="col-md-4 mb-3">
-            <div class="card text-center h-100">
-                <div class="card-body d-flex flex-column justify-content-center">
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body d-flex flex-column">
                     <h5 class="card-title">RMA Manager</h5>
-                    <p class="card-text">Manage Return Merchandise Authorizations.</p>
-                    <a href="{% url 'rma_manager' %}" class="btn btn-secondary mt-auto">
+                    <p class="card-text text-muted">Manage RMAs, track open/closed tickets.</p>
+                    <a href="{% url 'rma_manager' %}" class="btn btn-secondary mt-auto align-self-start">
                         <i class="bi bi-box-arrow-in-down"></i> Go to RMA Manager
                     </a>
                 </div>
@@ -33,12 +33,12 @@
         </div>
 
         <!-- Office Accounts Card -->
-        <div class="col-md-4 mb-3">
-            <div class="card text-center h-100">
-                <div class="card-body d-flex flex-column justify-content-center">
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body d-flex flex-column">
                     <h5 class="card-title">Office Accounts</h5>
-                    <p class="card-text">Manage office-related accounts.</p>
-                    <a href="{% url 'office_accounts' %}" class="btn btn-success mt-auto">
+                    <p class="card-text text-muted">Store encrypted passwords, manage user info.</p>
+                    <a href="{% url 'office_accounts' %}" class="btn btn-success mt-auto align-self-start">
                         <i class="bi bi-person-fill"></i> Go to Office Accounts
                     </a>
                 </div>
@@ -46,12 +46,12 @@
         </div>
 
         <!-- Garantie Tracker Card -->
-        <div class="col-md-4 mb-3">
-            <div class="card text-center h-100">
-                <div class="card-body d-flex flex-column justify-content-center">
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body d-flex flex-column">
                     <h5 class="card-title">Garantie Tracker</h5>
-                    <p class="card-text">Manage and track active warranties and licenses.</p>
-                    <a href="{% url 'garantie_list' %}" class="btn btn-success mt-auto">
+                    <p class="card-text text-muted">Track warranties and licenses easily.</p>
+                    <a href="{% url 'garantie_list' %}" class="btn btn-info mt-auto align-self-start">
                         <i class="bi bi-card-checklist"></i> Go to Garantie Tracker
                     </a>
                 </div>
@@ -59,12 +59,12 @@
         </div>
 
         <!-- Settings Card -->
-        <div class="col-md-4 mb-3">
-            <div class="card text-center h-100">
-                <div class="card-body d-flex flex-column justify-content-center">
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body d-flex flex-column">
                     <h5 class="card-title">Settings</h5>
-                    <p class="card-text">Configure application settings.</p>
-                    <a href="{% url 'settings' %}" class="btn btn-warning mt-auto">
+                    <p class="card-text text-muted">Change theme, personal preferences.</p>
+                    <a href="{% url 'settings' %}" class="btn btn-warning mt-auto align-self-start">
                         <i class="bi bi-gear-fill"></i> Go to Settings
                     </a>
                 </div>
@@ -72,49 +72,49 @@
         </div>
 
         <!-- Tasks Card -->
-        <div class="col-md-4 mb-3">
-            <div class="card text-center h-100">
-                <div class="card-body d-flex flex-column justify-content-center">
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body d-flex flex-column">
                     <h5 class="card-title">Tasks</h5>
-                    <p class="card-text">Manage background scripts and tasks.</p>
-                    <a href="{% url 'tasks' %}" class="btn btn-info mt-auto">
-                        <i class="bi bi-gear-fill"></i> Go to Tasks
+                    <p class="card-text text-muted">Manage background scripts (ISL Log Reader, RMA Import).</p>
+                    <a href="{% url 'tasks' %}" class="btn btn-dark mt-auto align-self-start">
+                        <i class="bi bi-hourglass-split"></i> Go to Tasks
                     </a>
                 </div>
             </div>
         </div>
 
         <!-- Logs Card -->
-        <div class="col-md-4 mb-3">
-            <div class="card text-center h-100">
-                <div class="card-body d-flex flex-column justify-content-center">
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body d-flex flex-column">
                     <h5 class="card-title">Logs</h5>
-                    <p class="card-text">View application logs.</p>
-                    <a href="{% url 'logs' %}" class="btn btn-dark mt-auto">
+                    <p class="card-text text-muted">Check recent log files for debugging.</p>
+                    <a href="{% url 'logs' %}" class="btn btn-secondary mt-auto align-self-start">
                         <i class="bi bi-file-earmark-bar-graph"></i> Go to Logs
                     </a>
                 </div>
             </div>
         </div>
 
-        <!-- Reports Card -->
-        <div class="col-md-4 mb-3">
-            <div class="card text-center h-100">
-                <div class="card-body d-flex flex-column justify-content-center">
+        <!-- Example: Reports Card -->
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body d-flex flex-column">
                     <h5 class="card-title">Reports</h5>
-                    <p class="card-text">Generate comprehensive reports.</p>
-                    <button type="button" class="btn btn-outline-primary mt-auto"
+                    <p class="card-text text-muted">Generate PDF reports for ISL logs.</p>
+                    <button type="button" class="btn btn-outline-primary mt-auto align-self-start"
                             data-bs-toggle="modal" data-bs-target="#reportModal">
-                        <i class="bi bi-file-earmark-bar-graph"></i> Generate Report
+                        <i class="bi bi-file-earmark-text"></i> Generate Report
                     </button>
                 </div>
             </div>
         </div>
-        <!-- Add more cards as needed -->
+
     </div>
 </div>
 
-<!-- Report Generation Modal -->
+<!-- Example modal for "Generate Report" -->
 <div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <form method="POST" action="{% url 'generate_report' %}">
@@ -125,13 +125,11 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <!-- Timespan Selection -->
           <div class="mb-3">
             <label for="timespan_days" class="form-label">Select Timespan (days):</label>
-            <input type="number" id="timespan_days" name="timespan_days" min="1" max="365"
-                   value="30" class="form-control" required>
+            <input type="number" id="timespan_days" name="timespan_days"
+                   min="1" max="365" value="30" class="form-control" required>
           </div>
-          <!-- Additional Options -->
           <div class="form-check mb-3">
             <input class="form-check-input" type="checkbox" value="include_verrechnet"
                    id="include_verrechnet" name="include_verrechnet" checked>

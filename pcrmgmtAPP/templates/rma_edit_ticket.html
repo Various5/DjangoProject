@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Edit RMA Ticket{% endblock %}
+
+{% block content %}
+<div class="my-4">
+    <h1 class="mb-4">Edit Ticket #{{ ticket.ticketnummer }}</h1>
+    <form method="POST">
+        {% csrf_token %}
+
+        <!-- Ticketnummer -->
+        <div class="mb-3">
+            <label for="ticketnummer" class="form-label">Ticketnummer:</label>
+            <input type="text" id="ticketnummer" name="ticketnummer"
+                   class="form-control"
+                   value="{{ ticket.ticketnummer }}">
+        </div>
+
+        <!-- Firma -->
+        <div class="mb-3">
+            <label for="firma" class="form-label">Firma:</label>
+            <input type="text" id="firma" name="firma"
+                   class="form-control"
+                   value="{{ ticket.firma }}">
+        </div>
+
+        <!-- Modell -->
+        <div class="mb-3">
+            <label for="modell" class="form-label">Modell:</label>
+            <input type="text" id="modell" name="modell"
+                   class="form-control"
+                   value="{{ ticket.modell }}">
+        </div>
+
+        <!-- Seriennummer -->
+        <div class="mb-3">
+            <label for="seriennummer" class="form-label">Seriennummer:</label>
+            <input type="text" id="seriennummer" name="seriennummer"
+                   class="form-control"
+                   value="{{ ticket.seriennummer }}">
+        </div>
+
+        <!-- Fehler -->
+        <div class="mb-3">
+            <label for="fehler" class="form-label">Fehler:</label>
+            <textarea id="fehler" name="fehler" rows="3"
+                      class="form-control">{{ ticket.fehler }}</textarea>
+        </div>
+
+        <!-- Form Buttons -->
+        <button type="submit" class="btn btn-primary me-2">Save Changes</button>
+
+        <!-- Cancel link:
+             If the ticket.category is "computacenter", go back to 'computacenter_rma'.
+             Otherwise, go back to 'general_rma'.
+        -->
+        {% if ticket.category == "computacenter" %}
+            <a href="{% url 'computacenter_rma' %}" class="btn btn-secondary">Cancel</a>
+        {% else %}
+            <a href="{% url 'general_rma' %}" class="btn btn-secondary">Cancel</a>
+        {% endif %}
+    </form>
+</div>
+{% endblock %}

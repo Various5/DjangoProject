@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-
 {% block title %}Tasks{% endblock %}
 
 {% block content %}
@@ -15,12 +14,21 @@
                 {% csrf_token %}
                 <div class="mb-3">
                     <label for="script_interval" class="form-label">Script Interval (minutes):</label>
-                    <input type="number" id="script_interval" name="script_interval" value="{{ isl_script_interval }}" class="form-control" min="1" max="1440" required>
+                    <input type="number" id="script_interval" name="script_interval"
+                           value="{{ isl_script_interval }}"
+                           class="form-control" min="1" max="1440" required>
                 </div>
                 <button type="submit" name="set_interval" class="btn btn-primary">Set Interval</button>
                 <button type="submit" name="start_script" class="btn btn-success">Start Script</button>
                 <button type="submit" name="stop_script" class="btn btn-danger">Stop Script</button>
             </form>
+            <hr>
+            {% if script_running %}
+                <p class="text-success">Status: Running</p>
+                <p>Next run in: <span id="isl-countdown"></span></p>
+            {% else %}
+                <p class="text-danger">Status: Stopped</p>
+            {% endif %}
         </div>
     </div>
 
@@ -33,23 +41,91 @@
                 {% csrf_token %}
                 <div class="mb-3">
                     <label for="rma_script_interval" class="form-label">Script Interval (minutes):</label>
-                    <input type="number" id="rma_script_interval" name="rma_script_interval" value="{{ rma_script_interval }}" class="form-control" min="1" max="1440" required>
+                    <input type="number" id="rma_script_interval" name="rma_script_interval"
+                           value="{{ rma_script_interval }}"
+                           class="form-control" min="1" max="1440" required>
                 </div>
                 <button type="submit" name="set_rma_interval" class="btn btn-primary">Set Interval</button>
                 <button type="submit" name="start_rma_script" class="btn btn-success">Start Script</button>
                 <button type="submit" name="stop_rma_script" class="btn btn-danger">Stop Script</button>
             </form>
+            <hr>
+            {% if rma_script_running %}
+                <p class="text-success">Status: Running</p>
+                <p>Next run in: <span id="rma-countdown"></span></p>
+            {% else %}
+                <p class="text-danger">Status: Stopped</p>
+            {% endif %}
         </div>
     </div>
-</div>
 
     <!-- Current Task Status -->
     <div class="card mb-4">
         <div class="card-header bg-info text-white">Current Task Status</div>
         <div class="card-body">
-            <p><strong>ISL Log Reader:</strong> {% if script_running %}<span class="text-success">Running</span>{% else %}<span class="text-danger">Stopped</span>{% endif %}</p>
-            <p><strong>RMA Email Import:</strong> {% if rma_script_running %}<span class="text-success">Running</span>{% else %}<span class="text-danger">Stopped</span>{% endif %}</p>
-            <p><strong>Last Start Time:</strong> {% if script_start_time %}{{ script_start_time }}{% else %}Not started yet{% endif %}</p>
+            <p>
+                <strong>ISL Log Reader:</strong>
+                {% if script_running %}
+                    <span class="text-success">Running</span>
+                {% else %}
+                    <span class="text-danger">Stopped</span>
+                {% endif %}
+            </p>
+            <p>
+                <strong>RMA Email Import:</strong>
+                {% if rma_script_running %}
+                    <span class="text-success">Running</span>
+                {% else %}
+                    <span class="text-danger">Stopped</span>
+                {% endif %}
+            </p>
+            <p>
+                <strong>Last ISL Run:</strong>
+                {% if last_script_success %}
+                    <span class="text-success">Success</span>
+                {% else %}
+                    <span class="text-danger">Failed</span>
+                {% endif %}
+            </p>
+            <p>
+                <strong>Last RMA Run:</strong>
+                {% if last_rma_success %}
+                    <span class="text-success">Success</span>
+                {% else %}
+                    <span class="text-danger">Failed</span>
+                {% endif %}
+            </p>
         </div>
     </div>
+</div>
+
+<script>
+let islMinutes = {{ isl_script_interval|default_if_none:"10" }};
+let rmaMinutes = {{ rma_script_interval|default_if_none:"15" }};
+
+let islSeconds = islMinutes * 60;
+let rmaSeconds = rmaMinutes * 60;
+
+function updateCountdowns() {
+    if (document.getElementById("isl-countdown")) {
+        let m = Math.floor(islSeconds / 60);
+        let s = islSeconds % 60;
+        document.getElementById("isl-countdown").textContent = m + "m " + s + "s";
+        if (islSeconds > 0) islSeconds--;
+    }
+    if (document.getElementById("rma-countdown")) {
+        let m2 = Math.floor(rmaSeconds / 60);
+        let s2 = rmaSeconds % 60;
+        document.getElementById("rma-countdown").textContent = m2 + "m " + s2 + "s";
+        if (rmaSeconds > 0) rmaSeconds--;
+    }
+}
+
+{% if script_running %}
+setInterval(updateCountdowns, 1000);
+{% endif %}
+{% if rma_script_running %}
+setInterval(updateCountdowns, 1000);
+{% endif %}
+</script>
 {% endblock %}

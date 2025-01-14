@@ -13,23 +13,29 @@ import json5
 # Load environment variables from .env file
 load_dotenv()
 
-# Setup Logging
+
 logger = logging.getLogger("ISLLogger")
 logger.setLevel(logging.INFO)
+
+# Use an absolute path in the same "logs" folder
+THIS_DIR = os.path.dirname(__file__)
+LOG_DIR = os.path.join(THIS_DIR, "logs")
+os.makedirs(LOG_DIR, exist_ok=True)
+LOG_FILE = os.path.join(LOG_DIR, "isl_log_reader.log")
+
 if not logger.handlers:
-    isl_handler = RotatingFileHandler("isl_log_reader.log", maxBytes=5 * 1024 * 1024, backupCount=3)
+    isl_handler = RotatingFileHandler(LOG_FILE, maxBytes=5*1024*1024, backupCount=3)
     isl_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
     isl_handler.setFormatter(isl_formatter)
     logger.addHandler(isl_handler)
 
-# Database Configuration
+# DB config
 DB_SERVER = os.getenv("nDB_SERVER")
 DB_NAME = os.getenv("nDB_NAME")
 DB_USER = os.getenv("nDB_USER")
 DB_PASSWORD = os.getenv("nDB_PASSWORD")
 DB_DRIVER = os.getenv("DB_DRIVER", "ODBC Driver 18 for SQL Server")
 
-# API Configuration
 BASE_URL = os.getenv("BASE_URL", "http://localhost:7615")
 LOGIN_URL = f"{BASE_URL}/conf"
 LOGIN_API_URL = f"{BASE_URL}/conf/api/login"
@@ -39,11 +45,9 @@ USERNAME = os.getenv("ISL_USERNAME")
 PASSWORD = os.getenv("ISL_PASSWORD")
 SHOW_DELETED = os.getenv("SHOW_DELETED", "")
 
-
 def get_db_connection():
     """
-    Establish a connection to the database.
-    Returns a pyodbc.Connection or None if it fails.
+    Create a connection to the ISL logs DB.
     """
     try:
         conn = pyodbc.connect(
@@ -54,7 +58,7 @@ def get_db_connection():
             f"PWD={DB_PASSWORD};"
             "TrustServerCertificate=yes;"
         )
-        logger.info("Successfully connected to the database.")
+        logger.info("Connected to DB for ISL logs.")
         return conn
     except pyodbc.Error as e:
         logger.error(f"Database connection failed: {e}")

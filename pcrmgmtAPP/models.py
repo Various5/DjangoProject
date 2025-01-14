@@ -13,10 +13,11 @@ class OfficeAccount(models.Model):
 
     class Meta:
         db_table = 'office_accounts'  # Explicit table name
-        managed = False  # Avoid Django migrations for this table
+        managed = False
 
     def __str__(self):
         return f"{self.vorname} {self.nachname}"
+
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -38,9 +39,9 @@ class UserProfile(models.Model):
         default='dark'
     )
 
-
     def __str__(self):
         return f"{self.user.username}'s Profile"
+
 
 class Garantie(models.Model):
     TYP_CHOICES = [
@@ -55,14 +56,12 @@ class Garantie(models.Model):
     startdatum = models.DateField()
     ablaufdatum = models.DateField()
     seriennummer = models.CharField(max_length=100, unique=True)
-    typ = models.CharField(max_length=20, choices=TYP_CHOICES, default='garantie')  # Garantie oder Lizenz
+    typ = models.CharField(max_length=20, choices=TYP_CHOICES, default='garantie')
     kommentar = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.typ.capitalize()}: {self.vorname} {self.nachname} - {self.seriennummer}"
 
-# models.py
-# models.py
 
 class RMATicket(models.Model):
     ticketnummer = models.CharField(max_length=100, unique=True)
@@ -70,12 +69,10 @@ class RMATicket(models.Model):
     modell = models.CharField(max_length=255, blank=True, null=True)
     seriennummer = models.CharField(max_length=255, blank=True, null=True)
     fehler = models.TextField(blank=True, null=True)
-
-    # Instead of auto_now_add, we store the email’s ReceivedTime
     created_at = models.DateTimeField()
     abgeschlossen = models.BooleanField(default=False)
     category = models.CharField(max_length=50, choices=[('general', 'General'), ('computacenter', 'Computacenter')])
 
     class Meta:
-        db_table = 'tickets'
-        managed = False  # If you’re manually managing the DB schema
+        db_table = 'tickets'  # <--- The EXACT name of your existing table
+        managed = False       # <--- Don’t let Django create/modify it

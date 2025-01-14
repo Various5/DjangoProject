@@ -7,49 +7,112 @@
 <div class="container my-4">
     <h1 class="mb-4">Allgemeines RMA</h1>
 
-    <!-- CREATE NEW TICKET FORM -->
-    <form method="post" action="" class="mb-5 border p-3 bg-light">
+    <!-- Combined Autocomplete Search (like Office Accounts) -->
+    <div class="mb-3 position-relative" style="max-width: 400px;">
+        <label for="combinedSearch" class="form-label">Kombinierte Suche (Name/Firma/E-Mail):</label>
+        <input type="text" id="combinedSearch" class="form-control" autocomplete="off"
+               placeholder="z.B. Mustermann, ACME Inc, etc.">
+        <!-- Suggestions -->
+        <ul id="searchSuggestions" class="list-group position-absolute w-100" style="z-index:1000; display:none;"></ul>
+    </div>
+
+    <!-- Ticket Creation Form -->
+    <form method="POST">
         {% csrf_token %}
-        <h2 class="h5 mb-3">Neues Ticket erstellen</h2>
+        <h2 class="h5 mb-3">Kundendaten</h2>
         <div class="row mb-3">
-            <div class="col">
-                <label for="ticketnummer" class="form-label">Ticketnummer</label>
-                <input type="text" name="ticketnummer" id="ticketnummer" class="form-control" required>
+            <div class="col-md-6">
+                <label for="vorname" class="form-label">Vorname:</label>
+                <input type="text" id="vorname" name="vorname" class="form-control">
             </div>
-            <div class="col">
-                <label for="firma" class="form-label">Firma</label>
-                <input type="text" name="firma" id="firma" class="form-control">
+            <div class="col-md-6">
+                <label for="name" class="form-label">Nachname:</label>
+                <input type="text" id="name" name="name" class="form-control">
             </div>
-            <div class="col">
-                <label for="modell" class="form-label">Modell</label>
-                <input type="text" name="modell" id="modell" class="form-control">
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="firma" class="form-label">Firma:</label>
+                <input type="text" id="firma" name="firma" class="form-control">
             </div>
-            <div class="col">
-                <label for="seriennummer" class="form-label">Seriennummer</label>
-                <input type="text" name="seriennummer" id="seriennummer" class="form-control">
+            <div class="col-md-6">
+                <label for="email" class="form-label">E-Mail:</label>
+                <input type="email" id="email" name="email" class="form-control">
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label for="strasse" class="form-label">Straße:</label>
+                <input type="text" id="strasse" name="strasse" class="form-control">
+            </div>
+            <div class="col-md-4">
+                <label for="plz" class="form-label">PLZ:</label>
+                <input type="text" id="plz" name="plz" class="form-control">
+            </div>
+            <div class="col-md-4">
+                <label for="ort" class="form-label">Ort:</label>
+                <input type="text" id="ort" name="ort" class="form-control">
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="telefon1" class="form-label">Telefon 1:</label>
+                <input type="text" id="telefon1" name="telefon1" class="form-control">
+            </div>
+            <div class="col-md-6">
+                <label for="telefon3" class="form-label">Telefon 2 (optional):</label>
+                <input type="text" id="telefon3" name="telefon3" class="form-control">
+            </div>
+        </div>
+
+        <hr>
+
+        <h2 class="h5 mb-3">Ticket / Geräteinformationen</h2>
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label for="ticketnummer" class="form-label">Ticketnummer:</label>
+                <input type="text" id="ticketnummer" name="ticketnummer" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+                <label for="auftrag_typ" class="form-label">Auftragstyp:</label>
+                <select id="auftrag_typ" name="auftrag_typ" class="form-select">
+                    <option value="garantie">Garantie</option>
+                    <option value="kostenvoranschlag">Kostenvoranschlag</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="geraetebezeichnung" class="form-label">Gerätebezeichnung:</label>
+                <input type="text" id="geraetebezeichnung" name="geraetebezeichnung" class="form-control">
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="seriennummer" class="form-label">Seriennummer:</label>
+                <input type="text" id="seriennummer" name="seriennummer" class="form-control">
+            </div>
+            <div class="col-md-6">
+                <label for="fehler" class="form-label">Fehler:</label>
+                <textarea id="fehler" name="fehler" rows="2" class="form-control"></textarea>
             </div>
         </div>
         <div class="mb-3">
-            <label for="fehler" class="form-label">Fehler</label>
-            <textarea name="fehler" id="fehler" rows="3" class="form-control"></textarea>
+            <label for="kommentar" class="form-label">Kommentar (optional):</label>
+            <textarea id="kommentar" name="kommentar" rows="2" class="form-control"></textarea>
         </div>
+
         <button type="submit" class="btn btn-primary">Ticket erstellen</button>
     </form>
 
-    <!-- SEARCH FORM -->
-    <form method="get" action="" class="mb-4">
-        <div class="row g-2">
-            <div class="col-auto">
-                <input type="text" name="q" value="{{ query|default_if_none:'' }}"
-                       class="form-control" placeholder="Search all fields...">
-            </div>
-            <div class="col-auto">
-                <button class="btn btn-secondary" type="submit">Suchen</button>
-            </div>
-        </div>
+    <hr>
+
+    <!-- SEARCH FORM (for the lists) -->
+    <form method="get" class="mb-4 d-flex gap-2">
+        <input type="text" name="q" value="{{ query|default_if_none:'' }}"
+               class="form-control" placeholder="Search all fields...">
+        <button class="btn btn-secondary" type="submit">Suchen</button>
     </form>
 
-    <!-- OPEN TICKETS -->
+    <!-- OFFENE TICKETS -->
     <h2 class="h4">Offene Tickets</h2>
     {% if open_tickets %}
     <table class="table table-striped mb-5">
@@ -78,27 +141,12 @@
                 <td>{{ ticket.created_at }}</td>
                 <td>{{ ticket.abgeschlossen|yesno:"Abgeschlossen,Offen" }}</td>
                 <td>
-                    <!-- ACTION BUTTONS -->
-                    <a href="{% url 'edit_ticket' ticket.id %}"
-                       class="btn btn-sm btn-outline-primary me-1">
-                       Edit
-                    </a>
-                    <a href="{% url 'delete_ticket' ticket.id %}"
-                       class="btn btn-sm btn-outline-danger me-1">
-                       Delete
-                    </a>
-                    <a href="{% url 'print_ticket' ticket.id %}"
-                       class="btn btn-sm btn-outline-info me-1">
-                       Print
-                    </a>
-                    <a href="{% url 'pdf_ticket' ticket.id %}"
-                       class="btn btn-sm btn-outline-secondary me-1">
-                       PDF
-                    </a>
-                    <a href="{% url 'close_ticket_view' ticket.id %}"
-                       class="btn btn-sm btn-outline-success">
-                       Close
-                    </a>
+                    <!-- typical RMA actions: edit, delete, print, pdf, close -->
+                    <a href="{% url 'edit_ticket' ticket.id %}" class="btn btn-sm btn-outline-primary me-1">Edit</a>
+                    <a href="{% url 'delete_ticket' ticket.id %}" class="btn btn-sm btn-outline-danger me-1">Delete</a>
+                    <a href="{% url 'print_ticket' ticket.id %}" class="btn btn-sm btn-outline-info me-1">Print</a>
+                    <a href="{% url 'pdf_ticket' ticket.id %}" class="btn btn-sm btn-outline-secondary me-1">PDF</a>
+                    <a href="{% url 'close_ticket_view' ticket.id %}" class="btn btn-sm btn-outline-success">Close</a>
                 </td>
             </tr>
             {% endfor %}
@@ -108,8 +156,8 @@
     <p class="text-muted">Keine offenen Tickets gefunden.</p>
     {% endif %}
 
-    <!-- CLOSED TICKETS -->
-    <h2 class="h4">Abgeschlossene Tickets (Archiv)</h2>
+    <!-- ABGESCHLOSSENE TICKETS (Historie) -->
+    <h2 class="h4">Abgeschlossene Tickets (Historie)</h2>
     {% if closed_tickets %}
     <table class="table table-striped">
         <thead>
@@ -137,34 +185,62 @@
                 <td>{{ ticket.created_at }}</td>
                 <td>{{ ticket.abgeschlossen|yesno:"Abgeschlossen,Offen" }}</td>
                 <td>
-                    <!-- ACTION BUTTONS -->
-                    <a href="{% url 'edit_ticket' ticket.id %}"
-                       class="btn btn-sm btn-outline-primary me-1">
-                       Edit
-                    </a>
-                    <a href="{% url 'delete_ticket' ticket.id %}"
-                       class="btn btn-sm btn-outline-danger me-1">
-                       Delete
-                    </a>
-                    <a href="{% url 'print_ticket' ticket.id %}"
-                       class="btn btn-sm btn-outline-info me-1">
-                       Print
-                    </a>
-                    <a href="{% url 'pdf_ticket' ticket.id %}"
-                       class="btn btn-sm btn-outline-secondary me-1">
-                       PDF
-                    </a>
-                    <a href="{% url 'reopen_ticket_view' ticket.id %}"
-                       class="btn btn-sm btn-outline-warning">
-                       Reopen
-                    </a>
+                    <a href="{% url 'edit_ticket' ticket.id %}" class="btn btn-sm btn-outline-primary me-1">Edit</a>
+                    <a href="{% url 'delete_ticket' ticket.id %}" class="btn btn-sm btn-outline-danger me-1">Delete</a>
+                    <a href="{% url 'print_ticket' ticket.id %}" class="btn btn-sm btn-outline-info me-1">Print</a>
+                    <a href="{% url 'pdf_ticket' ticket.id %}" class="btn btn-sm btn-outline-secondary me-1">PDF</a>
+                    <a href="{% url 'reopen_ticket_view' ticket.id %}" class="btn btn-sm btn-outline-warning">Reopen</a>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
     {% else %}
-    <p class="text-muted">Keine abgeschlossenen Tickets.</p>
+    <p class="text-muted">Keine abgeschlossenen Tickets vorhanden.</p>
     {% endif %}
 </div>
+
+<script>
+// Combine search for address
+document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("combinedSearch");
+    const suggestions = document.getElementById("searchSuggestions");
+
+    searchInput.addEventListener("input", function () {
+        const query = this.value.trim();
+        if (query.length > 2) {
+            fetch(`/autocomplete/customer/?query=${encodeURIComponent(query)}`)
+                .then(resp => resp.json())
+                .then(data => {
+                    suggestions.innerHTML = "";
+                    suggestions.style.display = data.length ? "block" : "none";
+                    data.forEach(item => {
+                        const li = document.createElement("li");
+                        li.className = "list-group-item";
+                        li.textContent = `${item.name} ${item.vorname} (${item.firma})`;
+                        li.addEventListener("click", () => {
+                            // fill form fields
+                            document.getElementById("vorname").value = item.vorname || "";
+                            document.getElementById("name").value = item.name || "";
+                            document.getElementById("firma").value = item.firma || "";
+                            document.getElementById("email").value = item.email || "";
+                            document.getElementById("strasse").value = item.strasse || "";
+                            document.getElementById("plz").value = item.plz || "";
+                            document.getElementById("ort").value = item.ort || "";
+                            document.getElementById("telefon1").value = item.telefon1 || "";
+                            document.getElementById("telefon3").value = item.telefon3 || "";
+                            // hide list
+                            suggestions.style.display = "none";
+                            searchInput.value = "";
+                        });
+                        suggestions.appendChild(li);
+                    });
+                })
+                .catch(err => console.error("Autocomplete error", err));
+        } else {
+            suggestions.style.display = "none";
+        }
+    });
+});
+</script>
 {% endblock %}
