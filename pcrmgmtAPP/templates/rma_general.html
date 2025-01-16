@@ -7,13 +7,13 @@
 <div class="container my-4">
     <h1 class="mb-4">Allgemeines RMA</h1>
 
-    <!-- Combined Autocomplete Search (like Office Accounts) -->
+    <!-- Combined Autocomplete Search (Name/Firma/E-Mail) -->
     <div class="mb-3 position-relative" style="max-width: 400px;">
         <label for="combinedSearch" class="form-label">Kombinierte Suche (Name/Firma/E-Mail):</label>
-        <input type="text" id="combinedSearch" class="form-control" autocomplete="off"
-               placeholder="z.B. Mustermann, ACME Inc, etc.">
-        <!-- Suggestions -->
-        <ul id="searchSuggestions" class="list-group position-absolute w-100" style="z-index:1000; display:none;"></ul>
+        <input type="text" id="combinedSearch" class="form-control"
+               autocomplete="off" placeholder="z.B. Mustermann, ACME Inc, etc.">
+        <ul id="searchSuggestions" class="list-group position-absolute w-100"
+            style="z-index:1000; display:none;"></ul>
     </div>
 
     <!-- Ticket Creation Form -->
@@ -71,7 +71,8 @@
         <div class="row mb-3">
             <div class="col-md-4">
                 <label for="ticketnummer" class="form-label">Ticketnummer:</label>
-                <input type="text" id="ticketnummer" name="ticketnummer" class="form-control" required>
+                <input type="text" id="ticketnummer" name="ticketnummer"
+                       class="form-control" required>
             </div>
             <div class="col-md-4">
                 <label for="auftrag_typ" class="form-label">Auftragstyp:</label>
@@ -82,22 +83,26 @@
             </div>
             <div class="col-md-4">
                 <label for="geraetebezeichnung" class="form-label">Gerätebezeichnung:</label>
-                <input type="text" id="geraetebezeichnung" name="geraetebezeichnung" class="form-control">
+                <input type="text" id="geraetebezeichnung" name="geraetebezeichnung"
+                       class="form-control">
             </div>
         </div>
         <div class="row mb-3">
             <div class="col-md-6">
                 <label for="seriennummer" class="form-label">Seriennummer:</label>
-                <input type="text" id="seriennummer" name="seriennummer" class="form-control">
+                <input type="text" id="seriennummer" name="seriennummer"
+                       class="form-control">
             </div>
             <div class="col-md-6">
                 <label for="fehler" class="form-label">Fehler:</label>
-                <textarea id="fehler" name="fehler" rows="2" class="form-control"></textarea>
+                <textarea id="fehler" name="fehler" rows="2"
+                          class="form-control"></textarea>
             </div>
         </div>
         <div class="mb-3">
             <label for="kommentar" class="form-label">Kommentar (optional):</label>
-            <textarea id="kommentar" name="kommentar" rows="2" class="form-control"></textarea>
+            <textarea id="kommentar" name="kommentar"
+                      rows="2" class="form-control"></textarea>
         </div>
 
         <button type="submit" class="btn btn-primary">Ticket erstellen</button>
@@ -141,12 +146,16 @@
                 <td>{{ ticket.created_at }}</td>
                 <td>{{ ticket.abgeschlossen|yesno:"Abgeschlossen,Offen" }}</td>
                 <td>
-                    <!-- typical RMA actions: edit, delete, print, pdf, close -->
-                    <a href="{% url 'edit_ticket' ticket.id %}" class="btn btn-sm btn-outline-primary me-1">Edit</a>
-                    <a href="{% url 'delete_ticket' ticket.id %}" class="btn btn-sm btn-outline-danger me-1">Delete</a>
-                    <a href="{% url 'print_ticket' ticket.id %}" class="btn btn-sm btn-outline-info me-1">Print</a>
-                    <a href="{% url 'pdf_ticket' ticket.id %}" class="btn btn-sm btn-outline-secondary me-1">PDF</a>
-                    <a href="{% url 'close_ticket_view' ticket.id %}" class="btn btn-sm btn-outline-success">Close</a>
+                    <a href="{% url 'edit_ticket' ticket.id %}"
+                       class="btn btn-sm btn-outline-primary me-1">Edit</a>
+                    <a href="{% url 'delete_ticket' ticket.id %}"
+                       class="btn btn-sm btn-outline-danger me-1">Delete</a>
+                    <a href="{% url 'print_ticket' ticket.id %}"
+                       class="btn btn-sm btn-outline-info me-1">Print</a>
+                    <a href="{% url 'pdf_ticket' ticket.id %}"
+                       class="btn btn-sm btn-outline-secondary me-1">PDF</a>
+                    <a href="{% url 'close_ticket_view' ticket.id %}"
+                       class="btn btn-sm btn-outline-success">Close</a>
                 </td>
             </tr>
             {% endfor %}
@@ -185,11 +194,16 @@
                 <td>{{ ticket.created_at }}</td>
                 <td>{{ ticket.abgeschlossen|yesno:"Abgeschlossen,Offen" }}</td>
                 <td>
-                    <a href="{% url 'edit_ticket' ticket.id %}" class="btn btn-sm btn-outline-primary me-1">Edit</a>
-                    <a href="{% url 'delete_ticket' ticket.id %}" class="btn btn-sm btn-outline-danger me-1">Delete</a>
-                    <a href="{% url 'print_ticket' ticket.id %}" class="btn btn-sm btn-outline-info me-1">Print</a>
-                    <a href="{% url 'pdf_ticket' ticket.id %}" class="btn btn-sm btn-outline-secondary me-1">PDF</a>
-                    <a href="{% url 'reopen_ticket_view' ticket.id %}" class="btn btn-sm btn-outline-warning">Reopen</a>
+                    <a href="{% url 'edit_ticket' ticket.id %}"
+                       class="btn btn-sm btn-outline-primary me-1">Edit</a>
+                    <a href="{% url 'delete_ticket' ticket.id %}"
+                       class="btn btn-sm btn-outline-danger me-1">Delete</a>
+                    <a href="{% url 'print_ticket' ticket.id %}"
+                       class="btn btn-sm btn-outline-info me-1">Print</a>
+                    <a href="{% url 'pdf_ticket' ticket.id %}"
+                       class="btn btn-sm btn-outline-secondary me-1">PDF</a>
+                    <a href="{% url 'reopen_ticket_view' ticket.id %}"
+                       class="btn btn-sm btn-outline-warning">Reopen</a>
                 </td>
             </tr>
             {% endfor %}
@@ -201,7 +215,6 @@
 </div>
 
 <script>
-// Combine search for address
 document.addEventListener("DOMContentLoaded", function () {
     const searchInput = document.getElementById("combinedSearch");
     const suggestions = document.getElementById("searchSuggestions");
@@ -217,19 +230,20 @@ document.addEventListener("DOMContentLoaded", function () {
                     data.forEach(item => {
                         const li = document.createElement("li");
                         li.className = "list-group-item";
-                        li.textContent = `${item.name} ${item.vorname} (${item.firma})`;
+                        // We'll show "Nachname Vorname (Firma)"
+                        li.textContent = `${item.nachname} ${item.vorname} (${item.firma})`;
                         li.addEventListener("click", () => {
-                            // fill form fields
-                            document.getElementById("vorname").value = item.vorname || "";
-                            document.getElementById("name").value = item.name || "";
-                            document.getElementById("firma").value = item.firma || "";
-                            document.getElementById("email").value = item.email || "";
-                            document.getElementById("strasse").value = item.strasse || "";
-                            document.getElementById("plz").value = item.plz || "";
-                            document.getElementById("ort").value = item.ort || "";
-                            document.getElementById("telefon1").value = item.telefon1 || "";
-                            document.getElementById("telefon3").value = item.telefon3 || "";
-                            // hide list
+                            // Fill these form fields
+                            document.getElementById("vorname").value  = item.vorname;
+                            document.getElementById("name").value     = item.nachname;
+                            document.getElementById("firma").value    = item.firma;
+                            document.getElementById("email").value    = item.email;
+                            document.getElementById("strasse").value  = item.strasse;
+                            document.getElementById("plz").value      = item.plz;
+                            document.getElementById("ort").value      = item.ort;
+                            document.getElementById("telefon1").value = item.telefon1;
+                            document.getElementById("telefon3").value = item.telefon3;
+
                             suggestions.style.display = "none";
                             searchInput.value = "";
                         });

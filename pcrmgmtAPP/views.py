@@ -1,41 +1,40 @@
 # pcrmgmtAPP/views.py
 import os
-from django.db.models import Q
-from django.shortcuts import get_object_or_404
 from django.http import FileResponse, HttpResponse
 from django.db import connection
-from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.db import connections
+from django.views.decorators.http import require_GET
 from pcrmgmtProject import settings
 from .utils.encryption import decrypt_password, encrypt_password
 import logging
 from .models import OfficeAccount
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
-import io
 from io import BytesIO
 import threading
 import time
-from django.utils import timezone
 from .utils.isl_log_reader import main as run_isl_log_reader  # Assuming the main function runs the script
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login
-from django.shortcuts import render, redirect
-from django.contrib import messages
 from .forms import RegisterForm
 from .models import UserProfile
 from .models import Garantie
-from django.contrib.auth.forms import PasswordChangeForm
-from django.contrib.auth import update_session_auth_hash
-from .models import Garantie
 from .forms import GarantieForm
-from django.db import models
 from .models import RMATicket
 import subprocess
 import json
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.db import IntegrityError, transaction
+from django.utils import timezone
+from django.core.paginator import Paginator
+from django.db.models import Q
+from django.contrib.auth.decorators import login_required
+from django.utils.safestring import mark_safe
+from django.http import JsonResponse
+from .models import GDataAccount, LicenseKey
 
 logger = logging.getLogger(__name__)
 
@@ -933,10 +932,265 @@ def database_status(request):
     return JsonResponse(status, safe=False)
 
 #############################################
-# Additional placeholders
+# Gdata Accounts
 #############################################
+@login_required
 def gdata_accounts(request):
-    return render(request, 'gdata_accounts.html')
+    search_query = request.GET.get('search', '').strip()
+    per_page = int(request.GET.get('per_page', 25))
+
+    # Auto-fill 'initialen' with the logged-in user's username
+    initialen = request.user.username
+
+    if request.method == "POST":
+        if 'create_activation' in request.POST:
+            # Extract form data
+            firma = request.POST.get('firma', '').strip()
+            nachname = request.POST.get('nachname', '').strip()
+            vorname = request.POST.get('vorname', '').strip()
+            strasse = request.POST.get('strasse', '').strip()
+            plz = request.POST.get('plz', '').strip()
+            ort = request.POST.get('ort', '').strip()
+            benutzername = request.POST.get('benutzername', '').strip()
+            passwort = request.POST.get('passwort', '').strip()
+            auftrag_typ = request.POST.get('auftrag_typ', '').strip()
+            kommentar = request.POST.get('kommentar', '').strip()
+            email = request.POST.get('email', '').strip()
+
+            with transaction.atomic():
+                # Auto-assign an available license key
+                try:
+                    license_key = LicenseKey.objects.select_for_update().filter(is_used=False).first()
+                    if not license_key:
+                        messages.error(request, "Keine verfügbaren Lizenzschlüssel.")
+                        return redirect('gdata_accounts')
+                except LicenseKey.DoesNotExist:
+                    messages.error(request, "Keine verfügbaren Lizenzschlüssel.")
+                    return redirect('gdata_accounts')
+
+                # Create GDataAccount
+                try:
+                    account = GDataAccount.objects.create(
+                        lizenz_schluessel=license_key,
+                        initialen=initialen,
+                        firma=firma,
+                        nachname=nachname,
+                        vorname=vorname,
+                        strasse=strasse,
+                        plz=plz,
+                        ort=ort,
+                        benutzername=benutzername,
+                        passwort=passwort,  # Will be hashed in the model's save method
+                        email=email,
+                        auftrag_typ=auftrag_typ,
+                        kommentar=kommentar,
+                        expiration_date=None  # Will be set in the model's save method
+                    )
+                    # Mark the license key as used
+                    license_key.is_used = True
+                    license_key.save()
+
+                    # Prepare the success message with the assigned license key and copy button
+                    success_message = mark_safe(
+                        f"GData Account für <strong>{benutzername}</strong> erfolgreich erstellt.<br>"
+                        f"Lizenzschlüssel: <span id='license-key-{account.id}'>{license_key.lizenz_schluessel}</span> "
+                        f"<button type='button' class='btn btn-sm btn-outline-secondary' onclick=\"copyToClipboard('license-key-{account.id}')\">Copy</button>"
+                    )
+                    messages.success(request, success_message)
+                except IntegrityError:
+                    messages.error(request, "Benutzername bereits vergeben.")
+                except Exception as e:
+                    messages.error(request, f"Fehler beim Erstellen des Accounts: {e}")
+
+            return redirect('gdata_accounts')
+
+        elif 'upload_keys' in request.POST:
+            # Handle license key upload
+            keys_file = request.FILES.get('keys_file')
+            if not keys_file:
+                messages.error(request, "Bitte eine Datei hochladen.")
+                return redirect('gdata_accounts')
+            if not keys_file.name.endswith('.txt'):
+                messages.error(request, "Nur TXT-Dateien sind erlaubt.")
+                return redirect('gdata_accounts')
+
+            # Read keys from file
+            try:
+                keys = keys_file.read().decode('utf-8').splitlines()
+                added = 0
+                for key in keys:
+                    key = key.strip()
+                    if key:
+                        created, _ = LicenseKey.objects.get_or_create(
+                            lizenz_schluessel=key,
+                            defaults={'is_used': False}
+                        )
+                        if created:
+                            added += 1
+                messages.success(request, f"{added} Lizenzschlüssel hinzugefügt.")
+            except Exception as e:
+                messages.error(request, f"Fehler beim Hochladen der Lizenzschlüssel: {e}")
+
+            return redirect('gdata_accounts')
+
+    # Fetch GDataAccounts
+    accounts = GDataAccount.objects.all()
+
+    if search_query:
+        accounts = accounts.filter(
+            Q(benutzername__icontains=search_query) |
+            Q(firma__icontains=search_query) |
+            Q(nachname__icontains=search_query) |
+            Q(vorname__icontains=search_query) |
+            Q(email__icontains=search_query)
+        )
+
+    # Pagination
+    paginator = Paginator(accounts, per_page)
+    page_number = request.GET.get('page')
+    accounts_page = paginator.get_page(page_number)
+
+    # Count Keys Left
+    keys_left = LicenseKey.objects.filter(is_used=False).count()
+
+    context = {
+        'accounts': accounts_page,
+        'search_query': search_query,
+        'per_page': per_page,
+        'keys_left': keys_left,
+    }
+
+    return render(request, 'gdata_accounts.html', context)
+
+@login_required
+@transaction.atomic
+def toggle_email_sent(request, account_id):
+    """
+    Toggle the 'email_sent' status of a GDataAccount.
+    """
+    if request.method == 'POST':
+        account = get_object_or_404(GDataAccount, id=account_id)
+        account.email_sent = not account.email_sent
+        if account.email_sent:
+            account.email_sent_timestamp = timezone.now()
+        else:
+            account.email_sent_timestamp = None
+        account.save()
+        return JsonResponse({'success': True, 'email_sent': account.email_sent})
+    return JsonResponse({'success': False}, status=400)
+
+
+@login_required
+@transaction.atomic
+def update_license(request, account_id):
+    """
+    Update the license runtime for a GDataAccount by adding years.
+    """
+    if request.method == 'POST':
+        account = get_object_or_404(GDataAccount, id=account_id)
+        try:
+            data = json.loads(request.body)
+            years = int(data.get('years', 1))
+            if years not in [1, 2, 3]:
+                return JsonResponse({'success': False, 'error': 'Ungültige Anzahl an Jahren.'}, status=400)
+        except:
+            return JsonResponse({'success': False, 'error': 'Ungültige Daten.'}, status=400)
+
+        # Extend the expiration date by the specified years
+        if account.expiration_date:
+            account.expiration_date += timezone.timedelta(days=365 * years)
+        else:
+            # If no expiration date is set, initialize it based on 'auftrag_typ'
+            if account.auftrag_typ == '1_jahr':
+                account.expiration_date = account.datum + timezone.timedelta(days=365 * years)
+            elif account.auftrag_typ == '2_jahre':
+                account.expiration_date = account.datum + timezone.timedelta(days=365 * 2 * years)
+            elif account.auftrag_typ == '3_jahre':
+                account.expiration_date = account.datum + timezone.timedelta(days=365 * 3 * years)
+            else:
+                account.expiration_date = account.datum + timezone.timedelta(days=365 * years)
+
+        account.save()
+        return JsonResponse({'success': True, 'new_expiration_date': account.expiration_date})
+    return JsonResponse({'success': False}, status=400)
+
+def edit_gdata_account(request, account_id):
+    """
+    Edit an existing GDataAccount.
+    """
+    account = get_object_or_404(GDataAccount, id=account_id)
+
+    if request.method == "POST":
+        # Process the form
+        lizenz_schluessel = request.POST.get('lizenz_schluessel').strip()
+        initialen = request.POST.get('initialen').strip()
+        firma = request.POST.get('firma').strip()
+        nachname = request.POST.get('nachname').strip()
+        vorname = request.POST.get('vorname').strip()
+        strasse = request.POST.get('strasse').strip()
+        plz = request.POST.get('plz').strip()
+        ort = request.POST.get('ort').strip()
+        benutzername = request.POST.get('benutzername').strip()
+        passwort = request.POST.get('passwort').strip()
+        auftrag_typ = request.POST.get('auftrag_typ').strip()
+        kommentar = request.POST.get('kommentar').strip()
+
+        # Optionally, handle updating the license key if allowed
+        if lizenz_schluessel != account.lizenz_schluessel.lizenz_schluessel:
+            # Unmark the old key
+            old_key = account.lizenz_schluessel
+            old_key.is_used = False
+            old_key.save()
+            # Assign new key
+            try:
+                new_key = LicenseKey.objects.get(lizenz_schluessel=lizenz_schluessel, is_used=False)
+                account.lizenz_schluessel = new_key
+                new_key.is_used = True
+                new_key.save()
+            except LicenseKey.DoesNotExist:
+                messages.error(request, "Neue Lizenzschlüssel ist ungültig oder bereits verwendet.")
+                return redirect('edit_gdata_account', account_id=account_id)
+
+        # Update other fields
+        account.initialen = initialen
+        account.firma = firma
+        account.nachname = nachname
+        account.vorname = vorname
+        account.strasse = strasse
+        account.plz = plz
+        account.ort = ort
+        account.benutzername = benutzername
+        account.passwort = passwort  # Should hash/encrypt
+        account.auftrag_typ = auftrag_typ
+        account.kommentar = kommentar
+
+        try:
+            account.save()
+            messages.success(request, "GData Account aktualisiert.")
+        except IntegrityError:
+            messages.error(request, "Benutzername bereits vergeben.")
+        except Exception as e:
+            messages.error(request, f"Fehler beim Aktualisieren des Accounts: {e}")
+
+        return redirect('gdata_accounts')
+
+    return render(request, 'edit_gdata_account.html', {'account': account})
+
+
+def delete_gdata_account(request, account_id):
+    """
+    Delete an existing GDataAccount.
+    """
+    account = get_object_or_404(GDataAccount, id=account_id)
+    if request.method == "POST":
+        # Unmark the license key
+        license_key = account.lizenz_schluessel
+        license_key.is_used = False
+        license_key.save()
+        account.delete()
+        messages.success(request, "GData Account gelöscht.")
+        return redirect('gdata_accounts')
+    return render(request, 'delete_gdata_account_confirm.html', {'account': account})
 
 #############################################
 # Placeholder: generate_report, api_logs, etc.
@@ -978,77 +1232,71 @@ def api_logs(request):
 
     return JsonResponse({'logs': formatted_logs})
 
-def autocomplete_warranty(request):
-    query = request.GET.get('query', '').strip()
-    if not query:
-        return JsonResponse([], safe=False)
-
-    results = Garantie.objects.filter(
-        models.Q(vorname__icontains=query) |
-        models.Q(nachname__icontains=query) |
-        models.Q(firma__icontains=query) |
-        models.Q(seriennummer__icontains=query)
-    )[:10]
-
-    data = [
-        {
-            "typ": g.typ,
-            "vorname": g.vorname,
-            "nachname": g.nachname,
-            "firma": g.firma,
-            "email": g.email,
-            "startdatum": g.startdatum.isoformat(),
-            "ablaufdatum": g.ablaufdatum.isoformat(),
-            "seriennummer": g.seriennummer,
-            "kommentar": g.kommentar or "",
-        }
-        for g in results
-    ]
-    return JsonResponse(data, safe=False)
+@require_GET
 def autocomplete_customer(request):
+    """
+    Returns JSON array of matching customers from the CRM_ADRESSEN table.
+    We'll fetch up to 200 matches and also return extra fields for street, plz, ort, etc.
+    """
     query = request.GET.get('query', '').strip()
-    if not query:
-        return JsonResponse([], safe=False)
+    results = []
+    if query:
+        like_pattern = f"%{query}%"
+        try:
+            with connections['address_db'].cursor() as cursor:
+                # Select columns needed for autocomplete
+                sql = """
+                    SELECT TOP (200)
+                        [Vorname],
+                        [Name],       -- last name
+                        [Firma],
+                        [Strasse],
+                        [PLZ],
+                        [Ort],
+                        [Telefon1],
+                        [Telefon3],
+                        [Email]
+                    FROM [SL_MCR001].[dbo].[CRM_ADRESSEN]
+                    WHERE (
+                        [Vorname]  LIKE %s OR
+                        [Name]     LIKE %s OR
+                        [Firma]    LIKE %s OR
+                        [Strasse]  LIKE %s OR
+                        [Ort]      LIKE %s OR
+                        [PLZ]      LIKE %s OR
+                        [Email]    LIKE %s
+                    )
+                    ORDER BY [Name], [Vorname]
+                """
+                # We'll pass the same pattern 7 times
+                params = [like_pattern] * 7
+                cursor.execute(sql, params)
+                rows = cursor.fetchall()
 
-    try:
-        with connections['address_db'].cursor() as cursor:
-            sql_query = """
-                SELECT TOP 10 
-                    CRM_ADRESSEN_ID, Name, Vorname, Firma, Strasse, Ort, PLZ, Telefon1, Telefon3, Email
-                FROM dbo.CRM_ADRESSEN
-                WHERE 
-                    LOWER(Name) LIKE %s OR LOWER(Vorname) LIKE %s OR LOWER(Firma) LIKE %s
-                ORDER BY Name ASC
-            """
-            like_query = f"%{query.lower()}%"
-            cursor.execute(sql_query, [like_query, like_query, like_query])
-            rows = cursor.fetchall()
+                for row in rows:
+                    # row => (Vorname, Name, Firma, Strasse, PLZ, Ort, Telefon1, Telefon3, Email)
+                    results.append({
+                        'vorname':   row[0] or "",
+                        'nachname':  row[1] or "",  # [Name] if it is last name
+                        'firma':     row[2] or "",
+                        'strasse':   row[3] or "",
+                        'plz':       row[4] or "",
+                        'ort':       row[5] or "",
+                        'telefon1':  row[6] or "",
+                        'telefon3':  row[7] or "",
+                        'email':     row[8] or "",
+                    })
+        except Exception as e:
+            logger.error(f"Autocomplete Customer Error: {e}")
 
-        results = [
-            {
-                "adresse_id": row[0],
-                "name": row[1],
-                "vorname": row[2],
-                "firma": row[3],
-                "strasse": row[4],
-                "ort": row[5],
-                "plz": row[6],
-                "telefon1": row[7],
-                "telefon3": row[8],
-                "email": row[9],
-            }
-            for row in rows
-        ]
-        return JsonResponse(results, safe=False)
-    except Exception as e:
-        logger.error(f"Error fetching autocomplete data: {e}")
-        return JsonResponse([], safe=False)
+    return JsonResponse(results, safe=False)
+
 
 def run_email_import_script():
     while True:
         try:
             import subprocess
-            subprocess.run(["python", "utils/email_import.py"])
+            subprocess.run(["python", "pcrmgmtAPP/utils/email_import.py"])
         except Exception as e:
             logger.error(f"Error running email import script: {e}")
         time.sleep(900)  # 15 Minuten warten
@@ -1057,7 +1305,7 @@ threading.Thread(target=run_email_import_script, daemon=True).start()
 def start_rma_email_import(request):
     try:
         # Vollständigen Pfad zum Skript angeben
-        script_path = os.path.join(settings.BASE_DIR, 'utils/email_import.py')
+        script_path = os.path.join(settings.BASE_DIR, 'pcrmgmtAPP/utils/email_import.py')
         subprocess.Popen(["python", script_path])
         messages.success(request, "RMA Email Import Script started.")
     except Exception as e:
@@ -1174,3 +1422,35 @@ def generate_report(request):
 
     # For GET requests, redirect to dashboard or show a form
     return redirect('dashboard')  # Redirect to dashboard after report generation
+
+
+@login_required
+def autocomplete_address(request):
+    """
+    Autocomplete view for Address_DB.
+    """
+    query = request.GET.get('query', '').strip()
+    results = []
+    if query:
+        try:
+            with connections['address_db'].cursor() as cursor:
+                # Adjust the SQL query based on your Address_DB schema
+                cursor.execute("""
+                    SELECT Vorname, Nachname, Firma, Email
+                    FROM dbo.AddressTable  -- Replace with your actual table name
+                    WHERE Vorname LIKE ? OR Nachname LIKE ? OR Firma LIKE ? OR Email LIKE ?
+                    ORDER BY Vorname, Nachname
+                    OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY
+                """, [f"%{query}%", f"%{query}%", f"%{query}%", f"%{query}%"])
+                rows = cursor.fetchall()
+                for row in rows:
+                    results.append({
+                        'vorname': row[0],
+                        'nachname': row[1],
+                        'firma': row[2],
+                        'email': row[3],
+                    })
+        except Exception as e:
+            logger.error(f"Autocomplete Address Error: {e}")
+
+    return JsonResponse(results, safe=False)

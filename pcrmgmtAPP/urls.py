@@ -15,18 +15,12 @@ urlpatterns = [
     path('isl-logs/pdf/<str:log_id>/', views.download_isl_pdf, name='download_isl_pdf'),
     path('isl-logs/toggle-verrechnet/<str:log_id>/', views.toggle_verrechnet, name='toggle_verrechnet'),
 
-    # Autocomplete
-    path('autocomplete/customer/', views.autocomplete_customer, name='autocomplete_customer'),
-
     # Office Accounts
     path('office-accounts/', views.office_accounts, name='office_accounts'),
     path('office-accounts/edit/<int:account_id>/', views.edit_account, name='edit_account'),
     path('office-accounts/delete/<int:account_id>/', views.delete_account, name='delete_account'),
     path('office-accounts/print/<int:account_id>/', views.print_account, name='print_account'),
     path('office-accounts/pdf/<int:account_id>/', views.download_pdf, name='download_pdf'),
-
-    # GData placeholder
-    path('gdata-accounts/', views.gdata_accounts, name='gdata_accounts'),
 
     # Garantie Tracker
     path('garantie-tracker/', views.garantie_tracker, name='garantie_tracker'),
@@ -72,4 +66,15 @@ urlpatterns = [
     path('rma/ticket/<int:ticket_id>/delete/', views.delete_ticket, name='delete_ticket'),
     path('rma/ticket/<int:ticket_id>/print/', views.print_ticket, name='print_ticket'),
     path('rma/ticket/<int:ticket_id>/pdf/', views.pdf_ticket, name='pdf_ticket'),
+
+    # GData Accounts
+    path('gdata-accounts/', views.gdata_accounts, name='gdata_accounts'),
+    path('gdata-accounts/edit/<int:account_id>/', views.edit_gdata_account, name='edit_gdata_account'),
+    path('gdata-accounts/delete/<int:account_id>/', views.delete_gdata_account, name='delete_gdata_account'),
+    path('gdata-accounts/toggle-email-sent/<int:account_id>/', views.toggle_email_sent, name='toggle_email_sent'),
+    path('gdata-accounts/update-license/<int:account_id>/', views.update_license, name='update_license'),
+    # Add other paths like edit, delete, etc.
+    path('autocomplete/address/', views.autocomplete_address, name='autocomplete_address'),
+    path('autocomplete/customer/', views.autocomplete_customer, name='autocomplete_customer'),
+
 ]

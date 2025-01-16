@@ -1,0 +1,18 @@
+<!-- templates/delete_gdata_account_confirm.html -->
+
+{% extends 'base.html' %}
+
+{% block title %}Confirm Delete{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <h2>Confirm Delete</h2>
+    <p>Are you sure you want to delete the GData Account for <strong>{{ account.benutzername }}</strong>?</p>
+
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Yes, Delete</button>
+        <a href="{% url 'gdata_accounts' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

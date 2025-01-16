@@ -1,0 +1,585 @@
+2025-01-16 09:46:52,779 - INFO - === Email Import One-Shot Start ===
+2025-01-16 09:46:53,763 - INFO - Closing ticket CS0172938...
+2025-01-16 09:46:53,794 - INFO - Ticket CS0172938 successfully closed.
+2025-01-16 09:46:53,794 - INFO - Closing ticket CS0172939...
+2025-01-16 09:46:53,810 - INFO - Ticket CS0172939 successfully closed.
+2025-01-16 09:46:53,810 - INFO - Parsed details for CS0174789: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03KZW4', 'fehler': 'Beide Scharniere gebrochen'}
+2025-01-16 09:46:53,810 - INFO - Ticket CS0174789 already exists; skipping insertion.
+2025-01-16 09:46:53,826 - INFO - Parsed details for CS0174454: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G3MA', 'fehler': 'Laptop startet nicht mehr. Teilweise erscheint ein Grafikfehler'}
+2025-01-16 09:46:53,826 - INFO - Ticket CS0174454 already exists; skipping insertion.
+2025-01-16 09:46:53,826 - INFO - Parsed details for CS0174451: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G3VV', 'fehler': 'Scharnier Rechts'}
+2025-01-16 09:46:53,826 - INFO - Ticket CS0174451 already exists; skipping insertion.
+2025-01-16 09:46:53,841 - INFO - Parsed details for CS0174447: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03KZQ8', 'fehler': 'Scharnier Links'}
+2025-01-16 09:46:53,841 - INFO - Ticket CS0174447 already exists; skipping insertion.
+2025-01-16 09:46:53,857 - INFO - Parsed details for CS0174446: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G495', 'fehler': 'Scharnier Rechts'}
+2025-01-16 09:46:53,857 - INFO - Ticket CS0174446 already exists; skipping insertion.
+2025-01-16 09:46:53,857 - INFO - Parsed details for CS0171870: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW-03G3MG', 'fehler': 'Scharnier links rausgerissen'}
+2025-01-16 09:46:53,872 - INFO - Ticket CS0171870 already exists; skipping insertion.
+2025-01-16 09:46:53,872 - INFO - Closing ticket CS0171936...
+2025-01-16 09:46:53,872 - INFO - Ticket CS0171936 successfully closed.
+2025-01-16 09:46:53,888 - INFO - Closing ticket CS0172077...
+2025-01-16 09:46:53,888 - INFO - Ticket CS0172077 successfully closed.
+2025-01-16 09:46:53,888 - INFO - Parsed details for CS0172446: {'firma': 'Computer Repair Schmid & Partner', 'seriennummer': 'PW03G48F', 'fehler': 'Scharnier ausgerissen'}
+2025-01-16 09:46:53,888 - INFO - Ticket CS0172446 already exists; skipping insertion.
+2025-01-16 09:46:53,904 - INFO - Parsed details for CS0171336: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03KZP0', 'fehler': 'Beide Scharniere loose. Bildschirn durch Scharnier links beschädigt'}
+2025-01-16 09:46:53,904 - INFO - Ticket CS0171336 already exists; skipping insertion.
+2025-01-16 09:46:53,904 - INFO - Closing ticket CS0172270...
+2025-01-16 09:46:53,904 - INFO - Ticket CS0172270 successfully closed.
+2025-01-16 09:46:53,919 - INFO - Closing ticket CS0171478...
+2025-01-16 09:46:53,919 - INFO - Ticket CS0171478 successfully closed.
+2025-01-16 09:46:53,919 - INFO - Closing ticket CS0171446...
+2025-01-16 09:46:53,935 - INFO - Ticket CS0171446 successfully closed.
+2025-01-16 09:46:53,935 - INFO - Parsed details for CS0173855: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03KZVG', 'fehler': 'Scharnier Links'}
+2025-01-16 09:46:53,935 - INFO - Ticket CS0173855 already exists; skipping insertion.
+2025-01-16 09:46:53,951 - INFO - Parsed details for CS0169611: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03L04N', 'fehler': 'Piepscode bei start. kein Bild Reset durchgeführt'}
+2025-01-16 09:46:53,951 - INFO - Ticket CS0169611 already exists; skipping insertion.
+2025-01-16 09:46:53,951 - INFO - Parsed details for CS0173571: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G4M7', 'fehler': 'Touchpad tasten unten defekt'}
+2025-01-16 09:46:53,951 - INFO - Ticket CS0173571 already exists; skipping insertion.
+2025-01-16 09:46:53,966 - INFO - Parsed details for CS0173565: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G4EW', 'fehler': 'Scharnier Rechts rausgebrochen'}
+2025-01-16 09:46:53,966 - INFO - Ticket CS0173565 already exists; skipping insertion.
+2025-01-16 09:46:53,982 - INFO - Closing ticket CS0171729...
+2025-01-16 09:46:53,982 - INFO - Ticket CS0171729 successfully closed.
+2025-01-16 09:46:53,982 - INFO - Closing ticket CS0171439...
+2025-01-16 09:46:53,982 - INFO - Ticket CS0171439 successfully closed.
+2025-01-16 09:46:53,997 - INFO - Closing ticket CS0171436...
+2025-01-16 09:46:53,997 - INFO - Ticket CS0171436 successfully closed.
+2025-01-16 09:46:54,013 - INFO - Closing ticket CS0171338...
+2025-01-16 09:46:54,013 - INFO - Ticket CS0171338 successfully closed.
+2025-01-16 09:46:54,013 - INFO - Closing ticket CS0169219...
+2025-01-16 09:46:54,013 - INFO - Ticket CS0169219 successfully closed.
+2025-01-16 09:46:54,029 - INFO - Closing ticket CS0170696...
+2025-01-16 09:46:54,029 - INFO - Ticket CS0170696 successfully closed.
+2025-01-16 09:46:54,029 - INFO - Parsed details for CS0172938: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G4E8', 'fehler': 'Scharnier rechts rausgerissen'}
+2025-01-16 09:46:54,029 - INFO - Ticket CS0172938 already exists; skipping insertion.
+2025-01-16 09:46:54,044 - INFO - Parsed details for CS0172939: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03KZW7', 'fehler': 'Scharnier links rausgerissen'}
+2025-01-16 09:46:54,044 - INFO - Ticket CS0172939 already exists; skipping insertion.
+2025-01-16 09:46:54,060 - INFO - Closing ticket CS0172810...
+2025-01-16 09:46:54,060 - INFO - No open ticket found for CS0172810.
+2025-01-16 09:46:54,060 - INFO - Closing ticket CS0172271...
+2025-01-16 09:46:54,060 - INFO - Ticket CS0172271 successfully closed.
+2025-01-16 09:46:54,076 - INFO - Closing ticket CS0172266...
+2025-01-16 09:46:54,076 - INFO - Ticket CS0172266 successfully closed.
+2025-01-16 09:46:54,076 - INFO - Closing ticket CS0168397...
+2025-01-16 09:46:54,076 - INFO - Ticket CS0168397 successfully closed.
+2025-01-16 09:46:54,091 - INFO - Closing ticket CS0168649...
+2025-01-16 09:46:54,091 - INFO - Ticket CS0168649 successfully closed.
+2025-01-16 09:46:54,107 - INFO - Parsed details for CS0172446: {'firma': 'Computer Repair Schmid & Partner', 'seriennummer': 'PW03G48F', 'fehler': 'Scharnier ausgerissen'}
+2025-01-16 09:46:54,107 - INFO - Ticket CS0172446 already exists; skipping insertion.
+2025-01-16 09:46:54,107 - INFO - Parsed details for CS0168397: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G45Q', 'fehler': 'Bildschirm von Backplate getrennt'}
+2025-01-16 09:46:54,107 - INFO - Ticket CS0168397 already exists; skipping insertion.
+2025-01-16 09:46:54,122 - INFO - Parsed details for CS0168649: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G4CD', 'fehler': 'Topcover verbogen und Display rausgeklickt'}
+2025-01-16 09:46:54,122 - INFO - Ticket CS0168649 already exists; skipping insertion.
+2025-01-16 09:46:54,138 - INFO - Closing ticket CS0170469...
+2025-01-16 09:46:54,138 - INFO - Ticket CS0170469 successfully closed.
+2025-01-16 09:46:54,138 - INFO - Parsed details for CS0172266: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03L03X', 'fehler': 'Backplate des Bildschirms verbogen. Kein sturzschaden, bildschirm nicht beschädigt'}
+2025-01-16 09:46:54,138 - INFO - Ticket CS0172266 already exists; skipping insertion.
+2025-01-16 09:46:54,154 - INFO - Parsed details for CS0172272: {'firma': 'Computer Repair Schmid & PArtner', 'seriennummer': 'PF-3FYW2D', 'fehler': 'Gerät ist tot. Startet nicht, lädt nicht macht eig gar nichts mehr'}
+2025-01-16 09:46:54,154 - INFO - Ticket CS0172272 already exists; skipping insertion.
+2025-01-16 09:46:54,154 - INFO - Parsed details for CS0172271: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G4ET', 'fehler': 'Bildschirm von Backplate getrennt'}
+2025-01-16 09:46:54,154 - INFO - Ticket CS0172271 already exists; skipping insertion.
+2025-01-16 09:46:54,169 - INFO - Parsed details for CS0172258: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G402', 'fehler': 'Gerät startet nicht mehr, zeigt Grafik Fehler Bildschirm von backplate getrennt'}
+2025-01-16 09:46:54,169 - INFO - Ticket CS0172258 already exists; skipping insertion.
+2025-01-16 09:46:54,185 - INFO - Parsed details for CS0172270: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G41T', 'fehler': 'Scharnier Links gebrochen'}
+2025-01-16 09:46:54,185 - INFO - Ticket CS0172270 already exists; skipping insertion.
+2025-01-16 09:46:54,185 - INFO - Closing ticket CS0170915...
+2025-01-16 09:46:54,185 - INFO - Ticket CS0170915 successfully closed.
+2025-01-16 09:46:54,201 - INFO - Closing ticket CS0170151...
+2025-01-16 09:46:54,201 - INFO - Ticket CS0170151 successfully closed.
+2025-01-16 09:46:54,201 - INFO - Closing ticket CS0170147...
+2025-01-16 09:46:54,201 - INFO - Ticket CS0170147 successfully closed.
+2025-01-16 09:46:54,216 - INFO - Closing ticket CS0167499...
+2025-01-16 09:46:54,216 - INFO - Ticket CS0167499 successfully closed.
+2025-01-16 09:46:54,216 - INFO - Parsed details for CS0172077: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G3ZG', 'fehler': 'Scharnier Rechts defekt'}
+2025-01-16 09:46:54,216 - INFO - Ticket CS0172077 already exists; skipping insertion.
+2025-01-16 09:46:54,232 - INFO - Parsed details for CS0171990: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': '5cg303Wypf', 'fehler': 'Dockingstation wird an mehreren Geräten nicht erkannt.'}
+2025-01-16 09:46:54,232 - INFO - Ticket CS0171990 already exists; skipping insertion.
+2025-01-16 09:46:54,232 - INFO - Parsed details for CS0171936: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G4VB', 'fehler': 'Scharnier Rechts Defekt'}
+2025-01-16 09:46:54,248 - INFO - Ticket CS0171936 already exists; skipping insertion.
+2025-01-16 09:46:54,248 - INFO - Parsed details for CS0171870: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW-03G3MG', 'fehler': 'Scharnier links rausgerissen'}
+2025-01-16 09:46:54,248 - INFO - Ticket CS0171870 already exists; skipping insertion.
+2025-01-16 09:46:54,263 - INFO - Parsed details for CS0171829: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G3NH', 'fehler': 'Akku lädt nicht, LED leuchtet und laptop startet'}
+2025-01-16 09:46:54,263 - INFO - Ticket CS0171829 already exists; skipping insertion.
+2025-01-16 09:46:54,263 - INFO - Parsed details for CS0171829: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G3NH', 'fehler': 'Akku lädt nicht, LED leuchtet und laptop startet'}
+2025-01-16 09:46:54,263 - INFO - Ticket CS0171829 already exists; skipping insertion.
+2025-01-16 09:46:54,278 - INFO - Parsed details for CS0171754: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': '5cg410zlc4', 'fehler': 'Windows hängt sich auf wenn DockingStation angeschlossen wird Dockingstation trennt konstant die Verbindung, und stellt diese wieder her'}
+2025-01-16 09:46:54,278 - INFO - Ticket CS0171754 already exists; skipping insertion.
+2025-01-16 09:46:54,278 - INFO - Parsed details for CS0171336: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03KZP0', 'fehler': 'Beide Scharniere loose. Bildschirn durch Scharnier links beschädigt'}
+2025-01-16 09:46:54,278 - INFO - Ticket CS0171336 already exists; skipping insertion.
+2025-01-16 09:46:54,293 - INFO - Parsed details for CS0171729: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G40T', 'fehler': 'Scharnier rechts rausgerissen'}
+2025-01-16 09:46:54,293 - INFO - Ticket CS0171729 already exists; skipping insertion.
+2025-01-16 09:46:54,293 - INFO - Parsed details for CS0171446: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW-03L01W', 'fehler': 'Scharnier rechts fast am rausreissen (Bei schliessen sieht man das es weiter aufgeht)'}
+2025-01-16 09:46:54,293 - INFO - Ticket CS0171446 already exists; skipping insertion.
+2025-01-16 09:46:54,309 - INFO - Closing ticket CS0166090...
+2025-01-16 09:46:54,309 - INFO - Ticket CS0166090 successfully closed.
+2025-01-16 09:46:54,325 - INFO - Closing ticket CS0169574...
+2025-01-16 09:46:54,325 - INFO - Ticket CS0169574 successfully closed.
+2025-01-16 09:46:54,325 - INFO - Closing ticket CS0168625...
+2025-01-16 09:46:54,325 - INFO - Ticket CS0168625 successfully closed.
+2025-01-16 09:46:54,340 - INFO - Closing ticket CS0166962...
+2025-01-16 09:46:54,340 - INFO - Ticket CS0166962 successfully closed.
+2025-01-16 09:46:54,340 - INFO - Parsed details for CS0169611: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03L04N', 'fehler': 'Piepscode bei start. kein Bild Reset durchgeführt'}
+2025-01-16 09:46:54,340 - INFO - Ticket CS0169611 already exists; skipping insertion.
+2025-01-16 09:46:54,356 - INFO - Parsed details for CS0169219: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW-03G4JC', 'fehler': '- Taste rausgefallen - Scharnier locker rechtes'}
+2025-01-16 09:46:54,356 - INFO - Ticket CS0169219 already exists; skipping insertion.
+2025-01-16 09:46:54,356 - INFO - Parsed details for CS0171446: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW-03L01W', 'fehler': 'Scharnier rechts fast am rausreissen (Bei schliessen sieht man das es weiter aufgeht)'}
+2025-01-16 09:46:54,356 - INFO - Ticket CS0171446 already exists; skipping insertion.
+2025-01-16 09:46:54,371 - INFO - Parsed details for CS0171478: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G3HR', 'fehler': 'Scharnier rechts rausgerissen'}
+2025-01-16 09:46:54,371 - INFO - Ticket CS0171478 already exists; skipping insertion.
+2025-01-16 09:46:54,387 - INFO - Parsed details for CS0171446: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW-03L01W', 'fehler': 'Scharnier rechts fast am rausreissen (Bei schliessen sieht man das es weiter aufgeht)'}
+2025-01-16 09:46:54,387 - INFO - Ticket CS0171446 already exists; skipping insertion.
+2025-01-16 09:46:54,387 - INFO - Parsed details for CS0171446: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW-03L01W', 'fehler': 'Scharnier rechts fast am rausreissen (Bei schliessen sieht man das es weiter aufgeht)'}
+2025-01-16 09:46:54,387 - INFO - Ticket CS0171446 already exists; skipping insertion.
+2025-01-16 09:46:54,403 - INFO - Parsed details for CS0171439: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW-03G4JH', 'fehler': 'Scharnier rechts rausgerissen'}
+2025-01-16 09:46:54,403 - INFO - Ticket CS0171439 already exists; skipping insertion.
+2025-01-16 09:46:54,403 - INFO - Parsed details for CS0171436: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW-03G43Z', 'fehler': 'Scharnier links rausgerissen'}
+2025-01-16 09:46:54,403 - INFO - Ticket CS0171436 already exists; skipping insertion.
+2025-01-16 09:46:54,418 - INFO - Parsed details for CS0171336: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03KZP0', 'fehler': 'Beide Scharniere loose. Bildschirn durch Scharnier links beschädigt'}
+2025-01-16 09:46:54,418 - INFO - Ticket CS0171336 already exists; skipping insertion.
+2025-01-16 09:46:54,418 - INFO - Parsed details for CS0171338: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03L02V', 'fehler': 'Scharnier Rechts Defekt Bildschirm durch Scharnier beschädigt'}
+2025-01-16 09:46:54,434 - INFO - Ticket CS0171338 already exists; skipping insertion.
+2025-01-16 09:46:54,434 - INFO - Parsed details for CS0171338: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03LC2V', 'fehler': 'Scharnier Rechts Defekt Bildschirm durch Scharnier beschädigt'}
+2025-01-16 09:46:54,434 - INFO - Ticket CS0171338 already exists; skipping insertion.
+2025-01-16 09:46:54,434 - INFO - Parsed details for CS0171336: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03KZP0', 'fehler': 'Beide Scharniere loose. Bildschirn durch Scharnier links beschädigt'}
+2025-01-16 09:46:54,450 - INFO - Ticket CS0171336 already exists; skipping insertion.
+2025-01-16 09:46:54,450 - INFO - Parsed details for CS0170915: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G3NT', 'fehler': 'Scharnier Rechts Defekt'}
+2025-01-16 09:46:54,450 - INFO - Ticket CS0170915 already exists; skipping insertion.
+2025-01-16 09:46:54,465 - INFO - Parsed details for CS0170696: {'firma': 'Die Dargebotene Hand', 'seriennummer': '5CG3262VMZ', 'fehler': 'UBS-C Port defekt (hinterer Port geht nach ca. 10 sek. , vordere geht gar nicht) Beide Scharniere locker'}
+2025-01-16 09:46:54,465 - INFO - Ticket CS0170696 already exists; skipping insertion.
+2025-01-16 09:46:54,465 - INFO - Parsed details for CS0170469: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW-03KZWF', 'fehler': 'Scharnier links rausgerissen'}
+2025-01-16 09:46:54,465 - INFO - Ticket CS0170469 already exists; skipping insertion.
+2025-01-16 09:46:54,481 - INFO - Parsed details for CS0167499: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'Pw03L001', 'fehler': 'Scharnier Rechts gebrochen'}
+2025-01-16 09:46:54,481 - INFO - Ticket CS0167499 already exists; skipping insertion.
+2025-01-16 09:46:54,481 - INFO - Closing ticket CS0169961...
+2025-01-16 09:46:54,481 - INFO - Ticket CS0169961 successfully closed.
+2025-01-16 09:46:54,496 - INFO - Closing ticket CS0165546...
+2025-01-16 09:46:54,496 - INFO - Ticket CS0165546 successfully closed.
+2025-01-16 09:46:54,496 - INFO - Parsed details for CS0170151: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW-03G3VQ', 'fehler': 'Scharnier rechts rausgerissen'}
+2025-01-16 09:46:54,496 - INFO - Ticket CS0170151 already exists; skipping insertion.
+2025-01-16 09:46:54,512 - INFO - Parsed details for CS0170147: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW-03L06T', 'fehler': 'Scharnier rechts rausgerissen'}
+2025-01-16 09:46:54,512 - INFO - Ticket CS0170147 already exists; skipping insertion.
+2025-01-16 09:46:54,512 - INFO - Closing ticket CS0170109...
+2025-01-16 09:46:54,512 - INFO - Ticket CS0170109 successfully closed.
+2025-01-16 09:46:54,528 - INFO - Parsed details for CS0170109: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G3RQ', 'fehler': 'Akku lädt nicht (Akku tauschen)'}
+2025-01-16 09:46:54,528 - INFO - Ticket CS0170109 already exists; skipping insertion.
+2025-01-16 09:46:54,528 - INFO - Parsed details for CS0169961: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW-03KZPC', 'fehler': 'Maustaste defekt links (geht nicht mehr nach oben, bleibt reingedrückt)'}
+2025-01-16 09:46:54,543 - INFO - Ticket CS0169961 already exists; skipping insertion.
+2025-01-16 09:46:54,543 - INFO - Parsed details for CS0169611: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03L04N', 'fehler': 'Piepscode bei start. kein Bild Reset durchgeführt'}
+2025-01-16 09:46:54,543 - INFO - Ticket CS0169611 already exists; skipping insertion.
+2025-01-16 09:46:54,559 - INFO - Parsed details for CS0169574: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G4KB', 'fehler': 'Scharnier Rechts gebrochen'}
+2025-01-16 09:46:54,559 - INFO - Ticket CS0169574 already exists; skipping insertion.
+2025-01-16 09:46:54,559 - INFO - Parsed details for CS0169219: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW-03G4JC', 'fehler': '- Taste rausgefallen - Scharnier locker rechtes'}
+2025-01-16 09:46:54,559 - INFO - Ticket CS0169219 already exists; skipping insertion.
+2025-01-16 09:46:54,575 - INFO - Parsed details for CS0165546: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G3ZF', 'fehler': 'Scharnier Links Gebrochen'}
+2025-01-16 09:46:54,575 - INFO - Ticket CS0165546 already exists; skipping insertion.
+2025-01-16 09:46:54,575 - INFO - Parsed details for CS0167499: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'Pw03L001', 'fehler': 'Scharnier Rechts gebrochen'}
+2025-01-16 09:46:54,575 - INFO - Ticket CS0167499 already exists; skipping insertion.
+2025-01-16 09:46:54,590 - INFO - Closing ticket CS0166960...
+2025-01-16 09:46:54,590 - INFO - Ticket CS0166960 successfully closed.
+2025-01-16 09:46:54,590 - INFO - Closing ticket CS0168060...
+2025-01-16 09:46:54,606 - INFO - Ticket CS0168060 successfully closed.
+2025-01-16 09:46:54,606 - INFO - Parsed details for CS0169219: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW-03G4JC', 'fehler': '- Taste rausgefallen - Scharnier locker rechtes'}
+2025-01-16 09:46:54,606 - INFO - Ticket CS0169219 already exists; skipping insertion.
+2025-01-16 09:46:54,621 - INFO - Closing ticket CS0168198...
+2025-01-16 09:46:54,621 - INFO - No open ticket found for CS0168198.
+2025-01-16 09:46:54,621 - INFO - Parsed details for CS0168649: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G4CD', 'fehler': 'Topcover verbogen und Display rausgeklickt'}
+2025-01-16 09:46:54,637 - INFO - Ticket CS0168649 already exists; skipping insertion.
+2025-01-16 09:46:54,653 - INFO - Parsed details for CS0166090: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G3W5', 'fehler': 'Scharnier rechts rausgerissen'}
+2025-01-16 09:46:54,653 - INFO - Ticket CS0166090 already exists; skipping insertion.
+2025-01-16 09:46:54,653 - INFO - Parsed details for CS0168625: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW-03G4H8', 'fehler': 'Scharnier rechts rausgerissen'}
+2025-01-16 09:46:54,653 - INFO - Ticket CS0168625 already exists; skipping insertion.
+2025-01-16 09:46:54,668 - INFO - Closing ticket CS0166964...
+2025-01-16 09:46:54,668 - INFO - Ticket CS0166964 successfully closed.
+2025-01-16 09:46:54,684 - INFO - Parsed details for CS0168397: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G45Q', 'fehler': 'Bildschirm von Backplate getrennt'}
+2025-01-16 09:46:54,684 - INFO - Ticket CS0168397 already exists; skipping insertion.
+2025-01-16 09:46:54,684 - INFO - Closing ticket CS0164914...
+2025-01-16 09:46:54,684 - INFO - Ticket CS0164914 successfully closed.
+2025-01-16 09:46:54,700 - INFO - Parsed details for CS0168060: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G3Y0', 'fehler': 'Scharnier Rechts gebrochen'}
+2025-01-16 09:46:54,700 - INFO - Ticket CS0168060 already exists; skipping insertion.
+2025-01-16 09:46:54,715 - INFO - Parsed details for CS0167499: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'Pw03L001', 'fehler': 'Scharnier Rechts gebrochen'}
+2025-01-16 09:46:54,715 - INFO - Ticket CS0167499 already exists; skipping insertion.
+2025-01-16 09:46:54,715 - INFO - Parsed details for CS0167499: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'Pw03L001', 'fehler': 'Scharnier Rechts gebrochen'}
+2025-01-16 09:46:54,715 - INFO - Ticket CS0167499 already exists; skipping insertion.
+2025-01-16 09:46:54,733 - INFO - Parsed details for CS0166964: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G3YN', 'fehler': 'Scharnier Rechts gebrochen'}
+2025-01-16 09:46:54,733 - INFO - Ticket CS0166964 already exists; skipping insertion.
+2025-01-16 09:46:54,733 - INFO - Parsed details for CS0166960: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G3RQ', 'fehler': 'Scharnier Rechts rausgebrochen'}
+2025-01-16 09:46:54,733 - INFO - Ticket CS0166960 already exists; skipping insertion.
+2025-01-16 09:46:54,746 - INFO - Parsed details for CS0166962: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G421', 'fehler': 'Scharnier Links Gebrochen'}
+2025-01-16 09:46:54,746 - INFO - Ticket CS0166962 already exists; skipping insertion.
+2025-01-16 09:46:54,762 - INFO - Closing ticket CS0164377...
+2025-01-16 09:46:54,762 - INFO - Ticket CS0164377 successfully closed.
+2025-01-16 09:46:54,762 - INFO - Parsed details for CS0164837: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03Kzzv', 'fehler': 'Scharnier Rechts rausgebrochen, Bildschirm beschädigt'}
+2025-01-16 09:46:54,762 - INFO - Ticket CS0164837 already exists; skipping insertion.
+2025-01-16 09:46:54,778 - INFO - Closing ticket CS0164379...
+2025-01-16 09:46:54,778 - INFO - No open ticket found for CS0164379.
+2025-01-16 09:46:54,793 - INFO - Closing ticket CS0164676...
+2025-01-16 09:46:54,793 - INFO - Ticket CS0164676 successfully closed.
+2025-01-16 09:46:54,793 - INFO - Closing ticket CS0165435...
+2025-01-16 09:46:54,793 - INFO - Ticket CS0165435 successfully closed.
+2025-01-16 09:46:54,809 - INFO - Closing ticket CS0165419...
+2025-01-16 09:46:54,809 - INFO - Ticket CS0165419 successfully closed.
+2025-01-16 09:46:54,825 - INFO - Closing ticket CS0165700...
+2025-01-16 09:46:54,825 - INFO - Ticket CS0165700 successfully closed.
+2025-01-16 09:46:54,825 - INFO - Closing ticket CS0165839...
+2025-01-16 09:46:54,825 - INFO - Ticket CS0165839 successfully closed.
+2025-01-16 09:46:54,840 - INFO - Parsed details for CS0166452: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G43C', 'fehler': 'Netzteil defekt, bitte neues senden'}
+2025-01-16 09:46:54,840 - INFO - Ticket CS0166452 already exists; skipping insertion.
+2025-01-16 09:46:54,840 - INFO - Parsed details for CS0166489: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G3RZ', 'fehler': 'Scharnier Rechts gebrochen'}
+2025-01-16 09:46:54,840 - INFO - Ticket CS0166489 already exists; skipping insertion.
+2025-01-16 09:46:54,856 - INFO - Parsed details for CS0166488: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G3Rv', 'fehler': 'Scharnier links rausgebrochen'}
+2025-01-16 09:46:54,856 - INFO - Ticket CS0166488 already exists; skipping insertion.
+2025-01-16 09:46:54,871 - INFO - Closing ticket CS0164381...
+2025-01-16 09:46:54,871 - INFO - Ticket CS0164381 successfully closed.
+2025-01-16 09:46:54,871 - INFO - Parsed details for CS0166090: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G3W5', 'fehler': 'Scharnier rechts rausgerissen'}
+2025-01-16 09:46:54,871 - INFO - Ticket CS0166090 already exists; skipping insertion.
+2025-01-16 09:46:54,887 - INFO - Parsed details for CS0165839: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW-03KZPC', 'fehler': 'Touchpad defekt'}
+2025-01-16 09:46:54,887 - INFO - Ticket CS0165839 already exists; skipping insertion.
+2025-01-16 09:46:54,903 - INFO - Parsed details for CS0165700: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G4LM', 'fehler': 'Scharnier Links Rausgebrochen'}
+2025-01-16 09:46:54,903 - INFO - Ticket CS0165700 already exists; skipping insertion.
+2025-01-16 09:46:54,903 - INFO - Parsed details for CS0165700: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G4LM', 'fehler': 'Scharnier Links Rausgebrochen'}
+2025-01-16 09:46:54,903 - INFO - Ticket CS0165700 already exists; skipping insertion.
+2025-01-16 09:46:54,918 - INFO - Parsed details for CS0165546: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G3ZF', 'fehler': 'Scharnier Links Gebrochen'}
+2025-01-16 09:46:54,918 - INFO - Ticket CS0165546 already exists; skipping insertion.
+2025-01-16 09:46:54,934 - INFO - Parsed details for CS0165506: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': '5CG2460559', 'fehler': 'SSD Defekt No Boot device found'}
+2025-01-16 09:46:54,934 - INFO - Ticket CS0165506 already exists; skipping insertion.
+2025-01-16 09:46:54,934 - INFO - Parsed details for CS0165419: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G3P7', 'fehler': 'Scharnier rechts gebrochen'}
+2025-01-16 09:46:54,934 - INFO - Ticket CS0165419 already exists; skipping insertion.
+2025-01-16 09:46:54,950 - INFO - Parsed details for CS0165435: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03L018', 'fehler': 'Scharnier Rechts gebrochen'}
+2025-01-16 09:46:54,950 - INFO - Ticket CS0165435 already exists; skipping insertion.
+2025-01-16 09:46:54,950 - INFO - Parsed details for CS0165227: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW00PR2M', 'fehler': 'Backlight Flackert'}
+2025-01-16 09:46:54,965 - INFO - Ticket CS0165227 already exists; skipping insertion.
+2025-01-16 09:46:54,965 - INFO - Parsed details for CS0165080: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'CZC2179L03', 'fehler': 'NVMe M.2 SSD defekt'}
+2025-01-16 09:46:54,965 - INFO - Ticket CS0165080 already exists; skipping insertion.
+2025-01-16 09:46:54,981 - INFO - Parsed details for CS0164931: {'firma': 'Wyder Gartenbau AG', 'seriennummer': '5CG239VBV7', 'fehler': 'Bildschirme werden kurz mit Bild angezeigt, verlieren aber nach wenigen Sekunden die Verbindung wieder.'}
+2025-01-16 09:46:54,981 - INFO - Ticket CS0164931 already exists; skipping insertion.
+2025-01-16 09:46:54,981 - INFO - Parsed details for CS0164914: {'firma': 'SGH', 'seriennummer': '5cg3353f7f', 'fehler': 'Alle USB-C Anschlüsse verlieren Verbindung zu den Monitoren. Blackscreen auf monitor und pc bei einstecken von monitor'}
+2025-01-16 09:46:54,981 - INFO - Ticket CS0164914 already exists; skipping insertion.
+2025-01-16 09:46:54,996 - INFO - Parsed details for CS0164837: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03Kzzv', 'fehler': 'Scharnier Rechts rausgebrochen, Bildschirm beschädigt'}
+2025-01-16 09:46:54,996 - INFO - Ticket CS0164837 already exists; skipping insertion.
+2025-01-16 09:46:54,996 - INFO - Parsed details for CS0164832: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'ZvQ0m1g5', 'fehler': 'Bildausfall HDMI'}
+2025-01-16 09:46:54,996 - INFO - Ticket CS0164832 already exists; skipping insertion.
+2025-01-16 09:46:55,012 - INFO - Parsed details for CS0164676: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03KZYP', 'fehler': 'Scharnier unten rechts rausgebrochen. Bildschirm ebenfalls beschädigt.'}
+2025-01-16 09:46:55,012 - INFO - Ticket CS0164676 already exists; skipping insertion.
+2025-01-16 09:46:55,012 - INFO - Closing ticket CS0164548...
+2025-01-16 09:46:55,012 - INFO - No open ticket found for CS0164548.
+2025-01-16 09:46:55,028 - INFO - Parsed details for CS0164381: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03L06X', 'fehler': 'Scharnier ausgerissen'}
+2025-01-16 09:46:55,028 - INFO - Ticket CS0164381 already exists; skipping insertion.
+2025-01-16 09:46:55,028 - INFO - Parsed details for CS0164377: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G3NH', 'fehler': 'Scharnier ausgerissen'}
+2025-01-16 09:46:55,028 - INFO - Ticket CS0164377 already exists; skipping insertion.
+2025-01-16 09:46:55,043 - INFO - Closing ticket CS0161250...
+2025-01-16 09:46:55,043 - INFO - Ticket CS0161250 successfully closed.
+2025-01-16 09:46:55,043 - INFO - Closing ticket CS0160290...
+2025-01-16 09:46:55,043 - INFO - Ticket CS0160290 successfully closed.
+2025-01-16 09:46:55,059 - INFO - Closing ticket CS0158636...
+2025-01-16 09:46:55,059 - INFO - Ticket CS0158636 successfully closed.
+2025-01-16 09:46:55,059 - INFO - Closing ticket CS0156538...
+2025-01-16 09:46:55,075 - INFO - Ticket CS0156538 successfully closed.
+2025-01-16 09:46:55,075 - INFO - Closing ticket CS0155197...
+2025-01-16 09:46:55,075 - INFO - Ticket CS0155197 successfully closed.
+2025-01-16 09:46:55,090 - INFO - Closing ticket CS0154179...
+2025-01-16 09:46:55,090 - INFO - Ticket CS0154179 successfully closed.
+2025-01-16 09:46:55,090 - INFO - Closing ticket CS0159206...
+2025-01-16 09:46:55,090 - INFO - Ticket CS0159206 successfully closed.
+2025-01-16 09:46:55,106 - INFO - Parsed details for CS0161250: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': '5CD236BK1H', 'fehler': 'Gerät hatte von 30% Akku auf 0% Akku gewechselt und lädt seit dem nicht mehr.'}
+2025-01-16 09:46:55,106 - INFO - Ticket CS0161250 already exists; skipping insertion.
+2025-01-16 09:46:55,121 - INFO - Closing ticket CS0160452...
+2025-01-16 09:46:55,121 - INFO - Ticket CS0160452 successfully closed.
+2025-01-16 09:46:55,121 - INFO - Parsed details for CS0159206: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03L026', 'fehler': 'Scharnier rausgerissen'}
+2025-01-16 09:46:55,137 - INFO - Ticket CS0159206 already exists; skipping insertion.
+2025-01-16 09:46:55,137 - INFO - Closing ticket CS0156794...
+2025-01-16 09:46:55,137 - INFO - Ticket CS0156794 successfully closed.
+2025-01-16 09:46:55,153 - INFO - Closing ticket CS0155634...
+2025-01-16 09:46:55,153 - INFO - Ticket CS0155634 successfully closed.
+2025-01-16 09:46:55,153 - INFO - Closing ticket CS0155382...
+2025-01-16 09:46:55,153 - INFO - Ticket CS0155382 successfully closed.
+2025-01-16 09:46:55,168 - INFO - Parsed details for CS0154179: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G3SW', 'fehler': 'Scharnier defekt'}
+2025-01-16 09:46:55,168 - INFO - Ticket CS0154179 already exists; skipping insertion.
+2025-01-16 09:46:55,168 - INFO - Closing ticket CS0161008...
+2025-01-16 09:46:55,168 - INFO - Ticket CS0161008 successfully closed.
+2025-01-16 09:46:55,184 - INFO - Parsed details for CS0161250: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': '5CD236BK1H', 'fehler': 'Gerät hatte von 30% Akku auf 0% Akku gewechselt und lädt seit dem nicht mehr.'}
+2025-01-16 09:46:55,184 - INFO - Ticket CS0161250 already exists; skipping insertion.
+2025-01-16 09:46:55,184 - INFO - Parsed details for CS0160290: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03L06N', 'fehler': 'Lautsprecher Defekt'}
+2025-01-16 09:46:55,184 - INFO - Ticket CS0160290 already exists; skipping insertion.
+2025-01-16 09:46:55,200 - INFO - Parsed details for CS0158636: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03KZSD', 'fehler': 'Scharnier unten links gebrochen. Bildschirm deswegen auch defekt'}
+2025-01-16 09:46:55,200 - INFO - Ticket CS0158636 already exists; skipping insertion.
+2025-01-16 09:46:55,200 - INFO - Parsed details for CS0155197: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03L013', 'fehler': 'Bildschirm schräg (Scharnier unten rechts defekt)'}
+2025-01-16 09:46:55,200 - INFO - Ticket CS0155197 already exists; skipping insertion.
+2025-01-16 09:46:55,215 - INFO - Parsed details for CS0161008: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G3R0', 'fehler': 'Startet nicht, Keine LEDs leuchten. Displaydeckel beschädigt.'}
+2025-01-16 09:46:55,215 - INFO - Ticket CS0161008 already exists; skipping insertion.
+2025-01-16 09:46:55,231 - INFO - Closing ticket CS0156527...
+2025-01-16 09:46:55,231 - INFO - Ticket CS0156527 successfully closed.
+2025-01-16 09:46:55,231 - INFO - Parsed details for CS0161045: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'R9-0ZJYWF', 'fehler': 'Stift lädt nicht Gerät booted nicht (Bemerkung)'}
+2025-01-16 09:46:55,231 - INFO - Ticket CS0161045 already exists; skipping insertion.
+2025-01-16 09:46:55,246 - INFO - Closing ticket CS0154254...
+2025-01-16 09:46:55,246 - INFO - Ticket CS0154254 successfully closed.
+2025-01-16 09:46:55,246 - INFO - Closing ticket CS0158336...
+2025-01-16 09:46:55,246 - INFO - Ticket CS0158336 successfully closed.
+2025-01-16 09:46:55,262 - INFO - Parsed details for CS0156538: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G3ZP', 'fehler': '(Wurde eigentlich schon repariert, aber folgende Fehler noch vorhanden) Schraube fehlt Stift geht nicht komplett rein'}
+2025-01-16 09:46:55,262 - INFO - Ticket CS0156538 already exists; skipping insertion.
+2025-01-16 09:46:55,262 - INFO - Parsed details for CS0160452: {'firma': 'Computer Repair Schmid 6 Partner AG', 'seriennummer': '5CG2304G5Q', 'fehler': 'lässt sich nicht einschalten'}
+2025-01-16 09:46:55,278 - INFO - Ticket CS0160452 already exists; skipping insertion.
+2025-01-16 09:46:55,278 - INFO - Parsed details for CS0160290: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03L06N', 'fehler': 'Lautsprecher Defekt'}
+2025-01-16 09:46:55,278 - INFO - Ticket CS0160290 already exists; skipping insertion.
+2025-01-16 09:46:55,293 - INFO - Closing ticket CS0157732...
+2025-01-16 09:46:55,293 - INFO - Ticket CS0157732 successfully closed.
+2025-01-16 09:46:55,293 - INFO - Closing ticket CS0158123...
+2025-01-16 09:46:55,293 - INFO - Ticket CS0158123 successfully closed.
+2025-01-16 09:46:55,309 - INFO - Closing ticket CS0156791...
+2025-01-16 09:46:55,309 - INFO - Ticket CS0156791 successfully closed.
+2025-01-16 09:46:55,309 - INFO - Parsed details for CS0155197: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03L013', 'fehler': 'Bildschirm schräg (Scharnier unten rechts defekt)'}
+2025-01-16 09:46:55,309 - INFO - Ticket CS0155197 already exists; skipping insertion.
+2025-01-16 09:46:55,325 - INFO - Parsed details for CS0155634: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03KZWS', 'fehler': 'Scharnier unten Links gebrochen'}
+2025-01-16 09:46:55,325 - INFO - Ticket CS0155634 already exists; skipping insertion.
+2025-01-16 09:46:55,325 - INFO - Parsed details for CS0155382: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW-03KZR1', 'fehler': 'Scharnier gebrochen'}
+2025-01-16 09:46:55,325 - INFO - Ticket CS0155382 already exists; skipping insertion.
+2025-01-16 09:46:55,340 - INFO - Closing ticket CS0155873...
+2025-01-16 09:46:55,340 - INFO - No open ticket found for CS0155873.
+2025-01-16 09:46:55,356 - INFO - Parsed details for CS0159206: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03L026', 'fehler': 'Scharnier rausgerissen'}
+2025-01-16 09:46:55,356 - INFO - Ticket CS0159206 already exists; skipping insertion.
+2025-01-16 09:46:55,356 - INFO - Parsed details for CS0155634: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03KZWS', 'fehler': 'Scharnier unten Links gebrochen'}
+2025-01-16 09:46:55,356 - INFO - Ticket CS0155634 already exists; skipping insertion.
+2025-01-16 09:46:55,371 - INFO - Parsed details for CS0155382: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW-03KZR1', 'fehler': 'Scharnier gebrochen'}
+2025-01-16 09:46:55,371 - INFO - Ticket CS0155382 already exists; skipping insertion.
+2025-01-16 09:46:55,371 - INFO - Closing ticket CS0157778...
+2025-01-16 09:46:55,371 - INFO - Ticket CS0157778 successfully closed.
+2025-01-16 09:46:55,387 - INFO - Parsed details for CS0155197: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03L013', 'fehler': 'Bildschirm schräg (Scharnier unten rechts defekt)'}
+2025-01-16 09:46:55,387 - INFO - Ticket CS0155197 already exists; skipping insertion.
+2025-01-16 09:46:55,387 - INFO - Closing ticket CS0156542...
+2025-01-16 09:46:55,387 - INFO - Ticket CS0156542 successfully closed.
+2025-01-16 09:46:55,403 - INFO - Parsed details for CS0156527: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW-03L03K', 'fehler': 'Scharnier ausgerissen'}
+2025-01-16 09:46:55,403 - INFO - Ticket CS0156527 already exists; skipping insertion.
+2025-01-16 09:46:55,403 - INFO - Closing ticket CS0154274...
+2025-01-16 09:46:55,403 - INFO - Ticket CS0154274 successfully closed.
+2025-01-16 09:46:55,418 - INFO - Parsed details for CS0156538: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G3ZP', 'fehler': '(Wurde eigentlich schon repariert, aber folgende Fehler noch vorhanden) Schraube fehlt Stift geht nicht komplett rein'}
+2025-01-16 09:46:55,418 - INFO - Ticket CS0156538 already exists; skipping insertion.
+2025-01-16 09:46:55,418 - INFO - Parsed details for CS0154254: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03KZSN', 'fehler': 'Bootet immer in Bluescreen. Mehrmals neu aufgesetzt, Reset durchgeführt.'}
+2025-01-16 09:46:55,418 - INFO - Ticket CS0154254 already exists; skipping insertion.
+2025-01-16 09:46:55,434 - INFO - Parsed details for CS0158636: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03KZSD', 'fehler': 'Scharnier unten links gebrochen. Bildschirm deswegen auch defekt'}
+2025-01-16 09:46:55,434 - INFO - Ticket CS0158636 already exists; skipping insertion.
+2025-01-16 09:46:55,434 - INFO - Parsed details for CS0158336: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW-03G4M0', 'fehler': 'Scharnier rausgerissen'}
+2025-01-16 09:46:55,434 - INFO - Ticket CS0158336 already exists; skipping insertion.
+2025-01-16 09:46:55,450 - INFO - Parsed details for CS0158336: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW-03G4M0', 'fehler': 'Scharnier rausgerissen'}
+2025-01-16 09:46:55,450 - INFO - Ticket CS0158336 already exists; skipping insertion.
+2025-01-16 09:46:55,450 - INFO - Parsed details for CS0158636: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03KZSD', 'fehler': 'Scharnier unten links gebrochen. Bildschirm deswegen auch defekt'}
+2025-01-16 09:46:55,450 - INFO - Ticket CS0158636 already exists; skipping insertion.
+2025-01-16 09:46:55,465 - INFO - Parsed details for CS0154274: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PF2G9BF1', 'fehler': 'Backplate und Displayabdecklung gebrochen Bitte KV machen'}
+2025-01-16 09:46:55,465 - INFO - Ticket CS0154274 already exists; skipping insertion.
+2025-01-16 09:46:55,481 - INFO - Closing ticket CS0155635...
+2025-01-16 09:46:55,481 - INFO - Ticket CS0155635 successfully closed.
+2025-01-16 09:46:55,481 - INFO - Closing ticket CS0155881...
+2025-01-16 09:46:55,481 - INFO - Ticket CS0155881 successfully closed.
+2025-01-16 09:46:55,496 - INFO - Parsed details for CS0154179: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G3SW', 'fehler': 'Scharnier defekt'}
+2025-01-16 09:46:55,496 - INFO - Ticket CS0154179 already exists; skipping insertion.
+2025-01-16 09:46:55,496 - INFO - Parsed details for CS0158123: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03L005', 'fehler': 'Scharnier gebrochen'}
+2025-01-16 09:46:55,496 - INFO - Ticket CS0158123 already exists; skipping insertion.
+2025-01-16 09:46:55,512 - INFO - Parsed details for CS0154254: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03KZSN', 'fehler': 'Bootet immer in Bluescreen. Mehrmals neu aufgesetzt, Reset durchgeführt.'}
+2025-01-16 09:46:55,512 - INFO - Ticket CS0154254 already exists; skipping insertion.
+2025-01-16 09:46:55,512 - INFO - Parsed details for CS0154179: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW-03G3SW', 'fehler': 'Scharnier defekt'}
+2025-01-16 09:46:55,528 - INFO - Ticket CS0154179 already exists; skipping insertion.
+2025-01-16 09:46:55,528 - INFO - Parsed details for CS0157778: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW-03KZSE', 'fehler': 'Scharnier rausgerissen'}
+2025-01-16 09:46:55,528 - INFO - Ticket CS0157778 already exists; skipping insertion.
+2025-01-16 09:46:55,543 - INFO - Closing ticket CS0157789...
+2025-01-16 09:46:55,543 - INFO - Ticket CS0157789 successfully closed.
+2025-01-16 09:46:55,543 - INFO - Parsed details for CS0157778: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW-03KZSE', 'fehler': 'Scharnier rausgerissen'}
+2025-01-16 09:46:55,543 - INFO - Ticket CS0157778 already exists; skipping insertion.
+2025-01-16 09:46:55,559 - INFO - Parsed details for CS0157732: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G42E', 'fehler': 'Scharnier Rechts gebrochen'}
+2025-01-16 09:46:55,559 - INFO - Ticket CS0157732 already exists; skipping insertion.
+2025-01-16 09:46:55,559 - INFO - Parsed details for CS0157789: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G3N6', 'fehler': 'Flüssigkeit ausgelaufen auf Bildschirm'}
+2025-01-16 09:46:55,559 - INFO - Ticket CS0157789 already exists; skipping insertion.
+2025-01-16 09:46:55,575 - INFO - Parsed details for CS0156791: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03g49x', 'fehler': 'Scharnier unten Links defekt'}
+2025-01-16 09:46:55,575 - INFO - Ticket CS0156791 already exists; skipping insertion.
+2025-01-16 09:46:55,575 - INFO - Parsed details for CS0157188: {'firma': None, 'seriennummer': 'CND1050W75', 'fehler': None}
+2025-01-16 09:46:55,575 - INFO - Ticket CS0157188 already exists; skipping insertion.
+2025-01-16 09:46:55,590 - INFO - Parsed details for CS0156794: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G3H7', 'fehler': 'Touch Defekt'}
+2025-01-16 09:46:55,590 - INFO - Ticket CS0156794 already exists; skipping insertion.
+2025-01-16 09:46:55,606 - INFO - Parsed details for CS0156791: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03g49x', 'fehler': 'Scharnier unten Links defekt'}
+2025-01-16 09:46:55,606 - INFO - Ticket CS0156791 already exists; skipping insertion.
+2025-01-16 09:46:55,606 - INFO - Parsed details for CS0156527: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW-03L03K', 'fehler': 'Scharnier ausgerissen'}
+2025-01-16 09:46:55,621 - INFO - Ticket CS0156527 already exists; skipping insertion.
+2025-01-16 09:46:55,621 - INFO - Parsed details for CS0156542: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03L03X', 'fehler': 'Touchscreen defekt'}
+2025-01-16 09:46:55,621 - INFO - Ticket CS0156542 already exists; skipping insertion.
+2025-01-16 09:46:55,621 - INFO - Parsed details for CS0156538: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G3ZP', 'fehler': '(Wurde eigentlich schon repariert, aber folgende Fehler noch vorhanden) Schraube fehlt Stift geht nicht komplett rein'}
+2025-01-16 09:46:55,637 - INFO - Ticket CS0156538 already exists; skipping insertion.
+2025-01-16 09:46:55,643 - INFO - Parsed details for CS0156527: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW-03L03K', 'fehler': 'Scharnier ausgerissen'}
+2025-01-16 09:46:55,643 - INFO - Ticket CS0156527 already exists; skipping insertion.
+2025-01-16 09:46:55,643 - INFO - Closing ticket CS0154177...
+2025-01-16 09:46:55,643 - INFO - Ticket CS0154177 successfully closed.
+2025-01-16 09:46:55,658 - INFO - Closing ticket CS0152388...
+2025-01-16 09:46:55,658 - INFO - Ticket CS0152388 successfully closed.
+2025-01-16 09:46:55,658 - INFO - Parsed details for CS0155881: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW-03KZW2', 'fehler': 'Touchscreen defekt'}
+2025-01-16 09:46:55,658 - INFO - Ticket CS0155881 already exists; skipping insertion.
+2025-01-16 09:46:55,674 - INFO - Closing ticket CS0154253...
+2025-01-16 09:46:55,674 - INFO - Ticket CS0154253 successfully closed.
+2025-01-16 09:46:55,674 - INFO - Parsed details for CS0154274: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PF2G9BF1', 'fehler': 'Backplate und Displayabdecklung gebrochen Bitte KV machen'}
+2025-01-16 09:46:55,689 - INFO - Ticket CS0154274 already exists; skipping insertion.
+2025-01-16 09:46:55,689 - INFO - Parsed details for CS0155635: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03L037', 'fehler': 'Stift ladet nicht. Pins der Buchse sind nicht verbogen.'}
+2025-01-16 09:46:55,689 - INFO - Ticket CS0155635 already exists; skipping insertion.
+2025-01-16 09:46:55,689 - INFO - Parsed details for CS0155634: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03KZWS', 'fehler': 'Scharnier unten Links gebrochen'}
+2025-01-16 09:46:55,705 - INFO - Ticket CS0155634 already exists; skipping insertion.
+2025-01-16 09:46:55,705 - INFO - Parsed details for CS0155382: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW-03KZR1', 'fehler': 'Scharnier gebrochen'}
+2025-01-16 09:46:55,705 - INFO - Ticket CS0155382 already exists; skipping insertion.
+2025-01-16 09:46:55,721 - INFO - Parsed details for CS0155197: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03L013', 'fehler': 'Bildschirm schräg (Scharnier unten rechts defekt)'}
+2025-01-16 09:46:55,721 - INFO - Ticket CS0155197 already exists; skipping insertion.
+2025-01-16 09:46:55,721 - INFO - Parsed details for CS0154179: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW-03G3SW', 'fehler': 'Scharnier defekt'}
+2025-01-16 09:46:55,721 - INFO - Ticket CS0154179 already exists; skipping insertion.
+2025-01-16 09:46:55,736 - INFO - Parsed details for CS0155382: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW-03KZR1', 'fehler': 'Scharnier gebrochen'}
+2025-01-16 09:46:55,736 - INFO - Ticket CS0155382 already exists; skipping insertion.
+2025-01-16 09:46:55,736 - INFO - Parsed details for CS0154177: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW-03G4TB', 'fehler': 'Touchpad funktioniert nicht.'}
+2025-01-16 09:46:55,736 - INFO - Ticket CS0154177 already exists; skipping insertion.
+2025-01-16 09:46:55,752 - INFO - Closing ticket CS0154184...
+2025-01-16 09:46:55,752 - INFO - Ticket CS0154184 successfully closed.
+2025-01-16 09:46:55,752 - INFO - Parsed details for CS0154274: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PF2G9BF1', 'fehler': 'Backplate und Displayabdecklung gebrochen Bitte KV machen'}
+2025-01-16 09:46:55,752 - INFO - Ticket CS0154274 already exists; skipping insertion.
+2025-01-16 09:46:55,768 - INFO - Parsed details for CS0154969: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'CND1050W75', 'fehler': 'Scharnier unten Links gebrochen Bitte KV machen'}
+2025-01-16 09:46:55,768 - INFO - Ticket CS0154969 already exists; skipping insertion.
+2025-01-16 09:46:55,799 - INFO - Closing ticket CS0152211...
+2025-01-16 09:46:55,799 - INFO - Ticket CS0152211 successfully closed.
+2025-01-16 09:46:55,814 - INFO - Closing ticket CS0153068...
+2025-01-16 09:46:55,814 - INFO - Ticket CS0153068 successfully closed.
+2025-01-16 09:46:55,830 - INFO - Parsed details for CS0152388: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G4HX', 'fehler': 'Lade LED leuchtet nicht, PC startet nicht.'}
+2025-01-16 09:46:55,830 - INFO - Ticket CS0152388 already exists; skipping insertion.
+2025-01-16 09:46:55,846 - INFO - Closing ticket CS0151950...
+2025-01-16 09:46:55,846 - INFO - Ticket CS0151950 successfully closed.
+2025-01-16 09:46:55,877 - INFO - Parsed details for CS0154274: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PFZG9BF1', 'fehler': 'Backplate und Displayabdecklung gebrochen Bitte KV machen'}
+2025-01-16 09:46:55,877 - INFO - Ticket CS0154274 already exists; skipping insertion.
+2025-01-16 09:46:55,893 - INFO - Parsed details for CS0154254: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03KZSN', 'fehler': 'Bootet immer in Bluescreen. Mehrmals neu aufgesetzt, Reset durchgeführt.'}
+2025-01-16 09:46:55,893 - INFO - Ticket CS0154254 already exists; skipping insertion.
+2025-01-16 09:46:55,908 - INFO - Parsed details for CS0154253: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G4L8', 'fehler': 'Scharnier unten rechts gebrochen.'}
+2025-01-16 09:46:55,908 - INFO - Ticket CS0154253 already exists; skipping insertion.
+2025-01-16 09:46:55,924 - INFO - Parsed details for CS0154184: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'Pw-03G42W', 'fehler': 'Tastatur defekt'}
+2025-01-16 09:46:55,924 - INFO - Ticket CS0154184 already exists; skipping insertion.
+2025-01-16 09:46:55,939 - INFO - Parsed details for CS0154179: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW-03G3SW', 'fehler': 'Scharnier defekt'}
+2025-01-16 09:46:55,939 - INFO - Ticket CS0154179 already exists; skipping insertion.
+2025-01-16 09:46:55,971 - INFO - Parsed details for CS0154182: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW-00PR6C', 'fehler': 'Stürzt ab'}
+2025-01-16 09:46:55,971 - INFO - Ticket CS0154182 already exists; skipping insertion.
+2025-01-16 09:46:55,987 - INFO - Parsed details for CS0154177: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW-03G4TB', 'fehler': 'Touchpad funktioniert nicht.'}
+2025-01-16 09:46:55,987 - INFO - Ticket CS0154177 already exists; skipping insertion.
+2025-01-16 09:46:56,002 - INFO - Parsed details for CS0153068: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW-03G3PF', 'fehler': '- Tastatur funktioniert nicht - Gerät wurde zurückgesetzt - Tasten leuchten'}
+2025-01-16 09:46:56,002 - INFO - Ticket CS0153068 already exists; skipping insertion.
+2025-01-16 09:46:56,018 - INFO - Parsed details for CS0152211: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G3JH', 'fehler': 'Display oben rechts von Backplate getrennt, Backplate verbogen.'}
+2025-01-16 09:46:56,018 - INFO - Ticket CS0152211 already exists; skipping insertion.
+2025-01-16 09:46:56,033 - INFO - Parsed details for CS0152211: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G3JH', 'fehler': 'Display oben rechts von Backplate getrennt, Backplate verbogen.'}
+2025-01-16 09:46:56,033 - INFO - Ticket CS0152211 already exists; skipping insertion.
+2025-01-16 09:46:56,049 - INFO - Closing ticket CS0149854...
+2025-01-16 09:46:56,049 - INFO - Ticket CS0149854 successfully closed.
+2025-01-16 09:46:56,064 - INFO - Parsed details for CS0152388: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G4HX', 'fehler': 'Lade LED leuchtet nicht, PC startet nicht.'}
+2025-01-16 09:46:56,064 - INFO - Ticket CS0152388 already exists; skipping insertion.
+2025-01-16 09:46:56,080 - INFO - Closing ticket CS0145362...
+2025-01-16 09:46:56,080 - INFO - Ticket CS0145362 successfully closed.
+2025-01-16 09:46:56,080 - INFO - Parsed details for CS0152211: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G3JH', 'fehler': 'Display oben rechts von Backplate getrennt, Backplate verbogen.'}
+2025-01-16 09:46:56,080 - INFO - Ticket CS0152211 already exists; skipping insertion.
+2025-01-16 09:46:56,096 - INFO - Closing ticket CS0144476...
+2025-01-16 09:46:56,096 - INFO - Ticket CS0144476 successfully closed.
+2025-01-16 09:46:56,111 - INFO - Parsed details for CS0151950: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW-03G4G0', 'fehler': 'Touchpad Defekt'}
+2025-01-16 09:46:56,111 - INFO - Ticket CS0151950 already exists; skipping insertion.
+2025-01-16 09:46:56,127 - INFO - Parsed details for CS0149854: {'firma': 'Wittwer Andreas', 'seriennummer': 'CND1441Y6K', 'fehler': 'Ursprünglich war USB-C defekt. Dieser Fehler wurde durch den Wechsel des Systemboards behoben (CS0134795 ) Leider funktioniert seit dem Systemboardwechsel der SD Cardreader nicht mehr.'}
+2025-01-16 09:46:56,127 - INFO - Ticket CS0149854 already exists; skipping insertion.
+2025-01-16 09:46:56,127 - INFO - Closing ticket CS0149629...
+2025-01-16 09:46:56,127 - INFO - Ticket CS0149629 successfully closed.
+2025-01-16 09:46:56,143 - INFO - Closing ticket CS0147324...
+2025-01-16 09:46:56,143 - INFO - Ticket CS0147324 successfully closed.
+2025-01-16 09:46:56,143 - INFO - Parsed details for CS0149854: {'firma': 'Wittwer Andreas', 'seriennummer': 'CND1441Y6K', 'fehler': 'Ursprünglich war USB-C defekt. Dieser Fehler wurde durch den Wechsel des Systemboards behoben (CS0134795 ) Leider funktioniert seit dem Systemboardwechsel der SD Cardreader nicht mehr.'}
+2025-01-16 09:46:56,143 - INFO - Ticket CS0149854 already exists; skipping insertion.
+2025-01-16 09:46:56,158 - INFO - Parsed details for CS0149629: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': '5CG9300PR9', 'fehler': 'Ist bei eurem Lieferanten die Tastatur für diesen Laptop auf Lager? Was würde diese kosten? Einbau würden wir übernehmen.'}
+2025-01-16 09:46:56,158 - INFO - Ticket CS0149629 already exists; skipping insertion.
+2025-01-16 09:46:56,158 - INFO - Parsed details for CS0149629: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': '5CG9300PR9', 'fehler': 'Ist bei eurem Lieferanten die Tastatur für diesen Laptop auf Lager? Was würde diese kosten? Einbau würden wir übernehmen.'}
+2025-01-16 09:46:56,158 - INFO - Ticket CS0149629 already exists; skipping insertion.
+2025-01-16 09:46:56,174 - INFO - Parsed details for CS0145362: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW-03KZT0', 'fehler': 'Scharnier rechts defekt'}
+2025-01-16 09:46:56,174 - INFO - Ticket CS0145362 already exists; skipping insertion.
+2025-01-16 09:46:56,189 - INFO - Parsed details for CS0144476: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW-03G3ZP', 'fehler': 'Scharnier rechts defekt'}
+2025-01-16 09:46:56,189 - INFO - Ticket CS0144476 already exists; skipping insertion.
+2025-01-16 09:46:58,357 - INFO - Parsed details for CS0175101: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G46D', 'fehler': 'Scharnier rechts'}
+2025-01-16 09:46:58,357 - INFO - Ticket CS0175101 already exists; skipping insertion.
+2025-01-16 09:46:58,372 - INFO - Parsed details for CS0175358: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G3TS', 'fehler': 'Scharnier Links'}
+2025-01-16 09:46:58,372 - INFO - Ticket CS0175358 already exists; skipping insertion.
+2025-01-16 09:46:58,372 - INFO - Parsed details for CS0175361: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G4NC', 'fehler': 'Scharnier Rechts'}
+2025-01-16 09:46:58,388 - INFO - Ticket CS0175361 already exists; skipping insertion.
+2025-01-16 09:46:58,388 - INFO - Closing ticket CS0173565...
+2025-01-16 09:46:58,388 - INFO - Ticket CS0173565 successfully closed.
+2025-01-16 09:46:58,388 - INFO - Closing ticket CS0173571...
+2025-01-16 09:46:58,404 - INFO - Ticket CS0173571 successfully closed.
+2025-01-16 09:46:58,404 - INFO - Closing ticket CS0169611...
+2025-01-16 09:46:58,404 - INFO - Ticket CS0169611 successfully closed.
+2025-01-16 09:46:58,404 - INFO - Closing ticket CS0173855...
+2025-01-16 09:46:58,404 - INFO - Ticket CS0173855 successfully closed.
+2025-01-16 09:46:58,419 - INFO - Parsed details for CS0175423: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G3TL', 'fehler': 'Scharnier Rechts'}
+2025-01-16 09:46:58,419 - INFO - Ticket CS0175423 already exists; skipping insertion.
+2025-01-16 09:46:58,419 - INFO - Parsed details for CS0175424: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03KzN0', 'fehler': 'Scharnier Links Bildschirm durch Scharnier beschädigt'}
+2025-01-16 09:46:58,419 - INFO - Ticket CS0175424 already exists; skipping insertion.
+2025-01-16 09:46:58,435 - INFO - Closing ticket CS0174454...
+2025-01-16 09:46:58,435 - INFO - Ticket CS0174454 successfully closed.
+2025-01-16 09:46:58,435 - INFO - Closing ticket CS0174451...
+2025-01-16 09:46:58,435 - INFO - Ticket CS0174451 successfully closed.
+2025-01-16 09:46:58,451 - INFO - Closing ticket CS0174446...
+2025-01-16 09:46:58,451 - INFO - Ticket CS0174446 successfully closed.
+2025-01-16 09:46:58,451 - INFO - Closing ticket CS0174447...
+2025-01-16 09:46:58,451 - INFO - Ticket CS0174447 successfully closed.
+2025-01-16 09:46:58,466 - INFO - Closing ticket CS0172446...
+2025-01-16 09:46:58,466 - INFO - Ticket CS0172446 successfully closed.
+2025-01-16 09:46:58,466 - INFO - Closing ticket CS0171870...
+2025-01-16 09:46:58,466 - INFO - Ticket CS0171870 successfully closed.
+2025-01-16 09:46:58,482 - INFO - Closing ticket CS0171336...
+2025-01-16 09:46:58,482 - INFO - Ticket CS0171336 successfully closed.
+2025-01-16 09:46:58,482 - INFO - Closing ticket CS0171870...
+2025-01-16 09:46:58,482 - INFO - Ticket CS0171870 successfully closed.
+2025-01-16 09:46:58,497 - INFO - Closing ticket CS0174913...
+2025-01-16 09:46:58,497 - INFO - Ticket CS0174913 successfully closed.
+2025-01-16 09:46:58,513 - INFO - Parsed details for CS0174913: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': '5CG231148M', 'fehler': 'Bildschirm gebrochen, bitte KV machen'}
+2025-01-16 09:46:58,513 - INFO - Ticket CS0174913 already exists; skipping insertion.
+2025-01-16 09:46:58,513 - INFO - Closing ticket CS0175101...
+2025-01-16 09:46:58,513 - INFO - Ticket CS0175101 successfully closed.
+2025-01-16 09:46:58,513 - INFO - Closing ticket CS0174789...
+2025-01-16 09:46:58,529 - INFO - Ticket CS0174789 successfully closed.
+2025-01-16 09:46:58,529 - INFO - Parsed details for CS0176531: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'pw03g4vp', 'fehler': 'Scharnier Links'}
+2025-01-16 09:46:58,529 - INFO - Ticket CS0176531 already exists; skipping insertion.
+2025-01-16 09:46:58,529 - INFO - Parsed details for CS0177023: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03L02S', 'fehler': 'Scharnier Rechts'}
+2025-01-16 09:46:58,529 - INFO - Ticket CS0177023 already exists; skipping insertion.
+2025-01-16 09:46:58,544 - INFO - Closing ticket CS0175361...
+2025-01-16 09:46:58,544 - INFO - Ticket CS0175361 successfully closed.
+2025-01-16 09:46:58,544 - INFO - Closing ticket CS0175358...
+2025-01-16 09:46:58,544 - INFO - Ticket CS0175358 successfully closed.
+2025-01-16 09:46:58,560 - INFO - Parsed details for CS0176693: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03KZT5', 'fehler': 'Scharnier Links'}
+2025-01-16 09:46:58,560 - INFO - Ticket CS0176693 already exists; skipping insertion.
+2025-01-16 09:46:58,560 - INFO - Parsed details for CS0176693: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03KZT5', 'fehler': 'Scharnier Links'}
+2025-01-16 09:46:58,560 - INFO - Ticket CS0176693 already exists; skipping insertion.
+2025-01-16 09:46:58,576 - INFO - Parsed details for CS0177703: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW-03KZWX', 'fehler': 'Scharnier rechts rausgerissen'}
+2025-01-16 09:46:58,576 - INFO - Ticket CS0177703 already exists; skipping insertion.
+2025-01-16 09:46:58,576 - INFO - Parsed details for CS0177543: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW-03G4N5', 'fehler': 'Scharnier rechts rausgerissen'}
+2025-01-16 09:46:58,576 - INFO - Ticket CS0177543 already exists; skipping insertion.
+2025-01-16 09:46:58,591 - INFO - Closing ticket CS0176531...
+2025-01-16 09:46:58,591 - INFO - Ticket CS0176531 successfully closed.
+2025-01-16 09:46:58,591 - INFO - Parsed details for CS0178918: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03KZQN', 'fehler': 'Scharnier Rechts'}
+2025-01-16 09:46:58,591 - INFO - Ticket CS0178918 already exists; skipping insertion.
+2025-01-16 09:46:58,607 - INFO - Closing ticket CS0175423...
+2025-01-16 09:46:58,607 - INFO - Ticket CS0175423 successfully closed.
+2025-01-16 09:46:58,607 - INFO - Closing ticket CS0175424...
+2025-01-16 09:46:58,607 - INFO - Ticket CS0175424 successfully closed.
+2025-01-16 09:46:58,622 - INFO - Parsed details for CS0179211: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G3RL', 'fehler': 'Scharnier Rechts'}
+2025-01-16 09:46:58,622 - INFO - Ticket CS0179211 already exists; skipping insertion.
+2025-01-16 09:46:58,622 - INFO - Parsed details for CS0179318: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03L06N', 'fehler': 'Bildschirm bleibt Schwarz, capslock leuchet nicht. Reset durchgefüht'}
+2025-01-16 09:46:58,622 - INFO - Ticket CS0179318 already exists; skipping insertion.
+2025-01-16 09:46:58,638 - INFO - Parsed details for CS0179709: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03KzNG', 'fehler': 'Scharnier Rechts'}
+2025-01-16 09:46:58,638 - INFO - Ticket CS0179709 already exists; skipping insertion.
+2025-01-16 09:46:58,638 - INFO - Parsed details for CS0179708: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03G4B6', 'fehler': 'Bildschirm von backplate getrennt'}
+2025-01-16 09:46:58,638 - INFO - Ticket CS0179708 already exists; skipping insertion.
+2025-01-16 09:46:58,654 - INFO - Parsed details for CS0179318: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03L06N', 'fehler': 'Bildschirm bleibt Schwarz, capslock leuchet nicht. Reset durchgefüht'}
+2025-01-16 09:46:58,654 - INFO - Ticket CS0179318 already exists; skipping insertion.
+2025-01-16 09:46:58,654 - INFO - Closing ticket CS0179211...
+2025-01-16 09:46:58,654 - INFO - Ticket CS0179211 successfully closed.
+2025-01-16 09:46:58,669 - INFO - Closing ticket CS0176693...
+2025-01-16 09:46:58,669 - INFO - Ticket CS0176693 successfully closed.
+2025-01-16 09:46:58,669 - INFO - Parsed details for CS0180312: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'Pw03KZVF', 'fehler': 'Scharnier Links'}
+2025-01-16 09:46:58,669 - INFO - Ticket CS0180312 already exists; skipping insertion.
+2025-01-16 09:46:58,685 - INFO - Parsed details for CS0180132: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW03L01E', 'fehler': 'Scharnier Links'}
+2025-01-16 09:46:58,685 - INFO - Ticket CS0180132 already exists; skipping insertion.
+2025-01-16 09:46:58,685 - INFO - Closing ticket CS0177703...
+2025-01-16 09:46:58,685 - INFO - Ticket CS0177703 successfully closed.
+2025-01-16 09:46:58,701 - INFO - Closing ticket CS0177543...
+2025-01-16 09:46:58,701 - INFO - Ticket CS0177543 successfully closed.
+2025-01-16 09:46:58,701 - INFO - Closing ticket CS0177023...
+2025-01-16 09:46:58,701 - INFO - Ticket CS0177023 successfully closed.
+2025-01-16 09:46:58,716 - INFO - Closing ticket CS0178918...
+2025-01-16 09:46:58,716 - INFO - Ticket CS0178918 successfully closed.
+2025-01-16 09:46:58,716 - INFO - Parsed details for CS0181024: {'firma': 'Computer Repair Schmid & Partner AG', 'seriennummer': 'PW-03G49Q', 'fehler': '- Bios normal - Ansonsten nur kommt Hintergrund Beleuchtung'}
+2025-01-16 09:46:58,716 - INFO - Ticket CS0181024 already exists; skipping insertion.
+2025-01-16 09:46:58,716 - INFO - Processed 299 email(s) in 'Computacenter' from the last 180 days.
+2025-01-16 09:46:58,716 - INFO - === Email Import One-Shot Complete ===

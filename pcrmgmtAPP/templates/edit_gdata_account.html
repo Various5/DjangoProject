@@ -1,0 +1,75 @@
+<!-- templates/edit_gdata_account.html -->
+
+{% extends 'base.html' %}
+
+{% block title %}Edit GData Account{% endblock %}
+
+{% block content %}
+<div class="gdata-edit-account-container my-4">
+    <h1 class="mb-4">Edit GData Account</h1>
+    <div class="card">
+        <div class="card-header">Edit Account: {{ account.benutzername }}</div>
+        <div class="card-body">
+            <form method="POST">
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="lizenz_schluessel" class="form-label">Lizenzschlüssel:</label>
+                        <input type="text" id="lizenz_schluessel" name="lizenz_schluessel" class="form-control" value="{{ account.lizenz_schluessel.lizenz_schluessel }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="auftrag_typ" class="form-label">Auftragstyp:</label>
+                        <select id="auftrag_typ" name="auftrag_typ" class="form-select" required>
+                            <option value="1_jahr" {% if account.auftrag_typ == '1_jahr' %}selected{% endif %}>1 Jahr</option>
+                            <option value="2_jahre" {% if account.auftrag_typ == '2_jahre' %}selected{% endif %}>2 Jahre</option>
+                            <option value="3_jahre" {% if account.auftrag_typ == '3_jahre' %}selected{% endif %}>3 Jahre</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="initialen" class="form-label">Initialen:</label>
+                        <input type="text" id="initialen" name="initialen" class="form-control" value="{{ account.initialen }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="firma" class="form-label">Firma:</label>
+                        <input type="text" id="firma" name="firma" class="form-control" value="{{ account.firma }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="nachname" class="form-label">Nachname:</label>
+                        <input type="text" id="nachname" name="nachname" class="form-control" value="{{ account.nachname }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="vorname" class="form-label">Vorname:</label>
+                        <input type="text" id="vorname" name="vorname" class="form-control" value="{{ account.vorname }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="strasse" class="form-label">Straße:</label>
+                        <input type="text" id="strasse" name="strasse" class="form-control" value="{{ account.strasse }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="plz" class="form-label">PLZ:</label>
+                        <input type="text" id="plz" name="plz" class="form-control" value="{{ account.plz }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="ort" class="form-label">Ort:</label>
+                        <input type="text" id="ort" name="ort" class="form-control" value="{{ account.ort }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="benutzername" class="form-label">Benutzername:</label>
+                        <input type="text" id="benutzername" name="benutzername" class="form-control" value="{{ account.benutzername }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="passwort" class="form-label">Passwort:</label>
+                        <input type="password" id="passwort" name="passwort" class="form-control" value="{{ account.passwort }}" required>
+                    </div>
+                    <div class="col-12">
+                        <label for="kommentar" class="form-label">Kommentar (optional):</label>
+                        <textarea id="kommentar" name="kommentar" class="form-control" rows="2">{{ account.kommentar }}</textarea>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary mt-3">Save Changes</button>
+                <a href="{% url 'gdata_accounts' %}" class="btn btn-secondary mt-3">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
