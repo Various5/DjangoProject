@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Task Detail{% endblock %}
+
+{% block content %}
+<h1>Task #{{ task.id }} - {{ task.config.customer_firma }}</h1>
+<p>Status: {{ task.status }}</p>
+<p>Due: {{ task.due_date }}</p>
+
+<form method="POST">
+  {% csrf_token %}
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Check Item</th>
+        <th>Done</th>
+        <th>Notes (WYSIWYG)</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for log_item in logs %}
+      <tr>
+        <td>{{ log_item.sub_check_name }}</td>
+        <td>
+          <input type="checkbox"
+                 name="log_done_{{ log_item.id }}"
+                 {% if log_item.is_done %}checked{% endif %}>
+        </td>
+        <td>
+          <!-- If using a WYSIWYG, you’d replace this with a <textarea> hooking to CKEditor, etc. -->
+          <textarea name="log_desc_{{ log_item.id }}" rows="3" class="form-control">
+            {{ log_item.description }}
+          </textarea>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- Maybe more fields for additional notes? -->
+
+  <button type="submit" name="save_only" class="btn btn-primary">Save</button>
+  <button type="submit" name="complete" class="btn btn-success">
+    Save &amp; Complete
+  </button>
+</form>
+{% endblock %}

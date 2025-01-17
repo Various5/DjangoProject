@@ -1,0 +1,11 @@
+<!-- pcrmgmtAPP/templates/maintenance/task_complete.html -->
+{% extends 'base.html' %}
+{% block title %}Complete Task{% endblock %}
+{% block content %}
+<h1>Complete Task #{{ task.id }}</h1>
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="btn btn-success">Finish</button>
+</form>
+{% endblock %}

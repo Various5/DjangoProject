@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Delete Config{% endblock %}
+
+{% block content %}
+<div class="my-4">
+    <h1>Confirm Delete</h1>
+    <p>Are you sure you want to delete config #{{ config.id }} ({{ config.customer_firma }})?</p>
+
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Yes, Delete</button>
+        <a href="{% url 'maintenance_config_list' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

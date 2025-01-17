@@ -4,7 +4,14 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.contrib.auth.hashers import make_password, check_password
+from ckeditor.fields import RichTextField
 
+FREQUENCY_CHOICES = [
+    ('weekly', 'Weekly'),
+    ('monthly', 'Monthly'),
+    ('2months', 'Every 2 Months'),
+    # Add more as you like
+]
 
 class OfficeAccount(models.Model):
     id = models.AutoField(primary_key=True)
@@ -17,12 +24,11 @@ class OfficeAccount(models.Model):
     erstelldatum = models.DateTimeField()
 
     class Meta:
-        db_table = 'office_accounts'  # Exact existing table name
-        managed = False  # Django does not manage this table
+        db_table = 'office_accounts'
+        managed = False  # external table
 
     def __str__(self):
         return f"{self.vorname} {self.nachname}"
-
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -47,13 +53,11 @@ class UserProfile(models.Model):
     def __str__(self):
         return f"{self.user.username}'s Profile"
 
-
 class Garantie(models.Model):
     TYP_CHOICES = [
         ('garantie', 'Garantie'),
         ('lizenz', 'Lizenz'),
     ]
-
     vorname = models.CharField(max_length=100)
     nachname = models.CharField(max_length=100)
     firma = models.CharField(max_length=100)
@@ -67,7 +71,6 @@ class Garantie(models.Model):
     def __str__(self):
         return f"{self.typ.capitalize()}: {self.vorname} {self.nachname} - {self.seriennummer}"
 
-
 class RMATicket(models.Model):
     ticketnummer = models.CharField(max_length=100, unique=True)
     firma = models.CharField(max_length=255, blank=True, null=True)
@@ -79,9 +82,11 @@ class RMATicket(models.Model):
     category = models.CharField(max_length=50, choices=[('general', 'General'), ('computacenter', 'Computacenter')])
 
     class Meta:
-        db_table = 'tickets'  # Exact existing table name
-        managed = False  # Django does not manage this table
+        db_table = 'tickets'
+        managed = False
 
+    def __str__(self):
+        return f"{self.ticketnummer}"
 
 class LicenseKey(models.Model):
     lizenz_schluessel = models.CharField(max_length=255, unique=True)
@@ -92,8 +97,8 @@ class LicenseKey(models.Model):
 
 class GDataAccount(models.Model):
     lizenz_schluessel = models.ForeignKey(LicenseKey, on_delete=models.PROTECT, null=True, blank=True)
-    datum = models.DateField(auto_now_add=True)  # Date Created
-    initialen = models.CharField(max_length=150)  # Username
+    datum = models.DateField(auto_now_add=True)
+    initialen = models.CharField(max_length=150)
     firma = models.CharField(max_length=255)
     nachname = models.CharField(max_length=255)
     vorname = models.CharField(max_length=255)
@@ -101,7 +106,7 @@ class GDataAccount(models.Model):
     plz = models.CharField(max_length=20)
     ort = models.CharField(max_length=100)
     benutzername = models.CharField(max_length=150, unique=True)
-    passwort = models.CharField(max_length=255)  # Will be hashed in the save method
+    passwort = models.CharField(max_length=255)
     email = models.EmailField(max_length=254, blank=True, null=True)
     auftrag_typ = models.CharField(max_length=20, choices=[
         ('1_jahr', '1 Jahr'),
@@ -110,39 +115,135 @@ class GDataAccount(models.Model):
     ], default='1_jahr')
     kommentar = models.TextField(blank=True, null=True)
 
-    # New fields
     email_sent = models.BooleanField(default=False)
     email_sent_timestamp = models.DateTimeField(null=True, blank=True)
-
-    # New field for expiration date
     expiration_date = models.DateField(null=True, blank=True)
 
     class Meta:
-        db_table = 'gdata_accounts'  # Specify custom table name
-        managed = True  # Django manages this table
+        db_table = 'gdata_accounts'
+        managed = True
+
+    def __str__(self):
+        return f"GData {self.benutzername}"
 
     @property
     def days_left(self):
-        """Calculate days left until expiration."""
         if self.expiration_date:
             return (self.expiration_date - timezone.now().date()).days
         return None
 
     def save(self, *args, **kwargs):
-        # Hash the password before saving
-        if not self.pk or GDataAccount.objects.get(pk=self.pk).passwort != self.passwort:
+        if self.pk:
+            existing = GDataAccount.objects.get(pk=self.pk)
+            if existing.passwort != self.passwort:
+                self.passwort = make_password(self.passwort)
+        else:
             self.passwort = make_password(self.passwort)
 
-        # Set expiration_date based on auftrag_typ if not set
         if not self.expiration_date:
             if self.auftrag_typ == '1_jahr':
                 self.expiration_date = self.datum + timezone.timedelta(days=365)
             elif self.auftrag_typ == '2_jahre':
-                self.expiration_date = self.datum + timezone.timedelta(days=365*2)
+                self.expiration_date = self.datum + timezone.timedelta(days=365 * 2)
             elif self.auftrag_typ == '3_jahre':
-                self.expiration_date = self.datum + timezone.timedelta(days=365*3)
+                self.expiration_date = self.datum + timezone.timedelta(days=365 * 3)
 
         super().save(*args, **kwargs)
 
     def check_password(self, raw_password):
         return check_password(raw_password, self.passwort)
+
+MAINTENANCE_CHECKPOINTS = [
+    "Eventlogs auf Fehlermeldungen",
+    "Windows Updates durchsehen",
+    "Backup überprüfen auf Funktionalität",
+    "Speicherkapazität (Server) checken",
+    "Speicherkapazität (NAS-Backup) checken",
+    "Dateisystem aufräumen (Temp, etc.)",
+    "Firmwareupdates (Server/NAS) nur wichtige",
+    "Virensoftware prüfen (Funde, DB-Updates)",
+]
+
+class MaintenanceConfig(models.Model):
+    FREQUENCY_CHOICES = [
+        ('weekly', 'Weekly'),
+        ('monthly', 'Monthly'),
+        ('2months', 'Every 2 Months'),
+    ]
+
+    # Basic info
+    customer_firma = models.CharField(max_length=255)
+    customer_vorname = models.CharField(max_length=255, blank=True)
+    customer_nachname = models.CharField(max_length=255, blank=True)
+    customer_strasse = models.CharField(max_length=255, blank=True)
+    customer_plz = models.CharField(max_length=20, blank=True)
+    customer_ort = models.CharField(max_length=100, blank=True)
+
+    frequency = models.CharField(max_length=20, choices=FREQUENCY_CHOICES, default='monthly')
+
+    # We'll store the next maintenance due date
+    next_due_date = models.DateField(null=True, blank=True)
+    notes = models.TextField(blank=True, null=True)
+
+    # Possibly track who created
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(
+        User, null=True, on_delete=models.SET_NULL, related_name='created_maint_configs'
+    )
+
+    def __str__(self):
+        return f"{self.customer_firma} ({self.frequency})"
+
+class MaintenanceTask(models.Model):
+    STATUS_CHOICES = [
+        ('open', 'Open'),
+        ('claimed', 'Claimed'),
+        ('done', 'Done'),
+    ]
+
+    config = models.ForeignKey(MaintenanceConfig, on_delete=models.CASCADE, related_name='tasks')
+    due_date = models.DateTimeField()
+    assigned_to = models.ForeignKey(
+        User, null=True, blank=True, on_delete=models.SET_NULL,
+        related_name='maintenance_tasks'
+    )
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='open')  # open, claimed, done, etc.
+    duration_minutes = models.PositiveIntegerField(default=0)
+    claimed_at = models.DateTimeField(null=True, blank=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"Task({self.config.customer_firma} / {self.due_date.date()} / {self.status})"
+
+    def create_default_checkpoints(self):
+        """
+        Create the default sub-check items for this task
+        using the MAINTENANCE_CHECKPOINTS list.
+        """
+        MAINTENANCE_CHECKPOINTS = [
+            "Backup überprüfen (Wöchentlich)",
+            "Server Status checken",
+            "NAS-Backup checken",
+            "Dateisystem aufräumen (Temp, etc.)",
+            "Firmwareupdates (Server/NAS) nur wichtige",
+            "Virensoftware prüfen (Funde, DB-Updates)",
+        ]
+        for checkpoint_name in MAINTENANCE_CHECKPOINTS:
+            MaintenanceLog.objects.create(
+                task=self,
+                sub_check_name=checkpoint_name,
+                description="",
+                is_done=False
+            )
+
+class MaintenanceLog(models.Model):
+    task = models.ForeignKey(MaintenanceTask, on_delete=models.CASCADE, related_name='logs')
+    timestamp = models.DateTimeField(auto_now_add=True)
+    sub_check_name = models.CharField(max_length=200, blank=True)
+    description = RichTextField(blank=True)
+    is_done = models.BooleanField(default=False)
+
+    screenshot = models.FileField(upload_to='maintenance_screenshots/', null=True, blank=True)
+
+    def __str__(self):
+        return f"Log {self.sub_check_name} (Task #{self.task.id})"

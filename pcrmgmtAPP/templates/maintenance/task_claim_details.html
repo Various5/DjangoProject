@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Claim &amp; Update Task #{{ task.id }}{% endblock %}
+
+{% block content %}
+<h1>Claim &amp; Update Task #{{ task.id }}</h1>
+<form method="POST" enctype="multipart/form-data">
+  {% csrf_token %}
+
+  <div class="mb-3">
+    <label>Task Title:</label>
+    <p>{{ task }}</p>
+    <small>Due: {{ task.due_date|date:"Y-m-d H:i" }}</small>
+  </div>
+
+  <h3>Checkpoints</h3>
+  {% for log_item in logs %}
+    <div class="card my-3 p-3">
+      <label class="form-check-label mb-1">
+        <input type="checkbox" name="done_{{ log_item.id }}"
+               {% if log_item.is_done %}checked{% endif %}
+               class="form-check-input" />
+        {{ log_item.sub_check_name }}
+      </label>
+
+      <label class="form-label">Description/Comments:</label>
+      <textarea name="desc_{{ log_item.id }}" class="form-control" rows="2">
+        {{ log_item.description }}
+      </textarea>
+
+      <!-- Example for screenshot upload (optional)
+      <label class="form-label mt-2">Screenshot:</label>
+      <input type="file" name="screenshot_{{ log_item.id }}" class="form-control" />
+      {% if log_item.screenshot %}
+         <p>Existing file: <a href="{{ log_item.screenshot.url }}">{{ log_item.screenshot.name }}</a></p>
+      {% endif %}
+      -->
+    </div>
+  {% endfor %}
+
+  <button type="submit" class="btn btn-primary">Save &amp; Claim</button>
+  <a href="{% url 'maintenance_task_list' %}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

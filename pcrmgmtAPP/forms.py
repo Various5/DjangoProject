@@ -1,7 +1,14 @@
+# pcrmgmtAPP/forms.py
+
 from django import forms
-from .models import UserProfile
 from django.contrib.auth.models import User
-from .models import Garantie
+from .models import (
+    UserProfile,
+    Garantie,
+    MaintenanceConfig,
+    MaintenanceTask,
+    MaintenanceLog,
+)
 
 class RegisterForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
@@ -16,9 +23,6 @@ class RegisterForm(forms.ModelForm):
         }
 
     def clean(self):
-        """
-        Merge the password check into a single clean() method.
-        """
         cleaned_data = super().clean()
         password = cleaned_data.get('password')
         confirm_password = cleaned_data.get('confirm_password')
@@ -27,19 +31,17 @@ class RegisterForm(forms.ModelForm):
         return cleaned_data
 
     def save(self, commit=True):
-        """Override to ensure the password is properly hashed."""
         user = super().save(commit=False)
         raw_password = self.cleaned_data["password"]
-        user.set_password(raw_password)  # crucial for Django to hash the password
+        user.set_password(raw_password)
         if commit:
             user.save()
         return user
 
-
 class SettingsForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = ['theme']  # Nur das Theme-Feld bleibt übrig
+        fields = ['theme']
         widgets = {
             'theme': forms.Select(attrs={'id': 'theme', 'class': 'form-select'}),
         }
@@ -47,8 +49,46 @@ class SettingsForm(forms.ModelForm):
 class GarantieForm(forms.ModelForm):
     class Meta:
         model = Garantie
-        fields = ['vorname', 'nachname', 'firma', 'email', 'startdatum', 'ablaufdatum', 'seriennummer', 'typ', 'kommentar']
+        fields = [
+            'vorname', 'nachname', 'firma', 'email',
+            'startdatum', 'ablaufdatum', 'seriennummer',
+            'typ', 'kommentar'
+        ]
         widgets = {
             'startdatum': forms.DateInput(attrs={'type': 'date'}),
             'ablaufdatum': forms.DateInput(attrs={'type': 'date'}),
         }
+
+#
+# Maintenance forms
+#
+class MaintenanceConfigForm(forms.ModelForm):
+    next_due_date = forms.DateField(
+        required=False,
+        widget=forms.DateInput(
+            attrs={
+                'type': 'date',
+                'class': 'form-control',
+                'placeholder': 'dd.mm.yyyy'
+            },
+            format='%Y-%m-%d'
+        )
+    )
+
+    class Meta:
+        model = MaintenanceConfig
+        fields = [
+            'customer_firma', 'customer_vorname', 'customer_nachname',
+            'customer_strasse', 'customer_plz', 'customer_ort',
+            'frequency', 'next_due_date', 'notes'
+        ]
+
+class MaintenanceTaskForm(forms.ModelForm):
+    class Meta:
+        model = MaintenanceTask
+        fields = ['assigned_to', 'status', 'duration_minutes']
+
+class MaintenanceLogForm(forms.ModelForm):
+    class Meta:
+        model = MaintenanceLog
+        fields = ['sub_check_name', 'description', 'is_done', 'screenshot']

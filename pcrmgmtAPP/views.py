@@ -1,5 +1,7 @@
 # pcrmgmtAPP/views.py
 import os
+from datetime import datetime
+
 from django.http import FileResponse, HttpResponse
 from django.db import connection
 from django.http import JsonResponse
@@ -8,7 +10,7 @@ from django.views.decorators.http import require_GET
 from pcrmgmtProject import settings
 from .utils.encryption import decrypt_password, encrypt_password
 import logging
-from .models import OfficeAccount
+from .models import OfficeAccount, MaintenanceTask
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from io import BytesIO
@@ -16,7 +18,7 @@ import threading
 import time
 from .utils.isl_log_reader import main as run_isl_log_reader  # Assuming the main function runs the script
 from django.contrib.auth import login
-from .forms import RegisterForm
+from .forms import RegisterForm, MaintenanceTaskForm, MaintenanceLogForm
 from .models import UserProfile
 from .models import Garantie
 from .forms import GarantieForm
@@ -35,6 +37,20 @@ from django.contrib.auth.decorators import login_required
 from django.utils.safestring import mark_safe
 from django.http import JsonResponse
 from .models import GDataAccount, LicenseKey
+from .models import MaintenanceConfig, MaintenanceTask, MaintenanceLog
+from .forms import (
+    RegisterForm, GarantieForm,
+    MaintenanceConfigForm,  # <--- add
+    MaintenanceTaskForm,    # <--- add
+    MaintenanceLogForm      # <--- add
+)
+
+from datetime import datetime, time
+from django.utils import timezone
+from weasyprint import HTML  # Requires WeasyPrint installed
+from django.template.loader import render_to_string
+from django.http import HttpResponse
+from django.views.decorators.http import require_POST
 
 logger = logging.getLogger(__name__)
 
@@ -1235,49 +1251,64 @@ def api_logs(request):
 @require_GET
 def autocomplete_customer(request):
     """
-    Returns JSON array of matching customers from the CRM_ADRESSEN table.
-    We'll fetch up to 200 matches and also return extra fields for street, plz, ort, etc.
+    Multi-token search: 'marco müller' or 'müller marco' or 'xyz marco',
+    ignoring case/accent issues.
     """
     query = request.GET.get('query', '').strip()
     results = []
+
     if query:
-        like_pattern = f"%{query}%"
+        tokens = query.split()  # e.g. "marco m" => ["marco","m"]
+        if not tokens:
+            return JsonResponse(results, safe=False)
+
+        conditions = []
+        params = []
+        # For each token => build (column1 LIKE '%token%' OR column2 LIKE '%token%' ...)
+        # joined by AND.
+        for t in tokens:
+            like_pattern = f"%{t}%"
+            part = (
+                "("
+                "[Vorname]  LIKE %s COLLATE SQL_Latin1_General_CP1_CI_AI "
+                " OR [Name]  LIKE %s COLLATE SQL_Latin1_General_CP1_CI_AI "
+                " OR [Firma] LIKE %s COLLATE SQL_Latin1_General_CP1_CI_AI "
+                " OR [Strasse] LIKE %s COLLATE SQL_Latin1_General_CP1_CI_AI "
+                " OR [Ort] LIKE %s COLLATE SQL_Latin1_General_CP1_CI_AI "
+                " OR [PLZ] LIKE %s COLLATE SQL_Latin1_General_CP1_CI_AI "
+                " OR [Email] LIKE %s COLLATE SQL_Latin1_General_CP1_CI_AI "
+                ")"
+            )
+            conditions.append(part)
+            # 7 placeholders per token
+            params.extend([like_pattern]*7)
+
+        where_clause = " AND ".join(conditions)
+
+        sql = f"""
+            SELECT TOP (200)
+                [Vorname],
+                [Name],       -- last name
+                [Firma],
+                [Strasse],
+                [PLZ],
+                [Ort],
+                [Telefon1],
+                [Telefon3],
+                [Email]
+            FROM [SL_MCR001].[dbo].[CRM_ADRESSEN]
+            WHERE {where_clause}
+            ORDER BY [Name], [Vorname]
+        """
+
         try:
             with connections['address_db'].cursor() as cursor:
-                # Select columns needed for autocomplete
-                sql = """
-                    SELECT TOP (200)
-                        [Vorname],
-                        [Name],       -- last name
-                        [Firma],
-                        [Strasse],
-                        [PLZ],
-                        [Ort],
-                        [Telefon1],
-                        [Telefon3],
-                        [Email]
-                    FROM [SL_MCR001].[dbo].[CRM_ADRESSEN]
-                    WHERE (
-                        [Vorname]  LIKE %s OR
-                        [Name]     LIKE %s OR
-                        [Firma]    LIKE %s OR
-                        [Strasse]  LIKE %s OR
-                        [Ort]      LIKE %s OR
-                        [PLZ]      LIKE %s OR
-                        [Email]    LIKE %s
-                    )
-                    ORDER BY [Name], [Vorname]
-                """
-                # We'll pass the same pattern 7 times
-                params = [like_pattern] * 7
                 cursor.execute(sql, params)
                 rows = cursor.fetchall()
-
                 for row in rows:
-                    # row => (Vorname, Name, Firma, Strasse, PLZ, Ort, Telefon1, Telefon3, Email)
                     results.append({
                         'vorname':   row[0] or "",
-                        'nachname':  row[1] or "",  # [Name] if it is last name
+                        'nachname':  row[1] or "",
                         'firma':     row[2] or "",
                         'strasse':   row[3] or "",
                         'plz':       row[4] or "",
@@ -1290,7 +1321,6 @@ def autocomplete_customer(request):
             logger.error(f"Autocomplete Customer Error: {e}")
 
     return JsonResponse(results, safe=False)
-
 
 def run_email_import_script():
     while True:
@@ -1454,3 +1484,349 @@ def autocomplete_address(request):
             logger.error(f"Autocomplete Address Error: {e}")
 
     return JsonResponse(results, safe=False)
+
+
+@login_required
+def maintenance_dashboard(request):
+    now = timezone.now()
+    now = timezone.now()
+    tasks_this_month = MaintenanceTask.objects.filter(
+        due_date__year=now.year,
+        due_date__month=now.month
+    ).select_related('config')
+
+    open_tasks_this_month = tasks_this_month.filter(status__in=['open','claimed'])
+    done_tasks_this_month = tasks_this_month.filter(status='done')
+
+    # For counting "Open" & "Overdue" specifically for this month
+    open_count = open_tasks_this_month.count()
+    overdue_count = open_tasks_this_month.filter(due_date__lt=now).count()
+
+    context = {
+        'open_tasks_this_month': open_tasks_this_month,
+        'done_tasks_this_month': done_tasks_this_month,
+        'open_count': open_count,
+        'overdue_count': overdue_count,
+    }
+    return render(request, 'maintenance/maintenance_dashboard.html', context)
+def config_list(request):
+    configs = MaintenanceConfig.objects.all()
+    return render(request, 'maintenance/config_list.html', {'configs': configs})
+
+def task_list(request):
+    # Filter out completed tasks
+    tasks = MaintenanceTask.objects.select_related('config') \
+                   .filter(status__in=['open', 'claimed']) \
+                   .order_by('due_date')
+    return render(request, 'maintenance/task_list.html', {'tasks': tasks})
+
+def config_create(request):
+    if request.method == 'POST':
+        form = MaintenanceConfigForm(request.POST)
+        if form.is_valid():
+            config = form.save(commit=False)
+            config.created_by = request.user
+            config.save()
+
+            # Optionally create an initial MaintenanceTask
+            if config.next_due_date:
+                new_task = MaintenanceTask.objects.create(
+                    config=config,
+                    due_date=timezone.make_aware(
+                        datetime.combine(config.next_due_date, time(9, 0, 0))
+                    ),
+                    status='open',
+                )
+                new_task.create_default_checkpoints()
+
+            return redirect('maintenance_config_list')
+    else:
+        form = MaintenanceConfigForm()
+    return render(request, 'maintenance/config_form.html', {'form': form})
+
+def config_edit(request, pk):
+    config = get_object_or_404(MaintenanceConfig, pk=pk)
+    if request.method == 'POST':
+        form = MaintenanceConfigForm(request.POST, instance=config)
+        if form.is_valid():
+            form.save()
+            return redirect('maintenance_config_list')
+    else:
+        form = MaintenanceConfigForm(instance=config)
+    return render(request, 'maintenance/config_form.html', {'form': form})
+
+def task_claim(request, pk):
+    task = get_object_or_404(MaintenanceTask, pk=pk)
+    if task.status == 'open':
+        task.assigned_to = request.user
+        task.status = 'claimed'
+        task.claimed_at = timezone.now()
+        task.save()
+    return redirect('maintenance_task_list')
+
+def task_complete(request, pk):
+    task = get_object_or_404(MaintenanceTask, pk=pk)
+    if request.method == 'POST':
+        form = MaintenanceTaskForm(request.POST, instance=task)
+        if form.is_valid():
+            task = form.save(commit=False)
+            task.status = 'done'
+            task.completed_at = timezone.now()
+            task.save()
+
+            # Now create the next task if config.frequency is known
+            # e.g.:
+            if task.config.frequency == 'weekly':
+                days_delta = 7
+            elif task.config.frequency == 'monthly':
+                days_delta = 30
+            elif task.config.frequency == '2months':
+                days_delta = 60
+            # Then:
+            new_due = task.due_date + timezone.timedelta(days=days_delta)
+            next_task = MaintenanceTask.objects.create(
+                config=task.config,
+                due_date=new_due,
+                status='open'
+            )
+            next_task.create_default_checkpoints()
+
+            return redirect('maintenance_task_list')
+    else:
+        form = MaintenanceTaskForm(instance=task)
+    return render(request, 'maintenance/task_complete.html', {'form': form, 'task': task})
+
+
+@login_required
+def maintenance_task_claim(request, pk):
+    task = get_object_or_404(MaintenanceTask, pk=pk)
+
+    if task.status != 'open':
+        messages.warning(request, "This task has already been claimed.")
+        return redirect('maintenance_dashboard')
+
+    # Assign the task to the current user and update status
+    task.assigned_to = request.user
+    task.status = 'claimed'
+    task.claimed_at = timezone.now()
+    task.save()
+
+    messages.success(request, f"You have successfully claimed Task #{task.id}.")
+    return redirect('maintenance_task_claim_details', pk=task.id)
+
+
+@login_required
+def maintenance_task_claim_details(request, pk):
+    task = get_object_or_404(MaintenanceTask, pk=pk)
+
+    # Ensure that the current user is the one who claimed the task
+    if task.assigned_to != request.user:
+        messages.error(request, "You are not authorized to access this task.")
+        return redirect('maintenance_dashboard')
+
+    if request.method == 'POST':
+        # Handle form submission: save undertasks
+        # Assuming you have multiple MaintenanceLog items (undertasks)
+        # Each undertask has 'id', 'description', 'is_done'
+
+        for log in task.logs.all():
+            description = request.POST.get(f'description_{log.id}', '')
+            is_done = request.POST.get(f'is_done_{log.id}', '') == 'on'
+
+            log.description = description
+            log.is_done = is_done
+            log.save()
+
+        messages.success(request, "Undertasks updated successfully.")
+        return JsonResponse({'success': True})
+
+    context = {
+        'task': task,
+        'logs': task.logs.all(),
+    }
+    return render(request, 'maintenance/claim_details.html', context)
+
+
+@login_required
+@require_POST
+def maintenance_task_complete(request, pk):
+    task = get_object_or_404(MaintenanceTask, pk=pk)
+
+    # Ensure that the current user is the one who claimed the task
+    if task.assigned_to != request.user:
+        return JsonResponse({'success': False, 'error': 'Unauthorized.'}, status=403)
+
+    # Calculate duration
+    if task.claimed_at:
+        duration = timezone.now() - task.claimed_at
+        duration_minutes = int(duration.total_seconds() / 60)
+    else:
+        duration_minutes = 0
+
+    # Update task status
+    task.status = 'done'
+    task.completed_at = timezone.now()
+    task.duration_minutes = duration_minutes
+    task.save()
+
+    return JsonResponse({'success': True})
+
+def log_add(request, task_id):
+    task = get_object_or_404(MaintenanceTask, id=task_id)
+    if request.method == 'POST':
+        form = MaintenanceLogForm(request.POST, request.FILES)
+        if form.is_valid():
+            log = form.save(commit=False)
+            log.task = task
+            log.save()
+            return redirect('maintenance_task_list')
+    else:
+        form = MaintenanceLogForm()
+    return render(request, 'maintenance/log_form.html', {'form': form, 'task': task})
+
+
+@login_required
+def maintenance_report(request, config_id):
+    config = get_object_or_404(MaintenanceConfig, id=config_id)
+    tasks = MaintenanceTask.objects.filter(config=config, status='done').prefetch_related('logs')
+
+    if request.method == "POST":
+        # Handle modifications
+        for task in tasks:
+            for log in task.logs.all():
+                description = request.POST.get(f'description_{log.id}', '')
+                is_done = request.POST.get(f'is_done_{log.id}', '') == 'on'
+                log.description = description
+                log.is_done = is_done
+                log.save()
+
+        # Proceed to generate the PDF after saving changes
+        html_string = render_to_string('maintenance/report.html', {'config': config, 'tasks': tasks})
+        html = HTML(string=html_string)
+        pdf = html.write_pdf()
+
+        response = HttpResponse(pdf, content_type='application/pdf')
+        response['Content-Disposition'] = f'filename=Maintenance_Report_Config_{config.id}.pdf'
+        return response
+
+    context = {
+        'config': config,
+        'tasks': tasks,
+    }
+    return render(request, 'maintenance/report.html', context)
+
+@login_required
+def task_delete(request, pk):
+    """
+    Delete a MaintenanceTask.
+    """
+    task = get_object_or_404(MaintenanceTask, pk=pk)
+    if request.method == 'POST':
+        task.delete()
+        messages.success(request, f"Task #{pk} was deleted.")
+        return redirect('maintenance_task_list')
+    # If GET, render a confirm template
+    return render(request, 'maintenance/task_confirm_delete.html', {'task': task})
+
+@login_required
+def task_claim_details(request, pk):
+    """
+    Displays a form with all the sub-check items (MaintenanceLog) for the task,
+    allows user to set assigned_to = request.user, etc.
+    """
+    task = get_object_or_404(MaintenanceTask, pk=pk)
+    if request.method == 'POST':
+        # Mark the task as claimed
+        if task.status == 'open':
+            task.assigned_to = request.user
+            task.status = 'claimed'
+            task.claimed_at = timezone.now()
+            task.save()
+
+        # Now handle updates for each log item
+        # e.g. you could get all logs and read request.POST for each
+        for log_item in task.logs.all():
+            # Suppose we name the fields in the template "done_{log_item.id}"
+            is_done_field = f"done_{log_item.id}"
+            desc_field = f"desc_{log_item.id}"
+            if is_done_field in request.POST:
+                log_item.is_done = True
+            else:
+                log_item.is_done = False
+            log_item.description = request.POST.get(desc_field, "")
+            # For screenshot, if you want to allow updates, you'd have to handle request.FILES
+            log_item.save()
+
+        # Once done, maybe redirect
+        messages.success(request, f"You have claimed Task #{task.id} and updated its logs.")
+        return redirect('maintenance_task_list')
+    else:
+        # GET => show the form with checkboxes, textareas, etc.
+        return render(request, 'maintenance/task_claim_details.html', {
+            'task': task,
+            'logs': task.logs.all(),
+        })
+
+
+@login_required
+def config_delete(request, pk):
+    """
+    Delete a MaintenanceConfig entry.
+    """
+    config = get_object_or_404(MaintenanceConfig, pk=pk)
+    if request.method == 'POST':
+        # Perform the actual deletion
+        config.delete()
+        messages.success(request, f"Maintenance config #{pk} deleted.")
+        return redirect('maintenance_config_list')
+
+    # If GET: render a confirmation template
+    return render(request, 'maintenance/config_confirm_delete.html', {'config': config})
+
+
+@login_required
+def task_detail(request, pk):
+    task = get_object_or_404(MaintenanceTask, pk=pk)
+
+    # If it's the first time we open it (and status is "open"), let's claim it
+    # and record the claimed_at time.
+    if task.status == 'open':
+        task.status = 'claimed'
+        task.claimed_at = timezone.now()
+        task.assigned_to = request.user
+        task.save()
+
+    # We can pass the "logs" (sub-check items) for easy editing in the template
+    logs = task.logs.all()
+
+    # If POST => user might update logs, add text, etc.
+    if request.method == 'POST':
+        # e.g. read any new data: logs updates or a big WYSIWYG field
+        # Suppose you have a separate form or custom logic:
+        for log_item in logs:
+            # example: the user might have posted checkboxes for each log
+            is_done_str = request.POST.get(f"log_done_{log_item.id}", "")
+            log_item.is_done = True if is_done_str == 'on' else False
+
+            # Maybe also a WYSIWYG field for description? "log_desc_{id}"
+            log_item.description = request.POST.get(f"log_desc_{log_item.id}", "")
+            log_item.save()
+
+        # Also handle "Complete" button => set done, compute duration, etc.
+        if "complete" in request.POST:
+            task.status = 'done'
+            task.completed_at = timezone.now()
+            # Calculate the difference to store in `duration_minutes` automatically
+            if task.claimed_at:
+                delta = task.completed_at - task.claimed_at
+                # e.g. store total minutes
+                task.duration_minutes = int(delta.total_seconds() // 60)
+            task.save()
+            messages.success(request, f"Task #{task.id} completed! Duration: {task.duration_minutes} min.")
+            return redirect('maintenance_task_list')  # or dashboard
+
+    return render(request, 'maintenance/task_detail.html', {
+        'task': task,
+        'logs': logs,
+    })
+

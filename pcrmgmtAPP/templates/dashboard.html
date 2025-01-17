@@ -127,6 +127,20 @@
     </div>
 </div>
 
+<!-- pcrmgmtAPP/templates/dashboard.html -->
+<div class="col">
+  <div class="card h-100 shadow-sm">
+    <div class="card-body d-flex flex-column">
+      <h5 class="card-title">Server Maintenance</h5>
+      <p class="card-text text-muted">Manage weekly/monthly tasks and backups.</p>
+      <a href="{% url 'maintenance_dashboard' %}"
+         class="btn btn-info mt-auto align-self-start">
+         <i class="bi bi-server"></i> Go to Maintenance
+      </a>
+    </div>
+  </div>
+</div>
+
 <!-- Example modal for "Generate Report" -->
 <div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
   <div class="modal-dialog">

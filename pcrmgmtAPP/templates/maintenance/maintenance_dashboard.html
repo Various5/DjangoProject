@@ -1,0 +1,114 @@
+<!-- DjangoProject\pcrmgmtAPP\templates\maintenance\maintenance_dashboard.html -->
+
+{% extends 'base.html' %}
+{% block title %}Maintenance Dashboard{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <h1 class="mb-4">Maintenance Dashboard</h1>
+
+    <!-- Open Tasks Summary -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-header">Open Tasks</div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ open_count }}</h5>
+                    <p class="card-text">Tasks due this month.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card text-white bg-danger mb-3">
+                <div class="card-header">Overdue Tasks</div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ overdue_count }}</h5>
+                    <p class="card-text">Tasks past their due date.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Open Tasks List -->
+    <h2>Open Tasks for This Month</h2>
+    {% if open_tasks_this_month %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Firma</th>
+                <th>Due Date</th>
+                <th>Status</th>
+                <th>Assigned To</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in open_tasks_this_month %}
+            <tr>
+                <td>{{ task.id }}</td>
+                <td>{{ task.config.customer_firma }}</td>
+                <td>{{ task.due_date|date:"Y-m-d H:i" }}</td>
+                <td>{{ task.status|title }}</td>
+                <td>
+                    {% if task.assigned_to %}
+                        {{ task.assigned_to.username }}
+                    {% else %}
+                        <span class="badge bg-secondary">Unassigned</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if task.status == 'open' %}
+                        <a href="{% url 'maintenance_task_claim' task.id %}" class="btn btn-sm btn-warning">Claim</a>
+                    {% else %}
+                        <span class="badge bg-info">Claimed by {{ task.assigned_to.username }}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="text-muted">No open tasks for this month.</p>
+    {% endif %}
+
+    <!-- Completed Tasks List -->
+    <h2 class="mt-5">Completed Tasks (This Month)</h2>
+    {% if done_tasks_this_month %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Firma</th>
+                <th>Due Date</th>
+                <th>Status</th>
+                <th>Duration (Minutes)</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in done_tasks_this_month %}
+            <tr>
+                <td>{{ task.id }}</td>
+                <td>{{ task.config.customer_firma }}</td>
+                <td>{{ task.due_date|date:"Y-m-d H:i" }}</td>
+                <td>{{ task.status|title }}</td>
+                <td>{{ task.duration_minutes }}</td>
+                <td>
+                    <a href="{% url 'maintenance_report' task.config.id %}" class="btn btn-sm btn-info">View Report</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="text-muted">No completed tasks for this month.</p>
+    {% endif %}
+
+    <!-- Navigation Buttons -->
+    <div class="mt-4">
+        <a href="{% url 'maintenance_task_list' %}" class="btn btn-primary">View All Tasks</a>
+        <a href="{% url 'maintenance_config_list' %}" class="btn btn-secondary">Manage Configurations</a>
+    </div>
+</div>
+{% endblock %}

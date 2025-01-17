@@ -1,9 +1,10 @@
-# pcrmgmtAPP/urls.py
+# DjangoProject\pcrmgmtAPP\urls.py
 
 from django.urls import path
 from . import views
 from django.contrib.auth.views import LoginView, LogoutView
-
+from django.conf.urls.static import static
+from django.conf import settings
 urlpatterns = [
     path('', views.dashboard, name='dashboard'),
 
@@ -76,5 +77,28 @@ urlpatterns = [
     # Add other paths like edit, delete, etc.
     path('autocomplete/address/', views.autocomplete_address, name='autocomplete_address'),
     path('autocomplete/customer/', views.autocomplete_customer, name='autocomplete_customer'),
+    path('maintenance/', views.maintenance_dashboard, name='maintenance_dashboard'),
 
-]
+    # Config
+    path('maintenance/configs/', views.config_list, name='maintenance_config_list'),
+    path('maintenance/configs/create/', views.config_create, name='maintenance_config_create'),
+    path('maintenance/configs/<int:pk>/edit/', views.config_edit, name='maintenance_config_edit'),
+
+    # Tasks
+    path('maintenance/tasks/', views.task_list, name='maintenance_task_list'),
+    path('maintenance/tasks/<int:pk>/claim/', views.maintenance_task_claim, name='maintenance_task_claim'),
+    path('maintenance/tasks/<int:pk>/complete/', views.maintenance_task_complete, name='maintenance_task_complete'),
+
+    # Logs
+    path('maintenance/tasks/<int:task_id>/logs/add/', views.log_add, name='maintenance_log_add'),
+
+    path('maintenance/report/<int:config_id>/', views.maintenance_report, name='maintenance_report'),
+
+    path('maintenance/tasks/<int:pk>/delete/', views.task_delete, name='maintenance_task_delete'),
+
+    path('maintenance/tasks/<int:pk>/claim-details/', views.task_claim_details, name='maintenance_task_claim_details'),
+
+    path('maintenance/configs/<int:pk>/delete/', views.config_delete, name='maintenance_config_delete'),
+
+    path('maintenance/tasks/<int:pk>/detail/', views.task_detail, name='maintenance_task_detail'),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

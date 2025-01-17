@@ -1,0 +1,207 @@
+<!-- DjangoProject\pcrmgmtAPP\templates\maintenance\claim_details.html -->
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Claim Details - Task #{{ task.id }}{% endblock %}
+
+{% block content %}
+<div class="claim-details-container my-4">
+    <h1>Claim Details - Task #{{ task.id }}</h1>
+    <p><strong>Firma:</strong> {{ task.config.customer_firma }}</p>
+    <p><strong>Due Date:</strong> {{ task.due_date|date:"Y-m-d H:i" }}</p>
+    <p><strong>Claimed At:</strong> {{ task.claimed_at|date:"Y-m-d H:i" }}</p>
+
+    <!-- Timer Display -->
+    <div class="mt-4">
+        <h3>Timer</h3>
+        <p>Time Spent: <span id="timer">00:00:00</span></p>
+    </div>
+
+    <form id="claim-details-form">
+        {% csrf_token %}
+        <div class="accordion" id="undertasksAccordion">
+            {% for log in logs %}
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="heading{{ log.id }}">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ log.id }}" aria-expanded="false" aria-controls="collapse{{ log.id }}">
+                        {{ log.sub_check_name }}
+                    </button>
+                </h2>
+                <div id="collapse{{ log.id }}" class="accordion-collapse collapse" aria-labelledby="heading{{ log.id }}" data-bs-parent="#undertasksAccordion">
+                    <div class="accordion-body">
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" value="" id="is_done_{{ log.id }}" name="is_done_{{ log.id }}" {% if log.is_done %}checked{% endif %}>
+                            <label class="form-check-label" for="is_done_{{ log.id }}">
+                                Completed
+                            </label>
+                        </div>
+                        <div class="mb-3">
+                            <label for="description_{{ log.id }}" class="form-label">Description:</label>
+                            <textarea id="description_{{ log.id }}" name="description_{{ log.id }}" class="form-control ckeditor" rows="4">{{ log.description }}</textarea>
+                        </div>
+                        <!-- Optional: Screenshot Upload -->
+                        <!--
+                        <div class="mb-3">
+                            <label for="screenshot_{{ log.id }}" class="form-label">Screenshot:</label>
+                            <input type="file" id="screenshot_{{ log.id }}" name="screenshot_{{ log.id }}" class="form-control">
+                            {% if log.screenshot %}
+                                <p>Existing Screenshot: <a href="{{ log.screenshot.url }}" target="_blank">View</a></p>
+                            {% endif %}
+                        </div>
+                        -->
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="mt-4 d-flex gap-3">
+            <button type="button" id="save-button" class="btn btn-primary">Save</button>
+            <button type="button" id="complete-button" class="btn btn-success">Complete</button>
+            <button type="button" id="cancel-button" class="btn btn-secondary">Cancel</button>
+        </div>
+    </form>
+</div>
+
+<!-- Modal for Confirming Completion -->
+<div class="modal fade" id="confirmCompleteModal" tabindex="-1" aria-labelledby="confirmCompleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="complete-form">
+      {% csrf_token %}
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirmCompleteModalLabel">Confirm Completion</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to mark this task as completed?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-success">Yes, Complete</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- JavaScript for Autosave, Timer, and Actions -->
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+    const saveButton = document.getElementById("save-button");
+    const completeButton = document.getElementById("complete-button");
+    const cancelButton = document.getElementById("cancel-button");
+    const claimDetailsForm = document.getElementById("claim-details-form");
+    const confirmCompleteModal = new bootstrap.Modal(document.getElementById('confirmCompleteModal'), {});
+    const completeForm = document.getElementById("complete-form");
+
+    // Timer functionality
+    let startTime = new Date("{{ task.claimed_at|date:'Y-m-d H:i:s' }} UTC");
+    let timerInterval = setInterval(function(){
+        let now = new Date();
+        let elapsed = now - startTime; // in milliseconds
+
+        let hours = Math.floor(elapsed / (1000 * 60 * 60));
+        let minutes = Math.floor((elapsed % (1000 * 60 * 60)) / (1000 * 60));
+        let seconds = Math.floor((elapsed % (1000 * 60)) / 1000);
+
+        document.getElementById("timer").textContent =
+            `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+    }, 1000);
+
+    function pad(num){
+        return num.toString().padStart(2, '0');
+    }
+
+    // Autosave functionality
+    let autosaveInterval = setInterval(function(){
+        saveClaimDetails();
+    }, 30000); // Autosave every 30 seconds
+
+    function getCSRFToken() {
+        return document.querySelector('[name=csrfmiddlewaretoken]').value;
+    }
+
+    function saveClaimDetails(){
+        const formData = new FormData(claimDetailsForm);
+        fetch("{% url 'maintenance_task_claim_details' task.id %}", {
+            method: "POST",
+            headers: {
+                'X-CSRFToken': getCSRFToken(),
+            },
+            body: formData,
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success){
+                console.log("Autosaved successfully.");
+            } else {
+                console.error("Autosave failed.");
+            }
+        })
+        .catch(error => {
+            console.error("Error during autosave:", error);
+        });
+    }
+
+    // Save Button
+    saveButton.addEventListener("click", function(){
+        saveClaimDetails();
+        clearInterval(autosaveInterval); // Stop autosave after manual save
+        alert("Changes saved successfully.");
+    });
+
+    // Complete Button
+    completeButton.addEventListener("click", function(){
+        // Open confirmation modal
+        confirmCompleteModal.show();
+    });
+
+    // Handle Completion Confirmation
+    completeForm.addEventListener("submit", function(e){
+        e.preventDefault();
+        // First, save current details
+        saveClaimDetails();
+
+        // Then, mark the task as completed
+        fetch("{% url 'maintenance_task_complete' task.id %}", {
+            method: "POST",
+            headers: {
+                'X-CSRFToken': getCSRFToken(),
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success){
+                confirmCompleteModal.hide();
+                alert("Task marked as completed.");
+                window.location.href = "{% url 'maintenance_dashboard' %}";
+            } else {
+                alert("Failed to complete the task.");
+            }
+        })
+        .catch(error => {
+            console.error("Error completing task:", error);
+            alert("An error occurred while completing the task.");
+        });
+    });
+
+    // Cancel Button
+    cancelButton.addEventListener("click", function(){
+        if(confirm("Are you sure you want to cancel without saving? Any unsaved changes will be lost.")){
+            window.location.href = "{% url 'maintenance_dashboard' %}";
+        }
+    });
+
+    // Clear timer and autosave when task is completed or user navigates away
+    window.addEventListener('beforeunload', function(){
+        clearInterval(timerInterval);
+        clearInterval(autosaveInterval);
+    });
+});
+</script>
+{% endblock %}

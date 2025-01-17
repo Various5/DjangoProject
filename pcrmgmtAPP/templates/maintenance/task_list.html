@@ -1,0 +1,93 @@
+<!-- pcrmgmtAPP/templates/maintenance/task_list.html -->
+{% extends 'base.html' %}
+{% block title %}Maintenance Tasks{% endblock %}
+
+{% block content %}
+<h1>Maintenance Tasks</h1>
+<table class="table">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Firma</th>
+      <th>Due Date</th>
+      <th>Status</th>
+      <th>Assigned</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for t in tasks %}
+    <tr>
+      <td>{{ t.id }}</td>
+      <td>{{ t.config.customer_firma }}</td>
+      <td>{{ t.due_date|date:"d.m.Y H:i" }}</td>
+      <td>{{ t.status }}</td>
+      <td>
+        {% if t.assigned_to %}
+          {{ t.assigned_to }}
+        {% else %}
+          Unclaimed
+        {% endif %}
+      </td>
+      <td>
+        {% if t.status == "open" %}
+         <a href="{% url 'maintenance_task_claim_details' t.id %}"
+            class="btn btn-sm btn-warning">Claim</a>
+        {% endif %}
+        {% if t.status != "done" %}
+          <a href="{% url 'maintenance_task_complete' t.id %}"
+             class="btn btn-sm btn-success">Complete</a>
+        {% endif %}
+        <a href="#" class="btn btn-sm btn-info"
+           data-bs-toggle="collapse" data-bs-target="#checklist-{{ t.id }}">
+           Show Checks
+        </a>
+      <a href="{% url 'maintenance_task_delete' t.id %}"
+            class="btn btn-sm btn-danger"
+        onclick="return confirm('Really delete Task #{{ t.id }}?');">
+        Delete
+        </a>
+      </td>
+    </tr>
+    <tr id="checklist-{{ t.id }}" class="collapse">
+      <td colspan="6">
+        <!-- Sub-check items from t.logs.all -->
+        {% if t.logs.all %}
+          <ul class="list-group">
+            {% for log_item in t.logs.all %}
+            <li class="list-group-item d-flex align-items-center">
+              <div class="form-check me-3">
+                <input class="form-check-input" type="checkbox"
+                       {% if log_item.is_done %}checked{% endif %}
+                       disabled>
+              </div>
+              <strong>{{ log_item.sub_check_name }}</strong>
+              {% if log_item.description %}
+                - {{ log_item.description }}
+              {% endif %}
+            </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <em>No sub-checks found.</em>
+        {% endif %}
+      </td>
+    <td>
+  {% if t.claimed_at %}
+     <p>Claimed: {{ t.claimed_at|date:"Y-m-d H:i" }}</p>
+     {% if t.time_in_progress %}
+       <p>Time in progress:
+         {{ t.time_in_progress.days }} days
+         {{ t.time_in_progress.seconds|divisibleby:3600 }} hours
+         <!-- or use a custom template filter to show a nice format -->
+       </p>
+     {% endif %}
+  {% else %}
+     <em>Not claimed yet</em>
+  {% endif %}
+</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

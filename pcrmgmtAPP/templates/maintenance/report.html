@@ -1,0 +1,139 @@
+<!-- DjangoProject\pcrmgmtAPP\templates\maintenance\report.html -->
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Maintenance Report - Config #{{ config.id }}{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <h1 class="mb-4">Maintenance Report</h1>
+    <h2>Config #{{ config.id }} - {{ config.customer_firma }}</h2>
+    <p><strong>Frequency:</strong> {{ config.frequency }}</p>
+    <p><strong>Notes:</strong> {{ config.notes }}</p>
+    <p><strong>Created At:</strong> {{ config.created_at|date:"Y-m-d H:i" }}</p>
+
+    <h3>Completed Tasks</h3>
+    <form method="POST">
+        {% csrf_token %}
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Due Date</th>
+                    <th>Status</th>
+                    <th>Duration (Minutes)</th>
+                    <th>Completed At</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in tasks %}
+                <tr>
+                    <td>{{ task.id }}</td>
+                    <td>{{ task.due_date|date:"Y-m-d H:i" }}</td>
+                    <td>{{ task.status|title }}</td>
+                    <td>{{ task.duration_minutes }}</td>
+                    <td>{{ task.completed_at|date:"Y-m-d H:i" }}</td>
+                    <td>
+                        <!-- Download PDF for individual task -->
+                        <button type="submit" name="generate_pdf" value="{{ task.id }}" class="btn btn-sm btn-info">Download PDF</button>
+                        <!-- Modify task details (opens in a new tab) -->
+                        <a href="{% url 'maintenance_task_detail' task.id %}" target="_blank" class="btn btn-sm btn-secondary">Modify</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </form>
+
+    <h3>Undertasks Summary</h3>
+    <form method="POST">
+        {% csrf_token %}
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Task ID</th>
+                    <th>Sub-Task</th>
+                    <th>Completed</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in tasks %}
+                    {% for log in task.logs.all %}
+                    <tr>
+                        <td>{{ task.id }}</td>
+                        <td>{{ log.sub_check_name }}</td>
+                        <td>
+                            <input type="checkbox" name="is_done_{{ log.id }}" {% if log.is_done %}checked{% endif %}>
+                        </td>
+                        <td>
+                            <textarea name="description_{{ log.id }}" rows="2">{{ log.description }}</textarea>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+    </form>
+
+    <div style="text-align: center; margin-top: 30px;">
+        <form method="POST">
+            {% csrf_token %}
+            <button type="submit" name="download_pdf" class="btn btn-success">Download Entire Report as PDF</button>
+        </form>
+        <a href="{% url 'maintenance_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+</div>
+
+<!-- JavaScript to handle form submissions for modifications and PDF generation -->
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+    // Handle Save Changes
+    const saveForm = document.querySelector("form");
+    saveForm.addEventListener("submit", function(e){
+        e.preventDefault();
+        const formData = new FormData(this);
+        fetch("{% url 'maintenance_report' config.id %}", {
+            method: "POST",
+            headers: {
+                'X-CSRFToken': getCSRFToken(),
+            },
+            body: formData,
+        })
+        .then(response => {
+            if(response.redirected){
+                window.location.href = response.url;
+            }
+            return response.json();
+        })
+        .then(data => {
+            if(data.success){
+                alert("Report updated successfully.");
+            } else {
+                alert("Failed to update report.");
+            }
+        })
+        .catch(error => {
+            console.error("Error updating report:", error);
+            alert("An error occurred while updating the report.");
+        });
+    });
+
+    // Handle Download PDF for Entire Report
+    const downloadForm = document.querySelector('form[method="POST"] button[name="download_pdf"]');
+    if(downloadForm){
+        downloadForm.addEventListener("click", function(){
+            // Submit the form to trigger PDF generation
+            this.form.submit();
+        });
+    }
+
+    function getCSRFToken() {
+        return document.querySelector('[name=csrfmiddlewaretoken]').value;
+    }
+});
+</script>
+{% endblock %}
