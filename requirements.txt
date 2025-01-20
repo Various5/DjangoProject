@@ -16,5 +16,3 @@ bs4~=0.0.2
 pywin32
 beautifulsoup4~=4.12.3
 utils~=1.0.2
-WeasyPrint
-django-ckeditor
