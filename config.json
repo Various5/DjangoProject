@@ -1,0 +1,10 @@
+{
+    "isl_script_interval": 60,
+    "rma_script_interval": 240,
+    "script_running": true,
+    "rma_script_running": false,
+    "script_start_time": null,
+    "rma_script_start_time": null,
+    "last_script_success": true,
+    "last_rma_success": true
+}
