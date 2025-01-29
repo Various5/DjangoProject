@@ -89,12 +89,12 @@ urlpatterns = [
     path('maintenance/configs/<int:pk>/delete/', views.config_delete, name='maintenance_config_delete'),
 
     # Neu hinzugefügt, damit der "Report"-Button nicht ins Leere führt:
-    path('maintenance/configs/<int:pk>/report/', views.maintenance_report, name='maintenance_report'),
+    path('maintenance/configs/<int:pk>/report/', views.maintenance_report_pdf, name='maintenance_report'),
 
     # Maintenance Tasks
     path('maintenance/tasks/', views.task_list, name='maintenance_task_list'),
     path('maintenance/tasks/<int:task_id>/detail/', views.task_detail, name='maintenance_task_detail'),
-    path('maintenance/tasks/<int:task_id>/claim/', views.maintenance_task_claim_details,
+    path('maintenance/tasks/<int:task_id>/claim/', views.task_claim_details,
          name='maintenance_task_claim_details'),
     path('maintenance/tasks/<int:task_id>/complete/', views.maintenance_task_complete,
          name='maintenance_task_complete'),

@@ -1,0 +1,120 @@
+/* maintenance_pdf.css */
+
+/* Grundlegende Stile für den gesamten PDF-Inhalt */
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    font-size: 14px;
+    color: #333333;
+}
+
+/* Firmenlogo oben rechts */
+.logo {
+    text-align: right;
+    margin-bottom: 20px;
+}
+
+.logo img {
+    height: 60px;
+}
+
+/* Haupttitel */
+h1 {
+    font-size: 18px;
+    color: #2F4F4F;
+    margin-bottom: 5px;
+}
+
+/* Untertitel */
+.subtitle {
+    color: #666666;
+    font-size: 12px;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+/* Tabellenstile */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+th, td {
+    border: 1px solid #CCCCCC;
+    padding: 8px;
+    vertical-align: top;
+}
+
+th {
+    background-color: #F8F8F8;
+    text-align: left;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+td {
+    font-size: 12px;
+}
+
+/* Status-Indikatoren */
+.done {
+    color: green;
+    font-weight: bold;
+}
+
+.notdone {
+    color: red;
+    font-weight: bold;
+}
+
+/* Bilder (Screenshots) in der Beschreibung */
+td img {
+    max-width: 500px; /* Erhöhte maximale Breite für bessere Lesbarkeit */
+    height: auto;
+    border: 1px solid #DDDDDD;
+    padding: 2px;
+    margin-top: 10px;
+}
+
+/* Footer-Stil */
+.footer {
+    font-size: 10px;
+    text-align: right;
+    color: #999999;
+    margin-top: 30px;
+}
+
+/* Tabellenüberschriften fett und zentriert */
+table thead th {
+    text-align: left;
+}
+
+/* Zebra-Streifen für Tabellenzeilen */
+table tbody tr:nth-child(odd) {
+    background-color: #FBFBFB;
+}
+
+table tbody tr:nth-child(even) {
+    background-color: #FFFFFF;
+}
+
+/* Responsive Anpassungen für kleinere PDFs (optional) */
+@media print {
+    body {
+        margin: 10px;
+    }
+
+    h1 {
+        font-size: 16px;
+    }
+
+    th, td {
+        padding: 6px;
+        font-size: 11px;
+    }
+
+    td img {
+        max-width: 400px; /* Anpassung für kleinere PDFs */
+    }
+}

@@ -16,6 +16,24 @@ ALLOWED_HOSTS = ['0.0.0.0', '127.0.0.1', 'pcrsrvisl', '192.168.31.205', 'localho
 SECURE_CROSS_ORIGIN_OPENER_POLICY = None
 CKEDITOR_UPLOAD_PATH = "uploads/"
 
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'Full',
+        'extraPlugins': ','.join([
+            'uploadimage',  # Wichtig für Drag&Drop / Copy-Paste-Uploads
+        ]),
+        # Upload-Endpunkt:
+        'filebrowserUploadUrl': "/ckeditor/upload/",
+        'filebrowserUploadMethod': 'form',
+        # Optional alle HTML-Tags zulassen:
+        'allowedContent': True,
+    },
+}
+
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -111,9 +129,11 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [
-    BASE_DIR / "pcrmgmtAPP/static",  # Ensure this matches your directory structure
+    BASE_DIR / "pcrmgmtAPP" / "static",  # Passen Sie diesen Pfad entsprechend Ihrer Projektstruktur an
 ]
+
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

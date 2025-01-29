@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Maintenance Report {{ config.customer_firma }}</title>
+  <style>
+    body { font-family: "Helvetica", sans-serif; margin: 20px; font-size: 14px; }
+    h1 { color: #2F4F4F; margin-bottom: 0; }
+    .subtitle { color: #666; margin-top: 0; font-size: 0.9em; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 1em; }
+    th, td { border: 1px solid #ccc; padding: 6px; vertical-align: top; }
+    th { background-color: #f8f8f8; }
+    .task-done { color: green; }
+    .task-open { color: red; }
+  </style>
+</head>
+<body>
+
+  <!-- Optional: Logo oben -->
+  {% if logo_url %}
+    <div style="text-align: right;">
+      <img src="{{ logo_url }}" alt="Company Logo" style="height:60px;">
+    </div>
+  {% endif %}
+
+  <h1>Maintenance Report</h1>
+  <p class="subtitle">Config #{{ config.id }} – {{ config.customer_firma }}</p>
+  <hr>
+
+  <!-- Kurze Config-Daten -->
+  <p><strong>Adresse:</strong> {{ config.customer_strasse }}, {{ config.customer_plz }} {{ config.customer_ort }}</p>
+  <p><strong>Frequenz:</strong> {{ config.get_frequency_display }}</p>
+  <p><strong>Notizen:</strong> {{ config.notes|linebreaks }}</p>
+
+  <h2>Überblick aller Tasks</h2>
+  {% for task in tasks %}
+    <h3 style="margin-bottom:0;">
+      Task #{{ task.id }}:
+      {{ task.due_date|date:"d.m.Y H:i" }}
+      (<span class="{% if task.status == 'done' %}task-done{% else %}task-open{% endif %}">{{ task.status }}</span>)
+    </h3>
+    <p style="margin-top:0; font-size:0.9em;">
+      Assigned to:
+      {% if task.assigned_to %}{{ task.assigned_to.username }}{% else %}-{% endif %},
+      Completed at: {% if task.completed_at %}{{ task.completed_at|date:"Y-m-d H:i" }}{% else %}-{% endif %}.
+    </p>
+
+    <!-- Sub-Check Table -->
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 20%;">Check Name</th>
+          <th style="width: 10%;">Status</th>
+          <th style="width: 70%;">Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for log_item in task.logs.all %}
+        <tr>
+          <td>{{ log_item.sub_check_name }}</td>
+          <td>
+            {% if log_item.is_done %}
+              <span style="color:green;">DONE</span>
+            {% else %}
+              <span style="color:red;">OPEN</span>
+            {% endif %}
+          </td>
+          <td>
+            {{ log_item.description|safe }}
+
+            {% if log_item.screenshot %}
+              <div style="margin-top:8px;">
+                <img src="{{ request.build_absolute_uri(log_item.screenshot.url) }}"
+                     alt="Screenshot"
+                     style="max-width: 300px; border: 1px solid #ccc;">
+              </div>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endfor %}
+
+  <hr>
+  <p style="font-size:0.8em; text-align:right; color:#999;">
+    Report generated on {{ now|date:"Y-m-d H:i" }}
+  </p>
+</body>
+</html>

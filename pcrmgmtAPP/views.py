@@ -7,9 +7,14 @@ import json
 import logging
 import subprocess
 import time as pytime
-
+from weasyprint import HTML, CSS
 # Wichtig: Wir laden die Klasse datetime, date, time, timedelta
 from datetime import datetime, date, time, timedelta
+
+
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.utils import ImageReader
 
 import pytz
 from dateutil.relativedelta import relativedelta
@@ -37,7 +42,7 @@ from pcrmgmtProject import settings
 from .utils.encryption import decrypt_password, encrypt_password
 from .utils.isl_log_reader import main as run_isl_log_reader
 
-from weasyprint import HTML
+from weasyprint import HTML, CSS
 from django.template.loader import render_to_string
 import tempfile
 
@@ -1607,18 +1612,47 @@ def config_delete(request, pk):
         return redirect('maintenance_config_list')
     return render(request, 'maintenance/config_confirm_delete.html', {'config': config})
 
+
 @login_required
-def maintenance_report(request, pk):
-    """
-    Zeigt eine Report-Ansicht für eine MaintenanceConfig, z.B. alle erledigten Tasks, Logs etc.
-    """
-    config = get_object_or_404(MaintenanceConfig, pk=pk)
-    # Beispiel: nur erledigte Tasks:
-    tasks = config.tasks.filter(status='done').order_by('-completed_at')
-    return render(request, 'maintenance/report.html', {
+def maintenance_report_pdf(request, config_id):
+    """Erzeugt einen ausführlichen Maintenance-PDF-Report inkl. Bilder."""
+    config = get_object_or_404(MaintenanceConfig, pk=config_id)
+    # Dazugehörige erledigte UND offene Tasks:
+    tasks = config.tasks.select_related('assigned_to').prefetch_related('logs').all().order_by('due_date')
+
+    # Optional: ein Firmenlogo / eigenes Logo:
+    # Pfad ins static-Verzeichnis oder an anderer Stelle
+    logo_path = os.path.join(settings.STATIC_ROOT, 'img', 'mycompany_logo.png')
+    # falls WeasyPrint absolute URLs braucht => build_absolute_uri,
+    # aber hier nur als Bsp. (ggf. config. in Template einbauen)
+
+    # Kontext vorbereiten
+    context = {
         'config': config,
         'tasks': tasks,
-    })
+        'logo_url': request.build_absolute_uri('/static/img/mycompany_logo.png'),
+        # oder: 'logo_url': request.build_absolute_uri(static('img/mycompany_logo.png'))
+    }
+
+    # 1) HTML-Template in String rendern
+    html_string = render_to_string('maintenance/pdf/maintenance_report.html', context, request=request)
+
+    # 2) WeasyPrint-Aufruf: PDF generieren
+    #    Falls du ein eigenes CSS-File einbinden möchtest, kannst du das so machen:
+    pdf_styles = os.path.join(settings.STATIC_ROOT, 'css', 'maintenance_pdf.css')
+    #    -> Du musst darauf achten, dass maintenance_pdf.css wirklich in /static/css/ liegt
+    #    -> und in production collectstatic korrekt funktioniert.
+
+    # HTML-Objekt erstellen:
+    pdf_file = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf(
+        stylesheets=[CSS(pdf_styles)]
+    )
+
+    # 3) Antwort als PDF zurückgeben
+    response = HttpResponse(pdf_file, content_type='application/pdf')
+    filename = f"Maintenance_Report_{config_id}.pdf"
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response
 
 
 
@@ -1655,78 +1689,57 @@ def task_delete(request, task_id):
     return render(request, 'maintenance/task_confirm_delete.html', {'task': task})
 
 
-@login_required
-def maintenance_task_claim_details(request, task_id):
-    """
-    View, um einen Task zu claimen/aktualisieren.
-    - wenn open => status = claimed, assigned_to = request.user
-    - wenn bereits claimed von anderem => nur Admin darf override
-    - falls POST => Logs aktualisieren
-    """
+def task_claim_details(request, task_id):
     task = get_object_or_404(MaintenanceTask, pk=task_id)
 
-    # Falls Task jemand anderem gehört und User kein Superuser:
-    if task.assigned_to and task.assigned_to != request.user and not request.user.is_superuser:
-        messages.error(request, "Dieser Task ist bereits von jemand anderem geclaimed.")
-        return redirect('maintenance_dashboard')
-
-    # Auto-claim, wenn noch open
-    if task.status == 'open':
-        task.status = 'claimed'
-        task.claimed_at = timezone.now()
-        task.assigned_to = request.user
-        task.save()
-        messages.info(request, "Du hast diesen Task erfolgreich geclaimed.")
-
     if request.method == 'POST':
-        # Reassign?
+        # Reassign user
         new_assignee_id = request.POST.get('assigned_to')
         if new_assignee_id:
-            from django.contrib.auth.models import User
             try:
                 new_user = User.objects.get(pk=new_assignee_id)
                 task.assigned_to = new_user
+                # Falls open => status = claimed
                 if task.status == 'open':
                     task.status = 'claimed'
                     task.claimed_at = timezone.now()
-                task.save()
-                messages.success(request, f"Task an {new_user.username} delegiert.")
             except User.DoesNotExist:
-                messages.error(request, "Ungültiger Benutzer zum Delegieren.")
+                messages.error(request, "Benutzer existiert nicht.")
+        task.save()
 
-        # Update Sub-Checks
+        # Update sub-checks (Logs)
         for log_item in task.logs.all():
-            desc_field = f"desc_{log_item.id}"
-            done_field = f"done_{log_item.id}"
-            new_desc = request.POST.get(desc_field, "")
-            log_item.description = new_desc
-            log_item.is_done = (done_field in request.POST)
+            desc = request.POST.get(f"desc_{log_item.id}", "")
+            is_done = request.POST.get(f"done_{log_item.id}", "") != ""
+            log_item.description = desc
+            log_item.is_done = is_done
+
+            # Screenshot-Feld
+            file_field = f"screenshot_{log_item.id}"
+            if file_field in request.FILES:
+                log_item.screenshot = request.FILES[file_field]
+
             log_item.save()
 
         messages.success(request, "Task aktualisiert.")
         return redirect('maintenance_task_claim_details', task_id=task.id)
 
-    # GET: Form anzeigen
-    from django.contrib.auth.models import User
+    # GET: Template rendern
     user_list = User.objects.all().order_by('username')
-
-    context = {
+    return render(request, 'maintenance/task_claim_details.html', {
         'task': task,
         'logs': task.logs.all(),
         'user_list': user_list,
-    }
-    return render(request, 'maintenance/task_claim_details.html', context)
+    })
 
-@transaction.atomic
 def maintenance_task_complete(request, task_id):
-    """
-    Task abschließen, neuen Task für die nächste Periode anlegen.
-    """
     if request.method != 'POST':
         return HttpResponseNotAllowed(['POST'])
 
     task = get_object_or_404(MaintenanceTask, pk=task_id)
     if task.status not in ['open', 'claimed']:
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'error': 'Task already completed or invalid status.'})
         messages.warning(request, "Task ist bereits abgeschlossen oder hat ungültigen Status.")
         return redirect('maintenance_task_list')
 
@@ -1757,6 +1770,10 @@ def maintenance_task_complete(request, task_id):
     new_task.create_default_checkpoints()
 
     messages.success(request, f"Task #{task.id} abgeschlossen. Neuer Task fällig am {next_due.strftime('%Y-%m-%d')}.")
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({'success': True, 'new_task_due_date': next_due.strftime('%Y-%m-%d')})
+
     return redirect('maintenance_dashboard')
 
 
@@ -1837,43 +1854,30 @@ def maintenance_overview(request):
     configs = MaintenanceConfig.objects.all().order_by('customer_firma')
     return render(request, 'maintenance/maintenance_overview.html', {'configs': configs})
 
-@login_required
 def maintenance_task_pdf(request, task_id):
-    """
-    PDF-Export eines einzelnen Tasks, z.B. mit ReportLab
-    """
-    from io import BytesIO
-    from reportlab.pdfgen import canvas
-    from reportlab.lib.pagesizes import letter
-
     task = get_object_or_404(MaintenanceTask, pk=task_id)
+    config = task.config
+    logs = task.logs.all()
 
-    buffer = BytesIO()
-    p = canvas.Canvas(buffer, pagesize=letter)
-    p.setTitle(f"Maintenance Task #{task_id}")
+    context = {
+        'task': task,
+        'config': config,
+        'logs': logs,
+        'now': timezone.now(),
+        'logo_url': request.build_absolute_uri('/static/img/company_logo.png'),  # Pfad zu Ihrem Firmenlogo
+    }
 
-    p.drawString(72, 750, f"Maintenance Task #{task.id} - {task.config.customer_firma}")
-    p.drawString(72, 730, f"Due Date: {task.due_date.strftime('%Y-%m-%d %H:%M')}")
-    p.drawString(72, 710, f"Status: {task.status}")
-    if task.assigned_to:
-        p.drawString(72, 690, f"Assigned To: {task.assigned_to.username}")
-    if task.completed_at:
-        p.drawString(72, 670, f"Completed At: {task.completed_at.strftime('%Y-%m-%d %H:%M')}")
+    # Rendern des HTML-Inhalts
+    html_string = render_to_string('maintenance/maintenance_task_pdf.html', context, request=request)
 
-    y = 640
-    for log_item in task.logs.all():
-        p.drawString(72, y, f"- {log_item.sub_check_name}: {'Done' if log_item.is_done else 'Not Done'}")
-        y -= 20
-        desc = (log_item.description or "")[:100]
-        p.drawString(92, y, f"Notes: {desc}")
-        y -= 40
-        if y < 50:
-            p.showPage()
-            y = 750
+    # WeasyPrint benötigt einen Base URL, um auf statische und Medienressourcen zugreifen zu können
+    base_url = request.build_absolute_uri()
 
-    p.showPage()
-    p.save()
-    buffer.seek(0)
+    # Optional: CSS-Datei für PDF-Styling
+    css = CSS(settings.STATIC_ROOT / 'css' / 'maintenance_pdf.css')  # Stellen Sie sicher, dass diese Datei existiert
 
-    filename = f"maintenance_task_{task.id}.pdf"
-    return FileResponse(buffer, as_attachment=True, filename=filename)
+    # PDF generieren
+    pdf_file = HTML(string=html_string, base_url=base_url).write_pdf(stylesheets=[css])
+
+    # Rückgabe des PDFs als Download
+    return FileResponse(io.BytesIO(pdf_file), as_attachment=True, filename=f"Maintenance_Task_{task.id}.pdf")

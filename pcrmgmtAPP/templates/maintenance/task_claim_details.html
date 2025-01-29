@@ -1,51 +1,31 @@
 <!-- pcrmgmtAPP/templates/maintenance/task_claim_details.html -->
+
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Task Claim & Update - #{{ task.id }}{% endblock %}
+{% block title %}Claim Details - Task #{{ task.id }}{% endblock %}
 
 {% block content %}
 <div class="container my-4">
-    <h1 class="mb-4">Claim / Update Task #{{ task.id }} - {{ task.config.customer_firma }}</h1>
+    <h1>Claim Details - Task #{{ task.id }} - {{ task.config.customer_firma }}</h1>
+    <p><strong>Due Date:</strong> {{ task.due_date|date:"Y-m-d H:i" }}</p>
+    <p><strong>Status:</strong> {{ task.status }}</p>
+    <p><strong>Claimed At:</strong> {{ task.claimed_at|date:"Y-m-d H:i" }}</p>
 
-    <!-- Task info row -->
-    <div class="mb-3">
-        <p>
-            <strong>Due Date:</strong>
-            {{ task.due_date|date:"Y-m-d H:i" }}
-        </p>
-        <p>
-            <strong>Status:</strong>
-            {{ task.status }}
-            {% if task.assigned_to %}
-                (claimed by {{ task.assigned_to.username }})
-            {% endif %}
-        </p>
-        <p>
-            <strong>Claimed At:</strong>
-            {% if task.claimed_at %}
-                {{ task.claimed_at|date:"Y-m-d H:i" }}
-            {% else %}
-                ---
-            {% endif %}
-        </p>
+    <!-- Timer Display -->
+    <div class="mt-4">
+        <h3>Timer</h3>
+        <p>Time Spent: <span id="timer">00:00:00</span></p>
     </div>
 
-    <hr>
-
-    <!-- 1) Main form for sub-check updates & delegation -->
-    <form method="POST" enctype="multipart/form-data">
+    <form id="claim-details-form">
         {% csrf_token %}
-
-        <!-- Delegate / reassign dropdown -->
-        <div class="mb-4">
+        <div class="form-group mb-4">
             <label for="assigned_to" class="form-label">Reassign to User:</label>
             <select id="assigned_to" name="assigned_to" class="form-select">
                 <option value="">(Keep current assignee)</option>
                 {% for user in user_list %}
-                    <option value="{{ user.id }}" {% if task.assigned_to == user %}selected{% endif %}>
-                        {{ user.username }}
-                    </option>
+                    <option value="{{ user.id }}" {% if task.assigned_to == user %}selected{% endif %}>{{ user.username }}</option>
                 {% endfor %}
             </select>
         </div>
@@ -69,47 +49,165 @@
             </div>
             <div class="card-body">
 
-                <!-- Notes / Description (CKEditor if desired) -->
+                <!-- Beschreibung (CKEditor) -->
                 <label for="desc_{{ log_item.id }}" class="form-label">Notes / Description</label>
                 <textarea id="desc_{{ log_item.id }}"
                           name="desc_{{ log_item.id }}"
                           class="form-control ckeditor"
-                          rows="4">{{ log_item.description|safe }}</textarea>
+                          rows="4">{{ log_item.description }}</textarea>
 
-                <!-- If a screenshot was already uploaded, display link -->
-                {% if log_item.screenshot %}
-                <p class="mt-2">
-                    <strong>Existing Screenshot:</strong>
-                    <a href="{{ log_item.screenshot.url }}" target="_blank">View</a>
-                </p>
-                {% endif %}
-
-                <!-- If you'd like to allow new uploads for each log, uncomment:
-                <label for="screenshot_{{ log_item.id }}" class="form-label mt-2">Upload new Screenshot:</label>
-                <input type="file"
-                       id="screenshot_{{ log_item.id }}"
-                       name="screenshot_{{ log_item.id }}"
-                       class="form-control">
-                -->
             </div>
         </div>
         {% endfor %}
 
-        <!-- Save button (updates delegation + sub-check items) -->
-        <button type="submit" class="btn btn-primary">Save Changes</button>
-        <a href="{% url 'maintenance_dashboard' %}" class="btn btn-secondary">Cancel</a>
-    </form>
-
-    <hr>
-
-    <!-- 2) Separate form to finish/close the task. This POSTs to the
-         'maintenance_task_complete' URL with the relevant task_id. -->
-    <form method="POST" action="{% url 'maintenance_task_complete' task.id %}" style="display:inline;">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-success"
-                onclick="return confirm('Are you sure you want to finish this task?');">
-            Finish / Close Task
-        </button>
+        <!-- Action Buttons -->
+        <div class="mt-4 d-flex gap-3">
+            <button type="button" id="save-button" class="btn btn-primary">Save Changes</button>
+            <button type="button" id="complete-button" class="btn btn-success">Complete</button>
+            <button type="button" id="cancel-button" class="btn btn-secondary">Cancel</button>
+        </div>
     </form>
 </div>
+
+<!-- Modal for Confirming Completion -->
+<div class="modal fade" id="confirmCompleteModal" tabindex="-1" aria-labelledby="confirmCompleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="complete-form">
+      {% csrf_token %}
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirmCompleteModalLabel">Confirm Completion</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to mark this task as completed?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-success">Yes, Complete</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- JavaScript for Autosave, Timer, and Actions -->
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+    const saveButton = document.getElementById("save-button");
+    const completeButton = document.getElementById("complete-button");
+    const cancelButton = document.getElementById("cancel-button");
+    const claimDetailsForm = document.getElementById("claim-details-form");
+    const confirmCompleteModal = new bootstrap.Modal(document.getElementById('confirmCompleteModal'), {});
+    const completeForm = document.getElementById("complete-form");
+
+    // Timer functionality
+    let startTime = new Date("{{ task.claimed_at|date:'Y-m-d H:i:s' }} UTC");
+    let timerInterval = setInterval(function(){
+        let now = new Date();
+        let elapsed = now - startTime; // in milliseconds
+
+        let hours = Math.floor(elapsed / (1000 * 60 * 60));
+        let minutes = Math.floor((elapsed % (1000 * 60 * 60)) / (1000 * 60));
+        let seconds = Math.floor((elapsed % (1000 * 60)) / 1000);
+
+        document.getElementById("timer").textContent =
+            `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+    }, 1000);
+
+    function pad(num){
+        return num.toString().padStart(2, '0');
+    }
+
+    // Autosave functionality
+    let autosaveInterval = setInterval(function(){
+        saveClaimDetails();
+    }, 30000); // Autosave every 30 seconds
+
+    function getCSRFToken() {
+        return document.querySelector('[name=csrfmiddlewaretoken]').value;
+    }
+
+    function saveClaimDetails(){
+        const formData = new FormData(claimDetailsForm);
+        fetch("{% url 'maintenance_task_claim_details' task.id %}", {
+            method: "POST",
+            headers: {
+                'X-CSRFToken': getCSRFToken(),
+            },
+            body: formData,
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success){
+                console.log("Autosaved successfully.");
+            } else {
+                console.error("Autosave failed:", data.error);
+            }
+        })
+        .catch(error => {
+            console.error("Error during autosave:", error);
+        });
+    }
+
+    // Save Button
+    saveButton.addEventListener("click", function(){
+        saveClaimDetails();
+        clearInterval(autosaveInterval); // Stop autosave after manual save
+        alert("Changes saved successfully.");
+    });
+
+    // Complete Button
+    completeButton.addEventListener("click", function(){
+        // Open confirmation modal
+        confirmCompleteModal.show();
+    });
+
+    // Handle Completion Confirmation
+    completeForm.addEventListener("submit", function(e){
+        e.preventDefault();
+        // First, save current details
+        saveClaimDetails();
+
+        // Then, mark the task as completed
+        fetch("{% url 'maintenance_task_complete' task.id %}", {
+            method: "POST",
+            headers: {
+                'X-CSRFToken': getCSRFToken(),
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success){
+                confirmCompleteModal.hide();
+                alert("Task marked as completed.");
+                window.location.href = "{% url 'maintenance_dashboard' %}";
+            } else {
+                alert("Failed to complete the task: " + data.error);
+            }
+        })
+        .catch(error => {
+            console.error("Error completing task:", error);
+            alert("An error occurred while completing the task.");
+        });
+    });
+
+    // Cancel Button
+    cancelButton.addEventListener("click", function(){
+        if(confirm("Are you sure you want to cancel without saving? Any unsaved changes will be lost.")){
+            window.location.href = "{% url 'maintenance_dashboard' %}";
+        }
+    });
+
+    // Clear timer and autosave when task is completed or user navigates away
+    window.addEventListener('beforeunload', function(){
+        clearInterval(timerInterval);
+        clearInterval(autosaveInterval);
+    });
+});
+</script>
 {% endblock %}
+
