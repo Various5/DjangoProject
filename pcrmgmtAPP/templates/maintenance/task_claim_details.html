@@ -1,43 +1,115 @@
-{% extends 'base.html' %}
-{% block title %}Claim &amp; Update Task #{{ task.id }}{% endblock %}
+<!-- pcrmgmtAPP/templates/maintenance/task_claim_details.html -->
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Task Claim & Update - #{{ task.id }}{% endblock %}
 
 {% block content %}
-<h1>Claim &amp; Update Task #{{ task.id }}</h1>
-<form method="POST" enctype="multipart/form-data">
-  {% csrf_token %}
+<div class="container my-4">
+    <h1 class="mb-4">Claim / Update Task #{{ task.id }} - {{ task.config.customer_firma }}</h1>
 
-  <div class="mb-3">
-    <label>Task Title:</label>
-    <p>{{ task }}</p>
-    <small>Due: {{ task.due_date|date:"Y-m-d H:i" }}</small>
-  </div>
-
-  <h3>Checkpoints</h3>
-  {% for log_item in logs %}
-    <div class="card my-3 p-3">
-      <label class="form-check-label mb-1">
-        <input type="checkbox" name="done_{{ log_item.id }}"
-               {% if log_item.is_done %}checked{% endif %}
-               class="form-check-input" />
-        {{ log_item.sub_check_name }}
-      </label>
-
-      <label class="form-label">Description/Comments:</label>
-      <textarea name="desc_{{ log_item.id }}" class="form-control" rows="2">
-        {{ log_item.description }}
-      </textarea>
-
-      <!-- Example for screenshot upload (optional)
-      <label class="form-label mt-2">Screenshot:</label>
-      <input type="file" name="screenshot_{{ log_item.id }}" class="form-control" />
-      {% if log_item.screenshot %}
-         <p>Existing file: <a href="{{ log_item.screenshot.url }}">{{ log_item.screenshot.name }}</a></p>
-      {% endif %}
-      -->
+    <!-- Task info row -->
+    <div class="mb-3">
+        <p>
+            <strong>Due Date:</strong>
+            {{ task.due_date|date:"Y-m-d H:i" }}
+        </p>
+        <p>
+            <strong>Status:</strong>
+            {{ task.status }}
+            {% if task.assigned_to %}
+                (claimed by {{ task.assigned_to.username }})
+            {% endif %}
+        </p>
+        <p>
+            <strong>Claimed At:</strong>
+            {% if task.claimed_at %}
+                {{ task.claimed_at|date:"Y-m-d H:i" }}
+            {% else %}
+                ---
+            {% endif %}
+        </p>
     </div>
-  {% endfor %}
 
-  <button type="submit" class="btn btn-primary">Save &amp; Claim</button>
-  <a href="{% url 'maintenance_task_list' %}" class="btn btn-secondary">Cancel</a>
-</form>
+    <hr>
+
+    <!-- 1) Main form for sub-check updates & delegation -->
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- Delegate / reassign dropdown -->
+        <div class="mb-4">
+            <label for="assigned_to" class="form-label">Reassign to User:</label>
+            <select id="assigned_to" name="assigned_to" class="form-select">
+                <option value="">(Keep current assignee)</option>
+                {% for user in user_list %}
+                    <option value="{{ user.id }}" {% if task.assigned_to == user %}selected{% endif %}>
+                        {{ user.username }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <hr>
+
+        <h4>Maintenance Sub-checks</h4>
+        {% for log_item in logs %}
+        <div class="card mb-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <strong>{{ log_item.sub_check_name }}</strong>
+                <div class="form-check mb-0">
+                    <input class="form-check-input" type="checkbox"
+                           id="done_{{ log_item.id }}"
+                           name="done_{{ log_item.id }}"
+                           {% if log_item.is_done %}checked{% endif %}>
+                    <label class="form-check-label" for="done_{{ log_item.id }}">
+                        Done
+                    </label>
+                </div>
+            </div>
+            <div class="card-body">
+
+                <!-- Notes / Description (CKEditor if desired) -->
+                <label for="desc_{{ log_item.id }}" class="form-label">Notes / Description</label>
+                <textarea id="desc_{{ log_item.id }}"
+                          name="desc_{{ log_item.id }}"
+                          class="form-control ckeditor"
+                          rows="4">{{ log_item.description|safe }}</textarea>
+
+                <!-- If a screenshot was already uploaded, display link -->
+                {% if log_item.screenshot %}
+                <p class="mt-2">
+                    <strong>Existing Screenshot:</strong>
+                    <a href="{{ log_item.screenshot.url }}" target="_blank">View</a>
+                </p>
+                {% endif %}
+
+                <!-- If you'd like to allow new uploads for each log, uncomment:
+                <label for="screenshot_{{ log_item.id }}" class="form-label mt-2">Upload new Screenshot:</label>
+                <input type="file"
+                       id="screenshot_{{ log_item.id }}"
+                       name="screenshot_{{ log_item.id }}"
+                       class="form-control">
+                -->
+            </div>
+        </div>
+        {% endfor %}
+
+        <!-- Save button (updates delegation + sub-check items) -->
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a href="{% url 'maintenance_dashboard' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+
+    <hr>
+
+    <!-- 2) Separate form to finish/close the task. This POSTs to the
+         'maintenance_task_complete' URL with the relevant task_id. -->
+    <form method="POST" action="{% url 'maintenance_task_complete' task.id %}" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-success"
+                onclick="return confirm('Are you sure you want to finish this task?');">
+            Finish / Close Task
+        </button>
+    </form>
+</div>
 {% endblock %}

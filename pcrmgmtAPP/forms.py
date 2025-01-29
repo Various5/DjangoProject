@@ -8,6 +8,7 @@ from .models import (
     MaintenanceConfig,
     MaintenanceTask,
     MaintenanceLog,
+    FREQUENCY_CHOICES,
 )
 
 class RegisterForm(forms.ModelForm):
@@ -60,7 +61,7 @@ class GarantieForm(forms.ModelForm):
         }
 
 #
-# Maintenance forms
+# Maintenance Forms
 #
 class MaintenanceConfigForm(forms.ModelForm):
     next_due_date = forms.DateField(
@@ -69,7 +70,7 @@ class MaintenanceConfigForm(forms.ModelForm):
             attrs={
                 'type': 'date',
                 'class': 'form-control',
-                'placeholder': 'dd.mm.yyyy'
+                'placeholder': 'yyyy-mm-dd'
             },
             format='%Y-%m-%d'
         )
@@ -86,9 +87,38 @@ class MaintenanceConfigForm(forms.ModelForm):
 class MaintenanceTaskForm(forms.ModelForm):
     class Meta:
         model = MaintenanceTask
-        fields = ['assigned_to', 'status', 'duration_minutes']
+        fields = ['assigned_to', 'status', 'duration_minutes', 'due_date']
 
 class MaintenanceLogForm(forms.ModelForm):
     class Meta:
         model = MaintenanceLog
         fields = ['sub_check_name', 'description', 'is_done', 'screenshot']
+
+class MaintenanceFullForm(forms.Form):
+    """
+    Formular zum Erstellen einer neuen MaintenanceConfig + dazugehörige Tasks.
+    """
+    customer_firma = forms.CharField(label="Firma", max_length=255)
+    customer_vorname = forms.CharField(label="Vorname", max_length=255, required=False)
+    customer_nachname = forms.CharField(label="Nachname", max_length=255, required=False)
+    customer_strasse = forms.CharField(label="Straße", max_length=255, required=False)
+    customer_plz = forms.CharField(label="PLZ", max_length=20, required=False)
+    customer_ort = forms.CharField(label="Ort", max_length=100, required=False)
+
+    frequency = forms.ChoiceField(label="Frequenz", choices=FREQUENCY_CHOICES, initial='monthly')
+
+    start_date = forms.DateField(
+        label="Erster Task fällig am",
+        widget=forms.DateInput(attrs={'type': 'date'})
+    )
+
+    notes = forms.CharField(
+        label="Notes",
+        required=False,
+        widget=forms.Textarea(attrs={'rows':3})
+    )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        # ggf. weitere Validierungen
+        return cleaned_data

@@ -1,100 +1,114 @@
 # pcrmgmtAPP/views.py
-import os
-from datetime import datetime
 
-from django.http import FileResponse, HttpResponse
-from django.db import connection
-from django.http import JsonResponse
-from django.db import connections
-from django.views.decorators.http import require_GET
-from pcrmgmtProject import settings
-from .utils.encryption import decrypt_password, encrypt_password
-import logging
-from .models import OfficeAccount, MaintenanceTask
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
-from io import BytesIO
+import io
+import os
 import threading
-import time
-from .utils.isl_log_reader import main as run_isl_log_reader  # Assuming the main function runs the script
-from django.contrib.auth import login
-from .forms import RegisterForm, MaintenanceTaskForm, MaintenanceLogForm
-from .models import UserProfile
-from .models import Garantie
-from .forms import GarantieForm
-from .models import RMATicket
-import subprocess
 import json
-from django.contrib.auth.forms import PasswordChangeForm
-from django.contrib.auth import update_session_auth_hash
+import logging
+import subprocess
+import time as pytime
+
+# Wichtig: Wir laden die Klasse datetime, date, time, timedelta
+from datetime import datetime, date, time, timedelta
+
+import pytz
+from dateutil.relativedelta import relativedelta
+
+from django.contrib.auth.models import User
+from django.http import (FileResponse, HttpResponse, HttpResponseNotAllowed,
+                         JsonResponse)
+from django.db import (connection, connections, IntegrityError, transaction)
+from django.views.decorators.http import require_GET, require_POST
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.db import IntegrityError, transaction
-from django.utils import timezone
 from django.core.paginator import Paginator
 from django.db.models import Q
+from django.contrib.auth import login
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.utils.safestring import mark_safe
-from django.http import JsonResponse
-from .models import GDataAccount, LicenseKey
-from .models import MaintenanceConfig, MaintenanceTask, MaintenanceLog
-from .forms import (
-    RegisterForm, GarantieForm,
-    MaintenanceConfigForm,  # <--- add
-    MaintenanceTaskForm,    # <--- add
-    MaintenanceLogForm      # <--- add
-)
+from django.utils import timezone  # nur für .now(), .localtime(), etc.
 
-from datetime import datetime, time
-from django.utils import timezone
-from weasyprint import HTML  # Requires WeasyPrint installed
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+
+from pcrmgmtProject import settings
+from .utils.encryption import decrypt_password, encrypt_password
+from .utils.isl_log_reader import main as run_isl_log_reader
+
+from weasyprint import HTML
 from django.template.loader import render_to_string
-from django.http import HttpResponse
-from django.views.decorators.http import require_POST
+import tempfile
+
+from .forms import (
+    RegisterForm, GarantieForm, MaintenanceConfigForm,
+    MaintenanceTaskForm, MaintenanceLogForm, MaintenanceFullForm
+)
+from .models import (
+    OfficeAccount, UserProfile, Garantie, RMATicket,
+    GDataAccount, LicenseKey,
+    MaintenanceConfig, MaintenanceTask, MaintenanceLog
+)
 
 logger = logging.getLogger(__name__)
 
-# Global variables for the ISL script
 script_running = False
 script_thread = None
-script_start_time = None  # For tracking ISL script last run
-CONFIG_PATH = "config.json"
+script_start_time = None
 
+CONFIG_PATH = "config.json"
 #############################################
 # Helper: run script in background
 #############################################
 def run_script_in_background(interval_seconds):
     global script_running, script_start_time
     while script_running:
-        script_start_time = timezone.now()
-        logger.info("Starting ISL Log Reader...")
+        # Suppose we store this moment as the start time plus an hour offset
+        script_start_time = timezone.now() + datetime.timedelta(hours=1)
+        logger.info("Starting ISL Log Reader at %s..." % script_start_time)
+
         try:
-            run_isl_log_reader()
+            run_isl_log_reader()  # your function that does the actual work
             logger.info("ISL Log Reader completed successfully.")
+            # If you'd like to store success in config, do so here
         except Exception as e:
             logger.error(f"Error in ISL Log Reader: {e}")
-        script_start_time = None
+
+        # Sleep, if still running
         if script_running:
             logger.info(f"Next run in {interval_seconds} seconds.")
-            time.sleep(interval_seconds)
+            pytime.sleep(interval_seconds)
 
 def start_isl_log_reader():
     global script_running, script_thread
     if not script_running:
-        # get interval from config or default 10 min
+        # read config or default
         interval_minutes = 10
         if os.path.exists(CONFIG_PATH):
             with open(CONFIG_PATH, "r") as f:
                 conf = json.load(f)
                 interval_minutes = conf.get("isl_script_interval", 10)
         interval_seconds = interval_minutes * 60
+
         script_running = True
+        # Optionally set next run epoch in config
+        next_run = timezone.now() + timezone.timedelta(minutes=interval_minutes)
+        # For the front-end countdown
+        with open(CONFIG_PATH, "r") as f:
+            conf = json.load(f)
+        conf["next_isl_run_epoch"] = int(next_run.timestamp())
+        with open(CONFIG_PATH, "w") as f:
+            json.dump(conf, f, indent=4)
+
+        # Start the background thread
         script_thread = threading.Thread(
             target=run_script_in_background,
             args=(interval_seconds,),
             daemon=True
         )
         script_thread.start()
+        logger.info("ISL Log Reader background thread started.")
 
 def stop_isl_log_reader():
     global script_running
@@ -115,7 +129,6 @@ def dashboard(request):
 @login_required
 def settings_view(request):
     profile, created = UserProfile.objects.get_or_create(user=request.user)
-
     valid_themes = [
         'light', 'dark', 'modern', 'soft-blue', 'soft-green',
         'vintage', 'high-contrast', 'elegant', 'sunset', 'neon', 'pastel'
@@ -627,9 +640,32 @@ def download_pdf(request, account_id):
 def garantie_tracker(request):
     return render(request, 'garantie_tracker.html')
 
+@login_required
 def garantie_list(request):
+    # 1) Sort-Parameter abfragen
+    sort_by = request.GET.get('sort', 'vorname')
+    order = request.GET.get('order', 'asc')
+
+    # 2) Erlaubte Sortfelder definieren
+    allowed_sort = ['vorname', 'nachname', 'firma', 'email', 'startdatum', 'ablaufdatum', 'typ', 'seriennummer']
+    if sort_by not in allowed_sort:
+        sort_by = 'vorname'
+    if order not in ['asc', 'desc']:
+        order = 'asc'
+
+    # 3) Queryset
     garantien = Garantie.objects.all()
-    return render(request, 'garantie_tracker.html', {'garantien': garantien})
+
+    # 4) Sortierung anwenden
+    if order == 'desc':
+        sort_by = '-' + sort_by
+    garantien = garantien.order_by(sort_by)
+
+    return render(request, 'garantie_tracker.html', {
+        'garantien': garantien,
+        'sort_by': sort_by.lstrip('-'),  # ohne '-'
+        'order': order,
+    })
 
 def garantie_create(request):
     form = GarantieForm(request.POST or None)
@@ -1323,14 +1359,18 @@ def autocomplete_customer(request):
     return JsonResponse(results, safe=False)
 
 def run_email_import_script():
+    """
+    Continuously run the email_import script every 15 minutes in a background thread.
+    """
     while True:
         try:
-            import subprocess
+            # Call the external Python script or function that handles email imports
             subprocess.run(["python", "pcrmgmtAPP/utils/email_import.py"])
         except Exception as e:
             logger.error(f"Error running email import script: {e}")
-        time.sleep(900)  # 15 Minuten warten
-threading.Thread(target=run_email_import_script, daemon=True).start()
+
+        # Sleep for 15 minutes between runs
+        pytime.sleep(900)  # 900 seconds = 15 minutes
 
 def start_rma_email_import(request):
     try:
@@ -1369,7 +1409,7 @@ def generate_report(request):
             nicht_verrechnet_count = total_logs - verrechnet_count
 
             # Create PDF
-            buffer = BytesIO()
+            buffer = io.BytesIO()
             pdf = canvas.Canvas(buffer, pagesize=letter)
             pdf.setTitle("ISL Logs Report")
 
@@ -1486,40 +1526,52 @@ def autocomplete_address(request):
     return JsonResponse(results, safe=False)
 
 
+#############################################
+# Maintenance Dashboard
+#############################################
 @login_required
 def maintenance_dashboard(request):
+    """
+    Zeigt laufende / erledigte / kommende Tasks für den aktuellen Monat, etc.
+    """
     now = timezone.now()
-    now = timezone.now()
-    tasks_this_month = MaintenanceTask.objects.filter(
+
+    # Offene/Claimed Tasks im aktuellen Monat:
+    open_tasks = MaintenanceTask.objects.filter(
+        status__in=['open', 'claimed'],
         due_date__year=now.year,
         due_date__month=now.month
-    ).select_related('config')
+    )
 
-    open_tasks_this_month = tasks_this_month.filter(status__in=['open','claimed'])
-    done_tasks_this_month = tasks_this_month.filter(status='done')
+    # Erledigte Tasks diesen Monat
+    done_tasks = MaintenanceTask.objects.filter(
+        status='done',
+        due_date__year=now.year,
+        due_date__month=now.month
+    )
 
-    # For counting "Open" & "Overdue" specifically for this month
-    open_count = open_tasks_this_month.count()
-    overdue_count = open_tasks_this_month.filter(due_date__lt=now).count()
+    # Kommende Tasks (nach diesem Monat)
+    start_of_next_month = (now.replace(day=1) + timezone.timedelta(days=32)).replace(day=1)
+    upcoming_tasks = MaintenanceTask.objects.filter(
+        due_date__gte=start_of_next_month
+    )
 
     context = {
-        'open_tasks_this_month': open_tasks_this_month,
-        'done_tasks_this_month': done_tasks_this_month,
-        'open_count': open_count,
-        'overdue_count': overdue_count,
+        'open_tasks': open_tasks,
+        'done_tasks': done_tasks,
+        'upcoming_tasks': upcoming_tasks,
     }
     return render(request, 'maintenance/maintenance_dashboard.html', context)
+
+#############################################
+# Maintenance Config CRUD
+#############################################
+@login_required
 def config_list(request):
-    configs = MaintenanceConfig.objects.all()
+    configs = MaintenanceConfig.objects.all().order_by('-id')
     return render(request, 'maintenance/config_list.html', {'configs': configs})
 
-def task_list(request):
-    # Filter out completed tasks
-    tasks = MaintenanceTask.objects.select_related('config') \
-                   .filter(status__in=['open', 'claimed']) \
-                   .order_by('due_date')
-    return render(request, 'maintenance/task_list.html', {'tasks': tasks})
-
+@login_required
 def config_create(request):
     if request.method == 'POST':
         form = MaintenanceConfigForm(request.POST)
@@ -1527,306 +1579,301 @@ def config_create(request):
             config = form.save(commit=False)
             config.created_by = request.user
             config.save()
-
-            # Optionally create an initial MaintenanceTask
-            if config.next_due_date:
-                new_task = MaintenanceTask.objects.create(
-                    config=config,
-                    due_date=timezone.make_aware(
-                        datetime.combine(config.next_due_date, time(9, 0, 0))
-                    ),
-                    status='open',
-                )
-                new_task.create_default_checkpoints()
-
+            messages.success(request, "Maintenance config created.")
             return redirect('maintenance_config_list')
     else:
         form = MaintenanceConfigForm()
-    return render(request, 'maintenance/config_form.html', {'form': form})
+    return render(request, 'maintenance/task_form.html', {'form': form})
 
+@login_required
 def config_edit(request, pk):
     config = get_object_or_404(MaintenanceConfig, pk=pk)
     if request.method == 'POST':
         form = MaintenanceConfigForm(request.POST, instance=config)
         if form.is_valid():
             form.save()
+            messages.success(request, "Maintenance config updated.")
             return redirect('maintenance_config_list')
     else:
         form = MaintenanceConfigForm(instance=config)
-    return render(request, 'maintenance/config_form.html', {'form': form})
+    return render(request, 'maintenance/task_form.html', {'form': form, 'config': config})
 
-def task_claim(request, pk):
-    task = get_object_or_404(MaintenanceTask, pk=pk)
+@login_required
+def config_delete(request, pk):
+    config = get_object_or_404(MaintenanceConfig, pk=pk)
+    if request.method == 'POST':
+        config.delete()
+        messages.success(request, "Maintenance config deleted.")
+        return redirect('maintenance_config_list')
+    return render(request, 'maintenance/config_confirm_delete.html', {'config': config})
+
+@login_required
+def maintenance_report(request, pk):
+    """
+    Zeigt eine Report-Ansicht für eine MaintenanceConfig, z.B. alle erledigten Tasks, Logs etc.
+    """
+    config = get_object_or_404(MaintenanceConfig, pk=pk)
+    # Beispiel: nur erledigte Tasks:
+    tasks = config.tasks.filter(status='done').order_by('-completed_at')
+    return render(request, 'maintenance/report.html', {
+        'config': config,
+        'tasks': tasks,
+    })
+
+
+
+# ---------------------
+# Maintenance Tasks
+# ---------------------
+
+@login_required
+def task_list(request):
+    filter_status = request.GET.get('status', '')
+    tasks = MaintenanceTask.objects.select_related('config').order_by('due_date')
+    if filter_status in ['open', 'claimed', 'done']:
+        tasks = tasks.filter(status=filter_status)
+    return render(request, 'maintenance/task_list.html', {
+        'tasks': tasks,
+        'filter_status': filter_status,
+    })
+
+@login_required
+def task_detail(request, task_id):
+    task = get_object_or_404(MaintenanceTask, pk=task_id)
+    return render(request, 'maintenance/task_detail.html', {
+        'task': task,
+        'logs': task.logs.all(),
+    })
+
+@login_required
+def task_delete(request, task_id):
+    task = get_object_or_404(MaintenanceTask, pk=task_id)
+    if request.method == 'POST':
+        task.delete()
+        messages.success(request, "Task deleted.")
+        return redirect('maintenance_task_list')
+    return render(request, 'maintenance/task_confirm_delete.html', {'task': task})
+
+
+@login_required
+def maintenance_task_claim_details(request, task_id):
+    """
+    View, um einen Task zu claimen/aktualisieren.
+    - wenn open => status = claimed, assigned_to = request.user
+    - wenn bereits claimed von anderem => nur Admin darf override
+    - falls POST => Logs aktualisieren
+    """
+    task = get_object_or_404(MaintenanceTask, pk=task_id)
+
+    # Falls Task jemand anderem gehört und User kein Superuser:
+    if task.assigned_to and task.assigned_to != request.user and not request.user.is_superuser:
+        messages.error(request, "Dieser Task ist bereits von jemand anderem geclaimed.")
+        return redirect('maintenance_dashboard')
+
+    # Auto-claim, wenn noch open
     if task.status == 'open':
-        task.assigned_to = request.user
         task.status = 'claimed'
         task.claimed_at = timezone.now()
+        task.assigned_to = request.user
         task.save()
-    return redirect('maintenance_task_list')
-
-def task_complete(request, pk):
-    task = get_object_or_404(MaintenanceTask, pk=pk)
-    if request.method == 'POST':
-        form = MaintenanceTaskForm(request.POST, instance=task)
-        if form.is_valid():
-            task = form.save(commit=False)
-            task.status = 'done'
-            task.completed_at = timezone.now()
-            task.save()
-
-            # Now create the next task if config.frequency is known
-            # e.g.:
-            if task.config.frequency == 'weekly':
-                days_delta = 7
-            elif task.config.frequency == 'monthly':
-                days_delta = 30
-            elif task.config.frequency == '2months':
-                days_delta = 60
-            # Then:
-            new_due = task.due_date + timezone.timedelta(days=days_delta)
-            next_task = MaintenanceTask.objects.create(
-                config=task.config,
-                due_date=new_due,
-                status='open'
-            )
-            next_task.create_default_checkpoints()
-
-            return redirect('maintenance_task_list')
-    else:
-        form = MaintenanceTaskForm(instance=task)
-    return render(request, 'maintenance/task_complete.html', {'form': form, 'task': task})
-
-
-@login_required
-def maintenance_task_claim(request, pk):
-    task = get_object_or_404(MaintenanceTask, pk=pk)
-
-    if task.status != 'open':
-        messages.warning(request, "This task has already been claimed.")
-        return redirect('maintenance_dashboard')
-
-    # Assign the task to the current user and update status
-    task.assigned_to = request.user
-    task.status = 'claimed'
-    task.claimed_at = timezone.now()
-    task.save()
-
-    messages.success(request, f"You have successfully claimed Task #{task.id}.")
-    return redirect('maintenance_task_claim_details', pk=task.id)
-
-
-@login_required
-def maintenance_task_claim_details(request, pk):
-    task = get_object_or_404(MaintenanceTask, pk=pk)
-
-    # Ensure that the current user is the one who claimed the task
-    if task.assigned_to != request.user:
-        messages.error(request, "You are not authorized to access this task.")
-        return redirect('maintenance_dashboard')
+        messages.info(request, "Du hast diesen Task erfolgreich geclaimed.")
 
     if request.method == 'POST':
-        # Handle form submission: save undertasks
-        # Assuming you have multiple MaintenanceLog items (undertasks)
-        # Each undertask has 'id', 'description', 'is_done'
+        # Reassign?
+        new_assignee_id = request.POST.get('assigned_to')
+        if new_assignee_id:
+            from django.contrib.auth.models import User
+            try:
+                new_user = User.objects.get(pk=new_assignee_id)
+                task.assigned_to = new_user
+                if task.status == 'open':
+                    task.status = 'claimed'
+                    task.claimed_at = timezone.now()
+                task.save()
+                messages.success(request, f"Task an {new_user.username} delegiert.")
+            except User.DoesNotExist:
+                messages.error(request, "Ungültiger Benutzer zum Delegieren.")
 
-        for log in task.logs.all():
-            description = request.POST.get(f'description_{log.id}', '')
-            is_done = request.POST.get(f'is_done_{log.id}', '') == 'on'
+        # Update Sub-Checks
+        for log_item in task.logs.all():
+            desc_field = f"desc_{log_item.id}"
+            done_field = f"done_{log_item.id}"
+            new_desc = request.POST.get(desc_field, "")
+            log_item.description = new_desc
+            log_item.is_done = (done_field in request.POST)
+            log_item.save()
 
-            log.description = description
-            log.is_done = is_done
-            log.save()
+        messages.success(request, "Task aktualisiert.")
+        return redirect('maintenance_task_claim_details', task_id=task.id)
 
-        messages.success(request, "Undertasks updated successfully.")
-        return JsonResponse({'success': True})
+    # GET: Form anzeigen
+    from django.contrib.auth.models import User
+    user_list = User.objects.all().order_by('username')
 
     context = {
         'task': task,
         'logs': task.logs.all(),
+        'user_list': user_list,
     }
-    return render(request, 'maintenance/claim_details.html', context)
+    return render(request, 'maintenance/task_claim_details.html', context)
 
+@transaction.atomic
+def maintenance_task_complete(request, task_id):
+    """
+    Task abschließen, neuen Task für die nächste Periode anlegen.
+    """
+    if request.method != 'POST':
+        return HttpResponseNotAllowed(['POST'])
 
-@login_required
-@require_POST
-def maintenance_task_complete(request, pk):
-    task = get_object_or_404(MaintenanceTask, pk=pk)
+    task = get_object_or_404(MaintenanceTask, pk=task_id)
+    if task.status not in ['open', 'claimed']:
+        messages.warning(request, "Task ist bereits abgeschlossen oder hat ungültigen Status.")
+        return redirect('maintenance_task_list')
 
-    # Ensure that the current user is the one who claimed the task
-    if task.assigned_to != request.user:
-        return JsonResponse({'success': False, 'error': 'Unauthorized.'}, status=403)
-
-    # Calculate duration
-    if task.claimed_at:
-        duration = timezone.now() - task.claimed_at
-        duration_minutes = int(duration.total_seconds() / 60)
-    else:
-        duration_minutes = 0
-
-    # Update task status
+    # Task abschließen
     task.status = 'done'
     task.completed_at = timezone.now()
-    task.duration_minutes = duration_minutes
+    if task.claimed_at:
+        delta = task.completed_at - task.claimed_at
+        task.duration_minutes = int(delta.total_seconds() // 60)
     task.save()
 
-    return JsonResponse({'success': True})
+    # Nächsten Task anlegen, basierend auf config.frequency
+    frequency = task.config.frequency
+    old_due = task.due_date
+    if frequency == 'weekly':
+        next_due = old_due + relativedelta(weeks=1)
+    elif frequency == '2months':
+        next_due = old_due + relativedelta(months=2)
+    else:
+        # standard monthly
+        next_due = old_due + relativedelta(months=1)
 
-def log_add(request, task_id):
-    task = get_object_or_404(MaintenanceTask, id=task_id)
-    if request.method == 'POST':
-        form = MaintenanceLogForm(request.POST, request.FILES)
+    new_task = MaintenanceTask.objects.create(
+        config=task.config,
+        due_date=next_due,
+        status='open'
+    )
+    new_task.create_default_checkpoints()
+
+    messages.success(request, f"Task #{task.id} abgeschlossen. Neuer Task fällig am {next_due.strftime('%Y-%m-%d')}.")
+    return redirect('maintenance_dashboard')
+
+
+@login_required
+def task_create(request):
+    if request.method == "POST":
+        form = MaintenanceTaskForm(request.POST)
         if form.is_valid():
-            log = form.save(commit=False)
-            log.task = task
-            log.save()
+            task = form.save(commit=False)
+            task.status = 'open'
+            task.save()
+            task.create_default_checkpoints()
+            messages.success(request, "Neuer Maintenance Task erstellt!")
             return redirect('maintenance_task_list')
     else:
-        form = MaintenanceLogForm()
-    return render(request, 'maintenance/log_form.html', {'form': form, 'task': task})
-
-
-@login_required
-def maintenance_report(request, config_id):
-    config = get_object_or_404(MaintenanceConfig, id=config_id)
-    tasks = MaintenanceTask.objects.filter(config=config, status='done').prefetch_related('logs')
-
-    if request.method == "POST":
-        # Handle modifications
-        for task in tasks:
-            for log in task.logs.all():
-                description = request.POST.get(f'description_{log.id}', '')
-                is_done = request.POST.get(f'is_done_{log.id}', '') == 'on'
-                log.description = description
-                log.is_done = is_done
-                log.save()
-
-        # Proceed to generate the PDF after saving changes
-        html_string = render_to_string('maintenance/report.html', {'config': config, 'tasks': tasks})
-        html = HTML(string=html_string)
-        pdf = html.write_pdf()
-
-        response = HttpResponse(pdf, content_type='application/pdf')
-        response['Content-Disposition'] = f'filename=Maintenance_Report_Config_{config.id}.pdf'
-        return response
-
-    context = {
-        'config': config,
-        'tasks': tasks,
-    }
-    return render(request, 'maintenance/report.html', context)
+        form = MaintenanceTaskForm()
+    return render(request, 'maintenance/task_form.html', {'form': form})
 
 @login_required
-def task_delete(request, pk):
+def maintenance_full_create(request):
     """
-    Delete a MaintenanceTask.
+    Erstellt eine MaintenanceConfig und erzeugt automatisch
+    wiederkehrende Tasks bis Jahresende (oder ähnlich).
     """
-    task = get_object_or_404(MaintenanceTask, pk=pk)
     if request.method == 'POST':
-        task.delete()
-        messages.success(request, f"Task #{pk} was deleted.")
-        return redirect('maintenance_task_list')
-    # If GET, render a confirm template
-    return render(request, 'maintenance/task_confirm_delete.html', {'task': task})
+        form = MaintenanceFullForm(request.POST)
+        if form.is_valid():
+            config = MaintenanceConfig.objects.create(
+                customer_firma=form.cleaned_data['customer_firma'],
+                customer_vorname=form.cleaned_data['customer_vorname'],
+                customer_nachname=form.cleaned_data['customer_nachname'],
+                customer_strasse=form.cleaned_data['customer_strasse'],
+                customer_plz=form.cleaned_data['customer_plz'],
+                customer_ort=form.cleaned_data['customer_ort'],
+                frequency=form.cleaned_data['frequency'],
+                notes=form.cleaned_data['notes'],
+                created_by=request.user
+            )
 
-@login_required
-def task_claim_details(request, pk):
-    """
-    Displays a form with all the sub-check items (MaintenanceLog) for the task,
-    allows user to set assigned_to = request.user, etc.
-    """
-    task = get_object_or_404(MaintenanceTask, pk=pk)
-    if request.method == 'POST':
-        # Mark the task as claimed
-        if task.status == 'open':
-            task.assigned_to = request.user
-            task.status = 'claimed'
-            task.claimed_at = timezone.now()
-            task.save()
+            start_date = form.cleaned_data['start_date']
+            start_datetime = datetime.combine(start_date, time(0, 0))
+            start_datetime = start_datetime.replace(tzinfo=pytz.UTC)
 
-        # Now handle updates for each log item
-        # e.g. you could get all logs and read request.POST for each
-        for log_item in task.logs.all():
-            # Suppose we name the fields in the template "done_{log_item.id}"
-            is_done_field = f"done_{log_item.id}"
-            desc_field = f"desc_{log_item.id}"
-            if is_done_field in request.POST:
-                log_item.is_done = True
-            else:
-                log_item.is_done = False
-            log_item.description = request.POST.get(desc_field, "")
-            # For screenshot, if you want to allow updates, you'd have to handle request.FILES
-            log_item.save()
+            year = start_date.year
+            end_d = date(year, 12, 31)
+            end_datetime = datetime.combine(end_d, time(23, 59))
+            end_datetime = end_datetime.replace(tzinfo=pytz.UTC)
 
-        # Once done, maybe redirect
-        messages.success(request, f"You have claimed Task #{task.id} and updated its logs.")
-        return redirect('maintenance_task_list')
+            due = start_datetime
+            while due <= end_datetime:
+                t = MaintenanceTask.objects.create(
+                    config=config,
+                    due_date=due,
+                    status='open'
+                )
+                t.create_default_checkpoints()
+
+                if config.frequency == 'weekly':
+                    due = due + relativedelta(weeks=1)
+                elif config.frequency == '2months':
+                    due = due + relativedelta(months=2)
+                else:
+                    due = due + relativedelta(months=1)
+
+            messages.success(request, "Neue MaintenanceConfig + Tasks bis Jahresende angelegt!")
+            return redirect('maintenance_dashboard')
+        else:
+            messages.error(request, "Bitte die Formularfehler korrigieren.")
     else:
-        # GET => show the form with checkboxes, textareas, etc.
-        return render(request, 'maintenance/task_claim_details.html', {
-            'task': task,
-            'logs': task.logs.all(),
-        })
+        form = MaintenanceFullForm()
 
+    return render(request, 'maintenance/maintenance_full_create.html', {'form': form})
+@login_required
+def maintenance_overview(request):
+    """
+    Kurze Übersicht aller MaintenanceConfig-Einträge
+    """
+    configs = MaintenanceConfig.objects.all().order_by('customer_firma')
+    return render(request, 'maintenance/maintenance_overview.html', {'configs': configs})
 
 @login_required
-def config_delete(request, pk):
+def maintenance_task_pdf(request, task_id):
     """
-    Delete a MaintenanceConfig entry.
+    PDF-Export eines einzelnen Tasks, z.B. mit ReportLab
     """
-    config = get_object_or_404(MaintenanceConfig, pk=pk)
-    if request.method == 'POST':
-        # Perform the actual deletion
-        config.delete()
-        messages.success(request, f"Maintenance config #{pk} deleted.")
-        return redirect('maintenance_config_list')
+    from io import BytesIO
+    from reportlab.pdfgen import canvas
+    from reportlab.lib.pagesizes import letter
 
-    # If GET: render a confirmation template
-    return render(request, 'maintenance/config_confirm_delete.html', {'config': config})
+    task = get_object_or_404(MaintenanceTask, pk=task_id)
 
+    buffer = BytesIO()
+    p = canvas.Canvas(buffer, pagesize=letter)
+    p.setTitle(f"Maintenance Task #{task_id}")
 
-@login_required
-def task_detail(request, pk):
-    task = get_object_or_404(MaintenanceTask, pk=pk)
+    p.drawString(72, 750, f"Maintenance Task #{task.id} - {task.config.customer_firma}")
+    p.drawString(72, 730, f"Due Date: {task.due_date.strftime('%Y-%m-%d %H:%M')}")
+    p.drawString(72, 710, f"Status: {task.status}")
+    if task.assigned_to:
+        p.drawString(72, 690, f"Assigned To: {task.assigned_to.username}")
+    if task.completed_at:
+        p.drawString(72, 670, f"Completed At: {task.completed_at.strftime('%Y-%m-%d %H:%M')}")
 
-    # If it's the first time we open it (and status is "open"), let's claim it
-    # and record the claimed_at time.
-    if task.status == 'open':
-        task.status = 'claimed'
-        task.claimed_at = timezone.now()
-        task.assigned_to = request.user
-        task.save()
+    y = 640
+    for log_item in task.logs.all():
+        p.drawString(72, y, f"- {log_item.sub_check_name}: {'Done' if log_item.is_done else 'Not Done'}")
+        y -= 20
+        desc = (log_item.description or "")[:100]
+        p.drawString(92, y, f"Notes: {desc}")
+        y -= 40
+        if y < 50:
+            p.showPage()
+            y = 750
 
-    # We can pass the "logs" (sub-check items) for easy editing in the template
-    logs = task.logs.all()
+    p.showPage()
+    p.save()
+    buffer.seek(0)
 
-    # If POST => user might update logs, add text, etc.
-    if request.method == 'POST':
-        # e.g. read any new data: logs updates or a big WYSIWYG field
-        # Suppose you have a separate form or custom logic:
-        for log_item in logs:
-            # example: the user might have posted checkboxes for each log
-            is_done_str = request.POST.get(f"log_done_{log_item.id}", "")
-            log_item.is_done = True if is_done_str == 'on' else False
-
-            # Maybe also a WYSIWYG field for description? "log_desc_{id}"
-            log_item.description = request.POST.get(f"log_desc_{log_item.id}", "")
-            log_item.save()
-
-        # Also handle "Complete" button => set done, compute duration, etc.
-        if "complete" in request.POST:
-            task.status = 'done'
-            task.completed_at = timezone.now()
-            # Calculate the difference to store in `duration_minutes` automatically
-            if task.claimed_at:
-                delta = task.completed_at - task.claimed_at
-                # e.g. store total minutes
-                task.duration_minutes = int(delta.total_seconds() // 60)
-            task.save()
-            messages.success(request, f"Task #{task.id} completed! Duration: {task.duration_minutes} min.")
-            return redirect('maintenance_task_list')  # or dashboard
-
-    return render(request, 'maintenance/task_detail.html', {
-        'task': task,
-        'logs': logs,
-    })
-
+    filename = f"maintenance_task_{task.id}.pdf"
+    return FileResponse(buffer, as_attachment=True, filename=filename)

@@ -1,15 +1,16 @@
 {% extends 'base.html' %}
-{% block title %}Tasks{% endblock %}
+{% load static %}
+{% block title %}Tasks Management{% endblock %}
 
 {% block content %}
-<div class="tasks-container my-4">
-    <h1 class="mb-4">Task Management</h1>
+<div class="container my-4">
+    <h1 class="mb-4">Task Management (ISL & RMA Scripts)</h1>
 
-    <!-- ISL Log Reader Control -->
+    <!-- ISL Log Reader Panel -->
     <div class="card mb-4">
         <div class="card-header bg-primary text-white">ISL Log Reader</div>
         <div class="card-body">
-            <p>Manages ISL log data import and processing.</p>
+            <p>Manages ISL log data import and processing in the background.</p>
             <form method="POST" action="{% url 'tasks' %}">
                 {% csrf_token %}
                 <div class="mb-3">
@@ -24,15 +25,15 @@
             </form>
             <hr>
             {% if script_running %}
-                <p class="text-success">Status: Running</p>
+                <p class="text-success mb-0">Status: Running</p>
                 <p>Next run in: <span id="isl-countdown"></span></p>
             {% else %}
-                <p class="text-danger">Status: Stopped</p>
+                <p class="text-danger mb-0">Status: Stopped</p>
             {% endif %}
         </div>
     </div>
 
-    <!-- RMA Email Import Control -->
+    <!-- RMA Email Import Panel -->
     <div class="card mb-4">
         <div class="card-header bg-secondary text-white">RMA Email Import</div>
         <div class="card-body">
@@ -51,16 +52,16 @@
             </form>
             <hr>
             {% if rma_script_running %}
-                <p class="text-success">Status: Running</p>
+                <p class="text-success mb-0">Status: Running</p>
                 <p>Next run in: <span id="rma-countdown"></span></p>
             {% else %}
-                <p class="text-danger">Status: Stopped</p>
+                <p class="text-danger mb-0">Status: Stopped</p>
             {% endif %}
         </div>
     </div>
 
-    <!-- Current Task Status -->
-    <div class="card mb-4">
+    <!-- Overall Status -->
+    <div class="card">
         <div class="card-header bg-info text-white">Current Task Status</div>
         <div class="card-body">
             <p>
@@ -100,31 +101,50 @@
 </div>
 
 <script>
-let islMinutes = {{ isl_script_interval|default_if_none:"10" }};
-let rmaMinutes = {{ rma_script_interval|default_if_none:"15" }};
+/*
+   We'll read next_isl_run_epoch and next_rma_run_epoch from the context,
+   so we can do a countdown to the next scheduled run.
+*/
+const nextIslRunEpoch = {{ next_isl_run_epoch|default:"0" }};
+const nextRmaRunEpoch = {{ next_rma_run_epoch|default:"0" }};
 
-let islSeconds = islMinutes * 60;
-let rmaSeconds = rmaMinutes * 60;
+// If you want an additional offset (e.g., +1 hour), define offsetSec = 3600
+// but typically 0 if you want real time
+const offsetSec = 0;
 
 function updateCountdowns() {
-    if (document.getElementById("isl-countdown")) {
-        let m = Math.floor(islSeconds / 60);
-        let s = islSeconds % 60;
-        document.getElementById("isl-countdown").textContent = m + "m " + s + "s";
-        if (islSeconds > 0) islSeconds--;
+    // ISL Countdown
+    {% if script_running %}
+    if (nextIslRunEpoch > 0) {
+        const now = Math.floor(Date.now() / 1000);
+        let islSecondsLeft = (nextIslRunEpoch + offsetSec) - now;
+        if (islSecondsLeft < 0) islSecondsLeft = 0;
+        const im = Math.floor(islSecondsLeft / 60);
+        const is = islSecondsLeft % 60;
+        const islEl = document.getElementById("isl-countdown");
+        if (islEl) {
+            islEl.textContent = im + "m " + is + "s";
+        }
     }
-    if (document.getElementById("rma-countdown")) {
-        let m2 = Math.floor(rmaSeconds / 60);
-        let s2 = rmaSeconds % 60;
-        document.getElementById("rma-countdown").textContent = m2 + "m " + s2 + "s";
-        if (rmaSeconds > 0) rmaSeconds--;
+    {% endif %}
+
+    // RMA Countdown
+    {% if rma_script_running %}
+    if (nextRmaRunEpoch > 0) {
+        const now2 = Math.floor(Date.now() / 1000);
+        let rmaSecondsLeft = (nextRmaRunEpoch + offsetSec) - now2;
+        if (rmaSecondsLeft < 0) rmaSecondsLeft = 0;
+        const rm = Math.floor(rmaSecondsLeft / 60);
+        const rs = rmaSecondsLeft % 60;
+        const rmaEl = document.getElementById("rma-countdown");
+        if (rmaEl) {
+            rmaEl.textContent = rm + "m " + rs + "s";
+        }
     }
+    {% endif %}
 }
 
-{% if script_running %}
-setInterval(updateCountdowns, 1000);
-{% endif %}
-{% if rma_script_running %}
+{% if script_running or rma_script_running %}
 setInterval(updateCountdowns, 1000);
 {% endif %}
 </script>

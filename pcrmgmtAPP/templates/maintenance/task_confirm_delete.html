@@ -1,13 +1,18 @@
 {% extends 'base.html' %}
-{% block title %}Delete Task{% endblock %}
+{% load static %}
+{% block title %}Complete Task{% endblock %}
 
 {% block content %}
-<h1>Confirm Delete</h1>
-<p>Are you sure you want to delete task #{{ task.id }}?</p>
+<div class="container my-4">
+    <h1>Complete Task #{{ task.id }}</h1>
+    <p>Are you sure you want to mark this task as completed?</p>
 
-<form method="POST">
-  {% csrf_token %}
-  <button type="submit" class="btn btn-danger">Yes, Delete</button>
-  <a href="{% url 'maintenance_task_list' %}" class="btn btn-secondary">Cancel</a>
-</form>
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-success">Yes, Complete</button>
+        <a href="{% url 'maintenance_task_list' %}" class="btn btn-secondary">
+            Cancel
+        </a>
+    </form>
+</div>
 {% endblock %}

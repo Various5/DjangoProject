@@ -1,15 +1,11 @@
-{% extends 'base.html' %}
-{% block title %}Maintenance Configs{% endblock %}
-{% block content %}
-<h1>Configs</h1>
-<a href="{% url 'maintenance_config_create' %}" class="btn btn-success">Create New Config</a>
-<table class="table">
+<!-- Beispiel: pcrmgmtAPP/templates/maintenance/config_list.html -->
+<table class="table table-bordered">
   <thead>
     <tr>
       <th>ID</th>
-      <th>Customer</th>  <!-- Or "Firma" etc. -->
+      <th>Firma</th>
       <th>Frequency</th>
-      <th>Next Due</th>
+      <th>Next Due Date</th>
       <th>Actions</th>
     </tr>
   </thead>
@@ -17,23 +13,30 @@
     {% for cfg in configs %}
     <tr>
       <td>{{ cfg.id }}</td>
-      <!-- Replace the old `customer_name` reference with an actual field, e.g.: -->
       <td>{{ cfg.customer_firma }}</td>
-      <!-- or if you want first/last name: {{ cfg.customer_vorname }} {{ cfg.customer_nachname }} -->
-
       <td>{{ cfg.frequency }}</td>
-      <td>{{ cfg.next_due_date }}</td>
       <td>
-  <a href="{% url 'maintenance_config_edit' cfg.id %}" class="btn btn-sm btn-primary">Edit</a>
-  <a href="{% url 'maintenance_report' cfg.id %}" class="btn btn-sm btn-secondary">Report</a>
-  <a href="{% url 'maintenance_config_delete' cfg.id %}"
-     class="btn btn-sm btn-danger"
-     onclick="return confirm('Really delete Config #{{ cfg.id }}?');">
-     Delete
-  </a>
+        {% if cfg.next_due_date %}
+          {{ cfg.next_due_date|date:"Y-m-d" }}
+        {% else %}
+          ---
+        {% endif %}
+      </td>
+      <td>
+        <a href="{% url 'maintenance_config_edit' cfg.id %}" class="btn btn-sm btn-primary">
+          Edit
+        </a>
+        <!-- Neuer Link -->
+        <a href="{% url 'maintenance_report' cfg.id %}" class="btn btn-sm btn-secondary">
+          Report
+        </a>
+        <a href="{% url 'maintenance_config_delete' cfg.id %}"
+           class="btn btn-sm btn-danger"
+           onclick="return confirm('Delete config #{{ cfg.id }}?');">
+          Delete
+        </a>
       </td>
     </tr>
     {% endfor %}
   </tbody>
 </table>
-{% endblock %}

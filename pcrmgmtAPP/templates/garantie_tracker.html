@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Garantie Tracker{% endblock %}
 
@@ -6,50 +7,58 @@
 <div class="garantie-tracker-container my-4">
     <h1 class="mb-4">Garantie Tracker</h1>
 
+    <!-- AUTOCOMPLETE-BLOCK -->
+    <div class="mb-4 position-relative" style="max-width: 400px;">
+        <label for="combinedSearch" class="form-label">Suche Adressdaten (Name/Firma/E-Mail):</label>
+        <input type="text" id="combinedSearch" class="form-control" placeholder="z.B. Mustermann, ACME Inc." autocomplete="off">
+        <ul id="searchSuggestions" class="list-group position-absolute w-100" style="z-index:1000; display:none;"></ul>
+    </div>
+
+    <!-- FORM NEUE GARANTIE -->
     <div class="card mb-4">
-        <div class="card-header">Add/Edit Warranty or License</div>
+        <div class="card-header">Neue Garantie / Lizenz anlegen</div>
         <div class="card-body">
             <form method="POST" action="{% url 'garantie_create' %}">
                 {% csrf_token %}
                 <div class="row g-3">
-                    <div class="col-md-6">
-                        <label for="vorname" class="form-label">Vorname:</label>
-                        <input type="text" id="vorname" name="vorname" class="form-control" required>
+                    <div class="col-md-4">
+                        <label for="id_vorname" class="form-label">Vorname:</label>
+                        <input type="text" id="id_vorname" name="vorname" class="form-control" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="id_nachname" class="form-label">Nachname:</label>
+                        <input type="text" id="id_nachname" name="nachname" class="form-control" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="id_firma" class="form-label">Firma:</label>
+                        <input type="text" id="id_firma" name="firma" class="form-control" required>
                     </div>
                     <div class="col-md-6">
-                        <label for="nachname" class="form-label">Nachname:</label>
-                        <input type="text" id="nachname" name="nachname" class="form-control" required>
+                        <label for="id_email" class="form-label">E-Mail:</label>
+                        <input type="email" id="id_email" name="email" class="form-control" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="id_startdatum" class="form-label">Startdatum:</label>
+                        <input type="date" id="id_startdatum" name="startdatum" class="form-control" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="id_ablaufdatum" class="form-label">Ablaufdatum:</label>
+                        <input type="date" id="id_ablaufdatum" name="ablaufdatum" class="form-control" required>
                     </div>
                     <div class="col-md-6">
-                        <label for="firma" class="form-label">Firma:</label>
-                        <input type="text" id="firma" name="firma" class="form-control" required>
+                        <label for="id_seriennummer" class="form-label">Seriennummer:</label>
+                        <input type="text" id="id_seriennummer" name="seriennummer" class="form-control" required>
                     </div>
                     <div class="col-md-6">
-                        <label for="email" class="form-label">Email:</label>
-                        <input type="email" id="email" name="email" class="form-control" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="startdatum" class="form-label">Startdatum:</label>
-                        <input type="date" id="startdatum" name="startdatum" class="form-control" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="ablaufdatum" class="form-label">Ablaufdatum:</label>
-                        <input type="date" id="ablaufdatum" name="ablaufdatum" class="form-control" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="seriennummer" class="form-label">Seriennummer:</label>
-                        <input type="text" id="seriennummer" name="seriennummer" class="form-control" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="typ" class="form-label">Typ:</label>
-                        <select id="typ" name="typ" class="form-select">
+                        <label for="id_typ" class="form-label">Typ:</label>
+                        <select id="id_typ" name="typ" class="form-select">
                             <option value="garantie">Garantie</option>
                             <option value="lizenz">Lizenz</option>
                         </select>
                     </div>
                     <div class="col-md-12">
-                        <label for="kommentar" class="form-label">Kommentar:</label>
-                        <textarea id="kommentar" name="kommentar" class="form-control"></textarea>
+                        <label for="id_kommentar" class="form-label">Kommentar:</label>
+                        <textarea id="id_kommentar" name="kommentar" class="form-control" rows="1"></textarea>
                     </div>
                 </div>
                 <button type="submit" class="btn btn-success mt-3">Speichern</button>
@@ -57,39 +66,58 @@
         </div>
     </div>
 
-    <hr>
+    <!-- SORTIERUNG -->
+    <form method="GET" class="d-flex gap-2 align-items-center mb-2">
+        <label for="sort" class="form-label mb-0">Sort By:</label>
+        <select name="sort" id="sort" class="form-select w-auto" onchange="this.form.submit()">
+            <option value="vorname" {% if sort_by == 'vorname' %}selected{% endif %}>Vorname</option>
+            <option value="nachname" {% if sort_by == 'nachname' %}selected{% endif %}>Nachname</option>
+            <option value="firma" {% if sort_by == 'firma' %}selected{% endif %}>Firma</option>
+            <option value="email" {% if sort_by == 'email' %}selected{% endif %}>E-Mail</option>
+            <option value="startdatum" {% if sort_by == 'startdatum' %}selected{% endif %}>Startdatum</option>
+            <option value="ablaufdatum" {% if sort_by == 'ablaufdatum' %}selected{% endif %}>Ablaufdatum</option>
+            <option value="typ" {% if sort_by == 'typ' %}selected{% endif %}>Typ</option>
+            <option value="seriennummer" {% if sort_by == 'seriennummer' %}selected{% endif %}>Seriennummer</option>
+        </select>
+        <label for="order" class="form-label mb-0">Order:</label>
+        <select name="order" id="order" class="form-select w-auto" onchange="this.form.submit()">
+            <option value="asc" {% if order == 'asc' %}selected{% endif %}>Aufsteigend</option>
+            <option value="desc" {% if order == 'desc' %}selected{% endif %}>Absteigend</option>
+        </select>
+    </form>
 
+    <!-- TABELLE (ohne Zeilenumbrüche in einer Zeile pro Datensatz) -->
     <table class="table table-bordered table-hover">
         <thead class="table-secondary">
             <tr>
-                <th>Actions</th>
-                <th>Typ</th>
-                <th>Vorname</th>
-                <th>Nachname</th>
-                <th>Firma</th>
-                <th>Email</th>
-                <th>Startdatum</th>
-                <th>Ablaufdatum</th>
-                <th>Seriennummer</th>
-                <th>Kommentar</th>
+                <th style="white-space:nowrap;">Actions</th>
+                <th style="white-space:nowrap;">Typ</th>
+                <th style="white-space:nowrap;">Vorname</th>
+                <th style="white-space:nowrap;">Nachname</th>
+                <th style="white-space:nowrap;">Firma</th>
+                <th style="white-space:nowrap;">E-Mail</th>
+                <th style="white-space:nowrap;">Startdatum</th>
+                <th style="white-space:nowrap;">Ablaufdatum</th>
+                <th style="white-space:nowrap;">Seriennummer</th>
+                <th style="white-space:nowrap;">Kommentar</th>
             </tr>
         </thead>
         <tbody>
-            {% for garantie in garantien %}
+            {% for g in garantien %}
             <tr>
-                <td>
-                    <a href="{% url 'garantie_update' garantie.pk %}" class="btn btn-sm btn-primary me-1">Edit</a>
-                    <a href="{% url 'garantie_delete' garantie.pk %}" class="btn btn-sm btn-danger me-1">Delete</a>
+                <td style="white-space:nowrap;">
+                    <a href="{% url 'garantie_update' g.pk %}" class="btn btn-sm btn-primary me-1">Edit</a>
+                    <a href="{% url 'garantie_delete' g.pk %}" class="btn btn-sm btn-danger me-1">Delete</a>
                 </td>
-                <td>{{ garantie.typ }}</td>
-                <td>{{ garantie.vorname }}</td>
-                <td>{{ garantie.nachname }}</td>
-                <td>{{ garantie.firma }}</td>
-                <td>{{ garantie.email }}</td>
-                <td>{{ garantie.startdatum }}</td>
-                <td>{{ garantie.ablaufdatum }}</td>
-                <td>{{ garantie.seriennummer }}</td>
-                <td>{{ garantie.kommentar }}</td>
+                <td style="white-space:nowrap;">{{ g.typ }}</td>
+                <td style="white-space:nowrap;">{{ g.vorname }}</td>
+                <td style="white-space:nowrap;">{{ g.nachname }}</td>
+                <td style="white-space:nowrap;">{{ g.firma }}</td>
+                <td style="white-space:nowrap;">{{ g.email }}</td>
+                <td style="white-space:nowrap;">{{ g.startdatum }}</td>
+                <td style="white-space:nowrap;">{{ g.ablaufdatum }}</td>
+                <td style="white-space:nowrap;">{{ g.seriennummer }}</td>
+                <td style="white-space:nowrap;">{{ g.kommentar }}</td>
             </tr>
             {% empty %}
             <tr>
@@ -99,4 +127,43 @@
         </tbody>
     </table>
 </div>
+
+<!-- JAVASCRIPT FÜR AUTOCOMPLETE -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("combinedSearch");
+    const suggestions = document.getElementById("searchSuggestions");
+
+    searchInput.addEventListener("input", function () {
+        const query = this.value.trim();
+        if (query.length > 2) {
+            fetch("/autocomplete/customer/?query=" + encodeURIComponent(query))
+                .then(resp => resp.json())
+                .then(data => {
+                    suggestions.innerHTML = "";
+                    suggestions.style.display = data.length ? "block" : "none";
+                    data.forEach(item => {
+                        const li = document.createElement("li");
+                        li.className = "list-group-item";
+                        li.textContent = `${item.nachname} ${item.vorname} (${item.firma})`;
+                        li.addEventListener("click", () => {
+                            // Fülle die Garantie-Felder:
+                            document.getElementById("id_vorname").value = item.vorname;
+                            document.getElementById("id_nachname").value = item.nachname;
+                            document.getElementById("id_firma").value = item.firma;
+                            document.getElementById("id_email").value = item.email;
+                            // suggestions verstecken
+                            suggestions.style.display = "none";
+                            searchInput.value = "";
+                        });
+                        suggestions.appendChild(li);
+                    });
+                })
+                .catch(err => console.error("Autocomplete error:", err));
+        } else {
+            suggestions.style.display = "none";
+        }
+    });
+});
+</script>
 {% endblock %}

@@ -4,13 +4,13 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.contrib.auth.hashers import make_password, check_password
-from ckeditor.fields import RichTextField
+from ckeditor_uploader.fields import RichTextUploadingField  # CHANGED for image upload
+
 
 FREQUENCY_CHOICES = [
     ('weekly', 'Weekly'),
     ('monthly', 'Monthly'),
     ('2months', 'Every 2 Months'),
-    # Add more as you like
 ]
 
 class OfficeAccount(models.Model):
@@ -153,25 +153,12 @@ class GDataAccount(models.Model):
     def check_password(self, raw_password):
         return check_password(raw_password, self.passwort)
 
-MAINTENANCE_CHECKPOINTS = [
-    "Eventlogs auf Fehlermeldungen",
-    "Windows Updates durchsehen",
-    "Backup überprüfen auf Funktionalität",
-    "Speicherkapazität (Server) checken",
-    "Speicherkapazität (NAS-Backup) checken",
-    "Dateisystem aufräumen (Temp, etc.)",
-    "Firmwareupdates (Server/NAS) nur wichtige",
-    "Virensoftware prüfen (Funde, DB-Updates)",
-]
+
+#
+# ================== MAINTENANCE MODELS ==================
+#
 
 class MaintenanceConfig(models.Model):
-    FREQUENCY_CHOICES = [
-        ('weekly', 'Weekly'),
-        ('monthly', 'Monthly'),
-        ('2months', 'Every 2 Months'),
-    ]
-
-    # Basic info
     customer_firma = models.CharField(max_length=255)
     customer_vorname = models.CharField(max_length=255, blank=True)
     customer_nachname = models.CharField(max_length=255, blank=True)
@@ -180,19 +167,31 @@ class MaintenanceConfig(models.Model):
     customer_ort = models.CharField(max_length=100, blank=True)
 
     frequency = models.CharField(max_length=20, choices=FREQUENCY_CHOICES, default='monthly')
-
-    # We'll store the next maintenance due date
+    # Neu hinzugefügt, damit Formular und Template funktionieren:
     next_due_date = models.DateField(null=True, blank=True)
+
     notes = models.TextField(blank=True, null=True)
 
-    # Possibly track who created
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(
         User, null=True, on_delete=models.SET_NULL, related_name='created_maint_configs'
     )
 
     def __str__(self):
-        return f"{self.customer_firma} ({self.frequency})"
+        return f"{self.customer_firma} ({self.get_frequency_display()})"
+
+    def get_days_delta(self):
+        """
+        Falls du weiterhin mit reinen Tagen rechnen willst.
+        Wird in manchen Stellen verwendet, kann aber durch relativedelta ersetzt werden.
+        """
+        if self.frequency == 'weekly':
+            return 7
+        elif self.frequency == '2months':
+            return 60
+        # Default: monthly => 30 Tage
+        return 30
+
 
 class MaintenanceTask(models.Model):
     STATUS_CHOICES = [
@@ -207,31 +206,31 @@ class MaintenanceTask(models.Model):
         User, null=True, blank=True, on_delete=models.SET_NULL,
         related_name='maintenance_tasks'
     )
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='open')  # open, claimed, done, etc.
-    duration_minutes = models.PositiveIntegerField(default=0)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='open')
     claimed_at = models.DateTimeField(null=True, blank=True)
     completed_at = models.DateTimeField(null=True, blank=True)
+    duration_minutes = models.PositiveIntegerField(default=0)
 
     def __str__(self):
-        return f"Task({self.config.customer_firma} / {self.due_date.date()} / {self.status})"
+        return f"Task #{self.id} for {self.config.customer_firma} ({self.due_date.date()})"
 
     def create_default_checkpoints(self):
         """
-        Create the default sub-check items for this task
-        using the MAINTENANCE_CHECKPOINTS list.
+        Erstellt Standard-Sub-Checks im Log, z.B. Backup prüfen, etc.
         """
-        MAINTENANCE_CHECKPOINTS = [
-            "Backup überprüfen (Wöchentlich)",
+        from .models import MaintenanceLog
+        default_checkpoints = [
+            "Backup überprüfen",
             "Server Status checken",
             "NAS-Backup checken",
-            "Dateisystem aufräumen (Temp, etc.)",
-            "Firmwareupdates (Server/NAS) nur wichtige",
-            "Virensoftware prüfen (Funde, DB-Updates)",
+            "Dateisystem aufräumen",
+            "Firmwareupdates",
+            "Virensoftware prüfen",
         ]
-        for checkpoint_name in MAINTENANCE_CHECKPOINTS:
+        for cp in default_checkpoints:
             MaintenanceLog.objects.create(
                 task=self,
-                sub_check_name=checkpoint_name,
+                sub_check_name=cp,
                 description="",
                 is_done=False
             )
@@ -240,9 +239,8 @@ class MaintenanceLog(models.Model):
     task = models.ForeignKey(MaintenanceTask, on_delete=models.CASCADE, related_name='logs')
     timestamp = models.DateTimeField(auto_now_add=True)
     sub_check_name = models.CharField(max_length=200, blank=True)
-    description = RichTextField(blank=True)
+    description = RichTextUploadingField(blank=True)  # oder TextField
     is_done = models.BooleanField(default=False)
-
     screenshot = models.FileField(upload_to='maintenance_screenshots/', null=True, blank=True)
 
     def __str__(self):

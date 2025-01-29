@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Maintenance Overview{% endblock %}
+{% block content %}
+<div class="container my-4">
+  <h1>All Maintenance Configurations</h1>
+  {% if configs %}
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Firma</th>
+          <th>Frequency</th>
+          <th>Next Due Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for c in configs %}
+        <tr>
+          <td>{{ c.id }}</td>
+          <td>{{ c.customer_firma }}</td>
+          <td>{{ c.frequency }}</td>
+          <td>{% if c.next_due_date %}{{ c.next_due_date|date:"Y-m-d" }}{% else %}-{% endif %}</td>
+          <td>
+            <!-- You could link to a config detail page or tasks list. -->
+            <a href="{% url 'maintenance_config_edit' c.id %}" class="btn btn-sm btn-primary">Edit</a>
+            <a href="#" class="btn btn-sm btn-secondary">View Tasks</a> <!-- or create a separate page -->
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No Maintenance Config found.</p>
+  {% endif %}
+</div>
+{% endblock %}

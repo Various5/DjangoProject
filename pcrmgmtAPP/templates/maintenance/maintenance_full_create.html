@@ -1,0 +1,72 @@
+<!-- pcrmgmtAPP/templates/maintenance/maintenance_full_create.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}New Maintenance Setup{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <h1>Neue Maintenance einrichten</h1>
+
+    <!-- Autocomplete: analog wie bei Office / GData:
+         Du kannst hier das Input-Feld "combinedSearch" + Suggestions-Liste einbauen,
+         das füllt Name/Firma/PLZ etc. -->
+
+    <div class="mb-4 position-relative" style="max-width: 400px;">
+        <label for="combinedSearch" class="form-label">Autocomplete Adressdaten:</label>
+        <input type="text" id="combinedSearch" class="form-control"
+               placeholder="Name, Firma, Ort..." autocomplete="off">
+        <ul id="searchSuggestions" class="list-group position-absolute w-100"
+            style="z-index: 1000; display: none;"></ul>
+    </div>
+
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <button type="submit" class="btn btn-success">Erstellen</button>
+        <a href="{% url 'maintenance_dashboard' %}" class="btn btn-secondary">Abbrechen</a>
+    </form>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const input = document.getElementById("combinedSearch");
+    const suggestions = document.getElementById("searchSuggestions");
+
+    input.addEventListener("input", function () {
+        const query = this.value.trim();
+        if (query.length > 2) {
+            fetch(`/autocomplete/customer/?query=${encodeURIComponent(query)}`)
+                .then(resp => resp.json())
+                .then(data => {
+                    suggestions.innerHTML = "";
+                    suggestions.style.display = data.length ? "block" : "none";
+                    data.forEach(item => {
+                        const li = document.createElement("li");
+                        li.className = "list-group-item";
+                        // Display some info
+                        li.textContent = `${item.vorname} ${item.nachname} (${item.firma}) | ${item.plz} ${item.ort}`;
+                        li.addEventListener("click", () => {
+                            // Fülle die Felder
+                            document.getElementById("id_customer_vorname").value = item.vorname;
+                            document.getElementById("id_customer_nachname").value = item.nachname;
+                            document.getElementById("id_customer_firma").value = item.firma;
+                            document.getElementById("id_customer_plz").value = item.plz;
+                            document.getElementById("id_customer_ort").value = item.ort;
+                            document.getElementById("id_customer_strasse").value = item.strasse || "";
+
+                            suggestions.style.display = "none";
+                            input.value = "";
+                        });
+                        suggestions.appendChild(li);
+                    });
+                })
+                .catch(err => console.error(err));
+        } else {
+            suggestions.style.display = "none";
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,93 +1,83 @@
-<!-- pcrmgmtAPP/templates/maintenance/task_list.html -->
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}Maintenance Tasks{% endblock %}
 
 {% block content %}
-<h1>Maintenance Tasks</h1>
-<table class="table">
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Firma</th>
-      <th>Due Date</th>
-      <th>Status</th>
-      <th>Assigned</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for t in tasks %}
-    <tr>
-      <td>{{ t.id }}</td>
-      <td>{{ t.config.customer_firma }}</td>
-      <td>{{ t.due_date|date:"d.m.Y H:i" }}</td>
-      <td>{{ t.status }}</td>
-      <td>
-        {% if t.assigned_to %}
-          {{ t.assigned_to }}
-        {% else %}
-          Unclaimed
-        {% endif %}
-      </td>
-      <td>
-        {% if t.status == "open" %}
-         <a href="{% url 'maintenance_task_claim_details' t.id %}"
-            class="btn btn-sm btn-warning">Claim</a>
-        {% endif %}
-        {% if t.status != "done" %}
-          <a href="{% url 'maintenance_task_complete' t.id %}"
-             class="btn btn-sm btn-success">Complete</a>
-        {% endif %}
-        <a href="#" class="btn btn-sm btn-info"
-           data-bs-toggle="collapse" data-bs-target="#checklist-{{ t.id }}">
-           Show Checks
-        </a>
-      <a href="{% url 'maintenance_task_delete' t.id %}"
-            class="btn btn-sm btn-danger"
-        onclick="return confirm('Really delete Task #{{ t.id }}?');">
-        Delete
-        </a>
-      </td>
-    </tr>
-    <tr id="checklist-{{ t.id }}" class="collapse">
-      <td colspan="6">
-        <!-- Sub-check items from t.logs.all -->
-        {% if t.logs.all %}
-          <ul class="list-group">
-            {% for log_item in t.logs.all %}
-            <li class="list-group-item d-flex align-items-center">
-              <div class="form-check me-3">
-                <input class="form-check-input" type="checkbox"
-                       {% if log_item.is_done %}checked{% endif %}
-                       disabled>
-              </div>
-              <strong>{{ log_item.sub_check_name }}</strong>
-              {% if log_item.description %}
-                - {{ log_item.description }}
-              {% endif %}
-            </li>
+<div class="container my-4">
+    <h1 class="mb-4">Maintenance Tasks</h1>
+
+    <!-- Optional filter by status -->
+    <form method="GET" class="d-flex align-items-center gap-2 mb-3">
+        <label for="status" class="form-label mb-0">Filter Status:</label>
+        <select name="status" id="status" class="form-select" onchange="this.form.submit()">
+            <option value="">-- All --</option>
+            <option value="open" {% if filter_status == 'open' %}selected{% endif %}>Open</option>
+            <option value="claimed" {% if filter_status == 'claimed' %}selected{% endif %}>Claimed</option>
+            <option value="done" {% if filter_status == 'done' %}selected{% endif %}>Done</option>
+        </select>
+    </form>
+
+    {% if tasks %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Firma</th>
+                <th>Due Date</th>
+                <th>Status</th>
+                <th>Assigned To</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in tasks %}
+            <tr>
+                <td>{{ t.id }}</td>
+                <td>{{ t.config.customer_firma }}</td>
+                <td>{{ t.due_date|date:"Y-m-d H:i" }}</td>
+                <td>{{ t.status }}</td>
+                <td>
+                    {% if t.assigned_to %}
+                        {{ t.assigned_to.username }}
+                    {% else %}
+                        ---
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'task_detail' t.id %}" class="btn btn-sm btn-info">
+                        View
+                    </a>
+                    {% if t.status in 'open claimed' %}
+                        <a href="{% url 'maintenance_task_claim_details' t.id %}"
+                           class="btn btn-sm btn-warning">
+                           Claim/Update
+                        </a>
+                    {% endif %}
+
+                    {% if t.status != 'done' %}
+                    <!-- Complete form (POST) -->
+                    <form action="{% url 'maintenance_task_complete' t.id %}"
+                          method="POST" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-success"
+                                onclick="return confirm('Mark task as done?');">
+                            Complete
+                        </button>
+                    </form>
+                    {% endif %}
+
+                    <!-- Delete form (POST) -->
+                    <a href="{% url 'task_delete' t.id %}" class="btn btn-sm btn-danger"
+                       onclick="return confirm('Delete this task?');">
+                       Delete
+                    </a>
+                </td>
+            </tr>
             {% endfor %}
-          </ul>
-        {% else %}
-          <em>No sub-checks found.</em>
-        {% endif %}
-      </td>
-    <td>
-  {% if t.claimed_at %}
-     <p>Claimed: {{ t.claimed_at|date:"Y-m-d H:i" }}</p>
-     {% if t.time_in_progress %}
-       <p>Time in progress:
-         {{ t.time_in_progress.days }} days
-         {{ t.time_in_progress.seconds|divisibleby:3600 }} hours
-         <!-- or use a custom template filter to show a nice format -->
-       </p>
-     {% endif %}
-  {% else %}
-     <em>Not claimed yet</em>
-  {% endif %}
-</td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+        </tbody>
+    </table>
+    {% else %}
+    <p class="text-muted">No tasks found.</p>
+    {% endif %}
+</div>
 {% endblock %}

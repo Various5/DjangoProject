@@ -1,0 +1,19 @@
+<!-- pcrmgmtAPP/templates/maintenance/task_form.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Create Maintenance Task{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <h1>Create Maintenance Task</h1>
+
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <button type="submit" class="btn btn-primary">Create</button>
+        <a href="{% url 'maintenance_task_list' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

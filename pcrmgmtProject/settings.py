@@ -14,6 +14,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'fallback-secret-key')
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 ALLOWED_HOSTS = ['0.0.0.0', '127.0.0.1', 'pcrsrvisl', '192.168.31.205', 'localhost']
 SECURE_CROSS_ORIGIN_OPENER_POLICY = None
+CKEDITOR_UPLOAD_PATH = "uploads/"
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -24,6 +25,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'pcrmgmtAPP',
     'ckeditor',
+    'ckeditor_uploader',
 ]
 
 AUTHENTICATION_BACKENDS = [

@@ -3,45 +3,54 @@
 {% block title %}Task Detail{% endblock %}
 
 {% block content %}
-<h1>Task #{{ task.id }} - {{ task.config.customer_firma }}</h1>
-<p>Status: {{ task.status }}</p>
-<p>Due: {{ task.due_date }}</p>
+<div class="container my-4">
+    <h1>Task #{{ task.id }} - {{ task.config.customer_firma }}</h1>
+    <p><strong>Status:</strong> {{ task.status }}</p>
+    <p><strong>Due Date:</strong> {{ task.due_date|date:"Y-m-d H:i" }}</p>
+    <p><strong>Assigned To:</strong>
+        {% if task.assigned_to %}
+            {{ task.assigned_to.username }}
+        {% else %}
+            ---
+        {% endif %}
+    </p>
+    <p><strong>Claimed At:</strong>
+        {% if task.claimed_at %}
+            {{ task.claimed_at|date:"Y-m-d H:i" }}
+        {% else %}
+            ---
+        {% endif %}
+    </p>
+    <p><strong>Completed At:</strong>
+        {% if task.completed_at %}
+            {{ task.completed_at|date:"Y-m-d H:i" }}
+        {% else %}
+            ---
+        {% endif %}
+    </p>
+    <p><strong>Duration (minutes):</strong> {{ task.duration_minutes }}</p>
 
-<form method="POST">
-  {% csrf_token %}
-  <table class="table">
-    <thead>
-      <tr>
-        <th>Check Item</th>
-        <th>Done</th>
-        <th>Notes (WYSIWYG)</th>
-      </tr>
-    </thead>
-    <tbody>
-    {% for log_item in logs %}
-      <tr>
-        <td>{{ log_item.sub_check_name }}</td>
-        <td>
-          <input type="checkbox"
-                 name="log_done_{{ log_item.id }}"
-                 {% if log_item.is_done %}checked{% endif %}>
-        </td>
-        <td>
-          <!-- If using a WYSIWYG, you’d replace this with a <textarea> hooking to CKEditor, etc. -->
-          <textarea name="log_desc_{{ log_item.id }}" rows="3" class="form-control">
-            {{ log_item.description }}
-          </textarea>
-        </td>
-      </tr>
-    {% endfor %}
-    </tbody>
-  </table>
+    <hr>
 
-  <!-- Maybe more fields for additional notes? -->
-
-  <button type="submit" name="save_only" class="btn btn-primary">Save</button>
-  <button type="submit" name="complete" class="btn btn-success">
-    Save &amp; Complete
-  </button>
-</form>
+    <h3>Sub-check Items</h3>
+    {% if logs %}
+    <ul class="list-group">
+        {% for log_item in logs %}
+        <li class="list-group-item">
+            <strong>{{ log_item.sub_check_name }}</strong>:
+            {% if log_item.is_done %}
+                <span class="badge bg-success">Done</span>
+            {% else %}
+                <span class="badge bg-secondary">Not Done</span>
+            {% endif %}
+            <div class="mt-2">
+                {{ log_item.description|linebreaks }}
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p class="text-muted">No sub-check items found.</p>
+    {% endif %}
+</div>
 {% endblock %}

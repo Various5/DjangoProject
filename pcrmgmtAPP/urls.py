@@ -79,26 +79,30 @@ urlpatterns = [
     path('autocomplete/customer/', views.autocomplete_customer, name='autocomplete_customer'),
     path('maintenance/', views.maintenance_dashboard, name='maintenance_dashboard'),
 
-    # Config
+    # Maintenance
+    path('maintenance/', views.maintenance_dashboard, name='maintenance_dashboard'),
+
+    # Maintenance Config
     path('maintenance/configs/', views.config_list, name='maintenance_config_list'),
     path('maintenance/configs/create/', views.config_create, name='maintenance_config_create'),
     path('maintenance/configs/<int:pk>/edit/', views.config_edit, name='maintenance_config_edit'),
-
-    # Tasks
-    path('maintenance/tasks/', views.task_list, name='maintenance_task_list'),
-    path('maintenance/tasks/<int:pk>/claim/', views.maintenance_task_claim, name='maintenance_task_claim'),
-    path('maintenance/tasks/<int:pk>/complete/', views.maintenance_task_complete, name='maintenance_task_complete'),
-
-    # Logs
-    path('maintenance/tasks/<int:task_id>/logs/add/', views.log_add, name='maintenance_log_add'),
-
-    path('maintenance/report/<int:config_id>/', views.maintenance_report, name='maintenance_report'),
-
-    path('maintenance/tasks/<int:pk>/delete/', views.task_delete, name='maintenance_task_delete'),
-
-    path('maintenance/tasks/<int:pk>/claim-details/', views.task_claim_details, name='maintenance_task_claim_details'),
-
     path('maintenance/configs/<int:pk>/delete/', views.config_delete, name='maintenance_config_delete'),
 
-    path('maintenance/tasks/<int:pk>/detail/', views.task_detail, name='maintenance_task_detail'),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    # Neu hinzugefügt, damit der "Report"-Button nicht ins Leere führt:
+    path('maintenance/configs/<int:pk>/report/', views.maintenance_report, name='maintenance_report'),
+
+    # Maintenance Tasks
+    path('maintenance/tasks/', views.task_list, name='maintenance_task_list'),
+    path('maintenance/tasks/<int:task_id>/detail/', views.task_detail, name='maintenance_task_detail'),
+    path('maintenance/tasks/<int:task_id>/claim/', views.maintenance_task_claim_details,
+         name='maintenance_task_claim_details'),
+    path('maintenance/tasks/<int:task_id>/complete/', views.maintenance_task_complete,
+         name='maintenance_task_complete'),
+    path('maintenance/tasks/<int:task_id>/delete/', views.task_delete, name='task_delete'),
+    path('maintenance/tasks/create/', views.task_create, name='task_create'),
+    path('maintenance/full_create/', views.maintenance_full_create, name='maintenance_full_create'),
+    path('maintenance/overview/', views.maintenance_overview, name='maintenance_overview'),
+    path('maintenance/tasks/<int:task_id>/pdf/', views.maintenance_task_pdf, name='maintenance_task_pdf'),
+
+]
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
