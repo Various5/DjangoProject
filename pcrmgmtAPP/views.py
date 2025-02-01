@@ -70,7 +70,7 @@ def run_script_in_background(interval_seconds):
     global script_running, script_start_time
     while script_running:
         # Suppose we store this moment as the start time plus an hour offset
-        script_start_time = timezone.now() + datetime.timedelta(hours=1)
+        script_start_time = timezone.now() + timedelta(hours=1)
         logger.info("Starting ISL Log Reader at %s..." % script_start_time)
 
         try:
@@ -157,8 +157,8 @@ def settings_view(request):
 #############################################
 # Tasks view
 #############################################
-@login_required
 def tasks_view(request):
+    # Standardwerte
     config = {
         "isl_script_interval": 10,
         "rma_script_interval": 15,
@@ -168,34 +168,46 @@ def tasks_view(request):
         "rma_script_start_time": None,
         "last_script_success": True,
         "last_rma_success": True,
+
+        # Wichtig: Hier standardmäßig 0 setzen
+        "next_isl_run_epoch": 0,
+        "next_rma_run_epoch": 0,
     }
 
+    # config.json laden und das Dictionary aktualisieren
     if os.path.exists(CONFIG_PATH):
         try:
-            with open(CONFIG_PATH, "r") as file:
-                config.update(json.load(file))
+            with open(CONFIG_PATH, "r", encoding="utf-8") as file:
+                loaded = json.load(file)
+                config.update(loaded)
         except json.JSONDecodeError as e:
             messages.error(request, f"Error reading config.json: {e}")
-            with open(CONFIG_PATH, "w") as file:
+            # Falls kaputt, überschreiben wir die Datei mit unseren Defaultwerten:
+            with open(CONFIG_PATH, "w", encoding="utf-8") as file:
                 json.dump(config, file, indent=4)
 
     if request.method == "POST":
-        # ISL script
         if "start_script" in request.POST:
+            # ISL Log Reader starten
             config["script_running"] = True
-            with open(CONFIG_PATH, "w") as file:
-                json.dump(config, file, indent=4)
-            messages.info(request, "Starting ISL Log Reader background thread...")
+
+            # Nächsten Run definieren
+            interval_minutes = config.get("isl_script_interval", 10)
+            next_run = timezone.now() + timezone.timedelta(minutes=interval_minutes)
+            config["next_isl_run_epoch"] = int(next_run.timestamp())
+
+            # Hintergrund-Thread starten
             start_isl_log_reader()
+            messages.info(request, "Starting ISL Log Reader background thread...")
 
         elif "stop_script" in request.POST:
+            # ISL Log Reader stoppen
             config["script_running"] = False
-            with open(CONFIG_PATH, "w") as file:
-                json.dump(config, file, indent=4)
-            messages.info(request, "Stopping ISL Log Reader background thread...")
             stop_isl_log_reader()
+            messages.info(request, "Stopping ISL Log Reader background thread...")
 
         elif "set_interval" in request.POST:
+            # Intervall für ISL Reader ändern
             new_interval = request.POST.get("script_interval")
             try:
                 config["isl_script_interval"] = int(new_interval)
@@ -203,11 +215,16 @@ def tasks_view(request):
             except ValueError:
                 messages.error(request, "Invalid interval for ISL Log Reader.")
 
-        # RMA script
         elif "start_rma_script" in request.POST:
+            # RMA Script starten (Stub)
             config["rma_script_running"] = True
+
+            # Optional: Nächster RMA-Run
+            rma_interval_minutes = config.get("rma_script_interval", 15)
+            next_run = timezone.now() + timezone.timedelta(minutes=rma_interval_minutes)
+            config["next_rma_run_epoch"] = int(next_run.timestamp())
+
             messages.info(request, "Starting RMA Email Import script (stub).")
-            # if you have a real function, call it here
 
         elif "stop_rma_script" in request.POST:
             config["rma_script_running"] = False
@@ -221,11 +238,13 @@ def tasks_view(request):
             except ValueError:
                 messages.error(request, "Invalid interval for RMA Email Import.")
 
-        with open(CONFIG_PATH, "w") as file:
+        # Abschließend config.json mit aktualisierten Werten speichern
+        with open(CONFIG_PATH, "w", encoding="utf-8") as file:
             json.dump(config, file, indent=4)
 
         return redirect("tasks")
 
+    # Template‐Kontext: Hier **alle** wichtigen Felder, inkl. next_*_epoch
     context = {
         "isl_script_interval": config.get("isl_script_interval"),
         "rma_script_interval": config.get("rma_script_interval"),
@@ -233,6 +252,8 @@ def tasks_view(request):
         "rma_script_running": config.get("rma_script_running"),
         "last_script_success": config.get("last_script_success"),
         "last_rma_success": config.get("last_rma_success"),
+        "next_isl_run_epoch": config.get("next_isl_run_epoch", 0),
+        "next_rma_run_epoch": config.get("next_rma_run_epoch", 0),
     }
     return render(request, "tasks.html", context)
 
