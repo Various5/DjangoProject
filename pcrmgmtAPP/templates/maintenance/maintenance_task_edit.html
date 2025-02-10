@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Maintenance Task bearbeiten{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+  <h1>Maintenance Task bearbeiten (Task #{{ task.id }})</h1>
+
+  <form method="POST">
+    {% csrf_token %}
+
+    <div class="mb-3">
+      <label for="start_date" class="form-label">Startdatum</label>
+      <input type="datetime-local" id="start_date" name="start_date" class="form-control"
+             value="{{ start_date_formatted }}">
+    </div>
+
+    <div class="mb-3">
+      <label for="due_date" class="form-label">Fällig am</label>
+      <input type="datetime-local" id="due_date" name="due_date" class="form-control"
+             value="{{ due_date_formatted }}">
+    </div>
+
+    <div class="mb-3">
+      <label for="status" class="form-label">Status</label>
+      <select id="status" name="status" class="form-select">
+        <option value="open" {% if task.status == 'open' %}selected{% endif %}>Open</option>
+        <option value="claimed" {% if task.status == 'claimed' %}selected{% endif %}>Claimed</option>
+        <option value="done" {% if task.status == 'done' %}selected{% endif %}>Done</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label for="duration_minutes" class="form-label">Dauer (Min.)</label>
+      <input type="number" id="duration_minutes" name="duration_minutes" class="form-control"
+             value="{{ task.duration_minutes }}">
+    </div>
+
+    <div class="mb-3">
+      <label for="assigned_to" class="form-label">Assigned (Benutzername)</label>
+      <input type="text" id="assigned_to" name="assigned_to" class="form-control"
+             value="{% if task.assigned_to %}{{ task.assigned_to.username }}{% endif %}">
+    </div>
+
+    <button type="submit" class="btn btn-success">Speichern</button>
+    <a href="{% url 'maintenance_dashboard' %}" class="btn btn-secondary">Abbrechen</a>
+  </form>
+</div>
+{% endblock %}

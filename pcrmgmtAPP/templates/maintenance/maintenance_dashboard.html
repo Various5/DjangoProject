@@ -5,41 +5,42 @@
 
 {% block content %}
 <div class="container my-4">
-    <!-- Page Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="mb-0">Maintenance Dashboard</h1>
-        <div>
-            <!-- Button, um zur Config-Liste zu gehen -->
-            <a href="{% url 'maintenance_config_list' %}" class="btn btn-info me-2">
-                Customers / Maint. Config
-            </a>
-            <!-- Button, um eine neue Config+Tasks zu erstellen -->
-            <a href="{% url 'maintenance_full_create' %}" class="btn btn-success">
-                + Create New Task
-            </a>
-        </div>
+  <!-- Page Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0">Maintenance Dashboard</h1>
+    <div>
+      <a href="{% url 'maintenance_config_list' %}" class="btn btn-info me-2">
+        Customers / Maint. Config
+      </a>
+      <a href="{% url 'maintenance_full_create' %}" class="btn btn-success me-2">
+        + Create New Task
+      </a>
+      <!-- Für abgeschlossene Tasks gibt es in der Tabelle jeweils eigene Buttons -->
     </div>
+  </div>
 
-    <!-- OFFENE/CLAIMED TASKS -->
-    <h2 class="h5 text-warning">Open/Claimed Tasks (This Month)</h2>
-    {% if open_tasks %}
-      <table class="table table-striped table-bordered mb-4">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Customer</th>
-            <th>Due Date</th>
-            <th>Status</th>
-            <th>Assigned</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-        {% for task in open_tasks %}
+  <!-- Abschnitt: Wöchentliche Aufgaben -->
+  <h2 class="h5 text-primary">Wöchentliche Aufgaben (aktuelle Woche)</h2>
+  {% if current_week_tasks %}
+    <table class="table table-striped table-bordered mb-4">
+      <thead class="table-primary">
+        <tr>
+          <th>ID</th>
+          <th>Customer</th>
+          <th>Startdatum</th>
+          <th>Fällig am</th>
+          <th>Status</th>
+          <th>Assigned</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for task in current_week_tasks %}
           <tr>
             <td>{{ task.id }}</td>
             <td>{{ task.config.customer_firma }}</td>
-            <td>{{ task.due_date|date:"Y-m-d H:i" }}</td>
+            <td>{{ task.start_date|date:"d.m.Y H:i" }}</td>
+            <td>{{ task.due_date|date:"d.m.Y H:i" }}</td>
             <td>{{ task.status }}</td>
             <td>
               {% if task.assigned_to %}
@@ -49,85 +50,42 @@
               {% endif %}
             </td>
             <td>
-              <a href="{% url 'maintenance_task_claim_details' task.id %}"
-                 class="btn btn-sm btn-primary">
+              <a href="{% url 'maintenance_task_claim_details' task.id %}" class="btn btn-sm btn-primary">
                 Claim/Update
               </a>
             </td>
           </tr>
         {% endfor %}
-        </tbody>
-      </table>
-    {% else %}
-      <p class="text-muted">No open tasks in this month.</p>
-    {% endif %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="text-muted">Für die aktuelle Woche sind keine wöchentliche Aufgaben geplant.</p>
+  {% endif %}
 
-    <hr>
+  <hr>
 
-    <!-- ABGESCHLOSSENE TASKS -->
-    <h2 class="h5 text-success">Finished Tasks (This Month)</h2>
-    {% if done_tasks %}
-      <table class="table table-striped table-bordered mb-4">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Customer</th>
-            <th>Due Date</th>
-            <th>Completed</th>
-            <th>Assigned</th>
-            <th>Report</th>
-          </tr>
-        </thead>
-        <tbody>
-        {% for task in done_tasks %}
-          <tr>
-            <td>{{ task.id }}</td>
-            <td>{{ task.config.customer_firma }}</td>
-            <td>{{ task.due_date|date:"Y-m-d H:i" }}</td>
-            <td>{{ task.completed_at|date:"Y-m-d H:i" }}</td>
-            <td>
-              {% if task.assigned_to %}
-                {{ task.assigned_to.username }}
-              {% else %}
-                ---
-              {% endif %}
-            </td>
-            <td>
-              <!-- Link zum PDF-Export für einzelnen Task -->
-              <a href="{% url 'maintenance_task_pdf' task.id %}"
-                 class="btn btn-sm btn-secondary">
-                PDF
-              </a>
-            </td>
-          </tr>
-        {% endfor %}
-        </tbody>
-      </table>
-    {% else %}
-      <p class="text-muted">No finished tasks in this month.</p>
-    {% endif %}
-
-    <hr>
-
-    <!-- KOMMENDE TASKS (Zukunft) -> unten -->
-    <h2 class="h5 text-info">Upcoming Tasks (Future Months)</h2>
-    {% if upcoming_tasks %}
-      <table class="table table-striped table-bordered">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Customer</th>
-            <th>Due Date</th>
-            <th>Status</th>
-            <th>Assigned</th>
-          </tr>
-        </thead>
-        <tbody>
-        {% for task in upcoming_tasks %}
+  <!-- Abschnitt: Monatliche Aufgaben -->
+  <h2 class="h5 text-info">Monatliche Aufgaben (aktueller Monat)</h2>
+  {% if current_month_tasks %}
+    <table class="table table-striped table-bordered mb-4">
+      <thead class="table-primary">
+        <tr>
+          <th>ID</th>
+          <th>Customer</th>
+          <th>Startdatum</th>
+          <th>Fällig am</th>
+          <th>Status</th>
+          <th>Assigned</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for task in current_month_tasks %}
           <tr>
             <td>{{ task.id }}</td>
             <td>{{ task.config.customer_firma }}</td>
-            <td>{{ task.due_date|date:"Y-m-d H:i" }}</td>
+            <td>{{ task.start_date|date:"d.m.Y H:i" }}</td>
+            <td>{{ task.due_date|date:"d.m.Y H:i" }}</td>
             <td>{{ task.status }}</td>
             <td>
               {% if task.assigned_to %}
@@ -136,12 +94,73 @@
                 ---
               {% endif %}
             </td>
+            <td>
+              <a href="{% url 'maintenance_task_claim_details' task.id %}" class="btn btn-sm btn-primary">
+                Claim/Update
+              </a>
+            </td>
           </tr>
         {% endfor %}
-        </tbody>
-      </table>
-    {% else %}
-      <p class="text-muted">No upcoming tasks found.</p>
-    {% endif %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="text-muted">Für den aktuellen Monat sind keine monatlichen Aufgaben geplant.</p>
+  {% endif %}
+
+  <hr>
+
+  <!-- Abschnitt: Abgeschlossene Aufgaben -->
+  <h2 class="h5 text-success">Abgeschlossene Aufgaben</h2>
+  {% if done_tasks %}
+    <table class="table table-striped table-bordered">
+      <thead class="table-success">
+        <tr>
+          <th>ID</th>
+          <th>Customer</th>
+          <th>Startdatum</th>
+          <th>Fällig am</th>
+          <th>Completed at</th>
+          <th>Dauer (Min.)</th>
+          <th>Assigned</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for task in done_tasks %}
+          <tr>
+            <td>{{ task.id }}</td>
+            <td>{{ task.config.customer_firma }}</td>
+            <td>{{ task.start_date|date:"d.m.Y H:i" }}</td>
+            <td>{{ task.due_date|date:"d.m.Y H:i" }}</td>
+            <td>
+              {% if task.completed_at %}
+                {{ task.completed_at|date:"d.m.Y H:i" }}
+              {% else %}
+                ---
+              {% endif %}
+            </td>
+            <td>{{ task.duration_minutes }}</td>
+            <td>
+              {% if task.assigned_to %}
+                {{ task.assigned_to.username }}
+              {% else %}
+                ---
+              {% endif %}
+            </td>
+            <td>
+              <a href="{% url 'maintenance_task_pdf' task.id %}" class="btn btn-sm btn-secondary me-1">
+                Report
+              </a>
+              <a href="{% url 'maintenance_task_edit' task.id %}" class="btn btn-sm btn-warning">
+                Edit
+              </a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="text-muted">Es wurden noch keine abgeschlossenen Aufgaben gefunden.</p>
+  {% endif %}
 </div>
 {% endblock %}

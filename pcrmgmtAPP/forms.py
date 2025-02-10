@@ -2,6 +2,7 @@
 
 from django import forms
 from django.contrib.auth.models import User
+from django.forms.widgets import DateTimeInput
 from .models import (
     UserProfile,
     Garantie,
@@ -94,31 +95,55 @@ class MaintenanceLogForm(forms.ModelForm):
         model = MaintenanceLog
         fields = ['sub_check_name', 'description', 'is_done', 'screenshot']
 
-class MaintenanceFullForm(forms.Form):
-    """
-    Formular zum Erstellen einer neuen MaintenanceConfig + dazugehörige Tasks.
-    """
-    customer_firma = forms.CharField(label="Firma", max_length=255)
-    customer_vorname = forms.CharField(label="Vorname", max_length=255, required=False)
-    customer_nachname = forms.CharField(label="Nachname", max_length=255, required=False)
-    customer_strasse = forms.CharField(label="Straße", max_length=255, required=False)
-    customer_plz = forms.CharField(label="PLZ", max_length=20, required=False)
-    customer_ort = forms.CharField(label="Ort", max_length=100, required=False)
 
-    frequency = forms.ChoiceField(label="Frequenz", choices=FREQUENCY_CHOICES, initial='monthly')
-
-    start_date = forms.DateField(
-        label="Erster Task fällig am",
-        widget=forms.DateInput(attrs={'type': 'date'})
+class MaintenanceFullForm(forms.ModelForm):
+    # Definiere das Startdatum als zusätzliches Feld,
+    # z. B. mit einem datetime-local Widget
+    start_date = forms.DateTimeField(
+        widget=DateTimeInput(attrs={'type': 'datetime-local'}),
+        label="Startdatum"
     )
 
-    notes = forms.CharField(
-        label="Notes",
-        required=False,
-        widget=forms.Textarea(attrs={'rows':3})
-    )
+    class Meta:
+        model = MaintenanceConfig
+        # Entferne "start_date" aus den Meta‑fields, da es nicht im Model existiert
+        fields = [
+            'customer_firma',
+            'customer_vorname',
+            'customer_nachname',
+            'customer_strasse',
+            'customer_plz',
+            'customer_ort',
+            'frequency',
+            'notes'
+        ]
 
-    def clean(self):
-        cleaned_data = super().clean()
-        # ggf. weitere Validierungen
-        return cleaned_data
+    def save(self, commit=True):
+        # Speichere zuerst das Config-Objekt, ohne start_date, da dieses nicht im Model ist
+        config = super().save(commit=False)
+        # Hier kannst Du optional zusätzliche Logik einbauen,
+        # z. B. das Fälligkeitsdatum (next_due_date) basierend auf dem start_date und der Frequenz berechnen.
+        start_date = self.cleaned_data.get('start_date')
+        frequency = self.cleaned_data.get('frequency')
+
+        # Beispiel: Automatische Berechnung von next_due_date
+        if start_date:
+            if frequency == 'weekly':
+                # Fälligkeitsdatum = Startdatum + 6 Tage (bei Start am Montag = Sonntag)
+                config.next_due_date = start_date.date() + forms.fields.timedelta(days=6)
+            elif frequency == 'monthly':
+                # Fälligkeitsdatum = letzter Tag des Monats, in dem start_date liegt
+                import calendar
+                last_day = calendar.monthrange(start_date.year, start_date.month)[1]
+                config.next_due_date = start_date.replace(day=last_day).date()
+            elif frequency == '2months':
+                # Beispiel für 2-monatlich: 2 Monate hinzufügen und letzten Tag des Zielmonats setzen
+                from dateutil.relativedelta import relativedelta
+                new_date = start_date + relativedelta(months=2)
+                import calendar
+                last_day = calendar.monthrange(new_date.year, new_date.month)[1]
+                config.next_due_date = new_date.replace(day=last_day).date()
+
+        if commit:
+            config.save()
+        return config

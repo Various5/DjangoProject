@@ -192,7 +192,6 @@ class MaintenanceConfig(models.Model):
         # Default: monthly => 30 Tage
         return 30
 
-
 class MaintenanceTask(models.Model):
     STATUS_CHOICES = [
         ('open', 'Open'),
@@ -201,6 +200,7 @@ class MaintenanceTask(models.Model):
     ]
 
     config = models.ForeignKey(MaintenanceConfig, on_delete=models.CASCADE, related_name='tasks')
+    start_date = models.DateTimeField(null=True, blank=True)  # Neues Feld für das Startdatum
     due_date = models.DateTimeField()
     assigned_to = models.ForeignKey(
         User, null=True, blank=True, on_delete=models.SET_NULL,
@@ -210,30 +210,6 @@ class MaintenanceTask(models.Model):
     claimed_at = models.DateTimeField(null=True, blank=True)
     completed_at = models.DateTimeField(null=True, blank=True)
     duration_minutes = models.PositiveIntegerField(default=0)
-
-    def __str__(self):
-        return f"Task #{self.id} for {self.config.customer_firma} ({self.due_date.date()})"
-
-    def create_default_checkpoints(self):
-        """
-        Erstellt Standard-Sub-Checks im Log, z.B. Backup prüfen, etc.
-        """
-        from .models import MaintenanceLog
-        default_checkpoints = [
-            "Backup überprüfen",
-            "Server Status checken",
-            "NAS-Backup checken",
-            "Dateisystem aufräumen",
-            "Firmwareupdates",
-            "Virensoftware prüfen",
-        ]
-        for cp in default_checkpoints:
-            MaintenanceLog.objects.create(
-                task=self,
-                sub_check_name=cp,
-                description="",
-                is_done=False
-            )
 
 class MaintenanceLog(models.Model):
     task = models.ForeignKey(MaintenanceTask, on_delete=models.CASCADE, related_name='logs')

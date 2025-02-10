@@ -102,7 +102,8 @@ urlpatterns = [
     path('maintenance/tasks/create/', views.task_create, name='task_create'),
     path('maintenance/full_create/', views.maintenance_full_create, name='maintenance_full_create'),
     path('maintenance/overview/', views.maintenance_overview, name='maintenance_overview'),
-    path('maintenance/tasks/<int:task_id>/pdf/', views.maintenance_task_pdf, name='maintenance_task_pdf'),
+    path('maintenance/task/pdf/<int:task_id>/', views.maintenance_task_pdf, name='maintenance_task_pdf'),
+    path('maintenance/task/edit/<int:task_id>/', views.maintenance_task_edit, name='maintenance_task_edit'),
 
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

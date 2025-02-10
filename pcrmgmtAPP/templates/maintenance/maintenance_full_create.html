@@ -1,28 +1,80 @@
-<!-- pcrmgmtAPP/templates/maintenance/maintenance_full_create.html -->
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}New Maintenance Setup{% endblock %}
+{% block title %}Neue Maintenance einrichten{% endblock %}
 
 {% block content %}
 <div class="container my-4">
     <h1>Neue Maintenance einrichten</h1>
 
-    <!-- Autocomplete: analog wie bei Office / GData:
-         Du kannst hier das Input-Feld "combinedSearch" + Suggestions-Liste einbauen,
-         das füllt Name/Firma/PLZ etc. -->
-
+    <!-- Optional: Autocomplete für Adressdaten -->
     <div class="mb-4 position-relative" style="max-width: 400px;">
         <label for="combinedSearch" class="form-label">Autocomplete Adressdaten:</label>
-        <input type="text" id="combinedSearch" class="form-control"
-               placeholder="Name, Firma, Ort..." autocomplete="off">
-        <ul id="searchSuggestions" class="list-group position-absolute w-100"
-            style="z-index: 1000; display: none;"></ul>
+        <input type="text" id="combinedSearch" class="form-control" placeholder="Name, Firma, Ort..." autocomplete="off">
+        <ul id="searchSuggestions" class="list-group position-absolute w-100" style="z-index: 1000; display: none;"></ul>
     </div>
 
     <form method="POST">
         {% csrf_token %}
-        {{ form.as_p }}
+        {{ form.non_field_errors }}
+
+        <div class="mb-3">
+            <label for="{{ form.customer_firma.id_for_label }}" class="form-label">Firma</label>
+            {{ form.customer_firma }}
+            {{ form.customer_firma.errors }}
+        </div>
+        <div class="mb-3">
+            <label for="{{ form.customer_vorname.id_for_label }}" class="form-label">Vorname</label>
+            {{ form.customer_vorname }}
+            {{ form.customer_vorname.errors }}
+        </div>
+        <div class="mb-3">
+            <label for="{{ form.customer_nachname.id_for_label }}" class="form-label">Nachname</label>
+            {{ form.customer_nachname }}
+            {{ form.customer_nachname.errors }}
+        </div>
+        <div class="mb-3">
+            <label for="{{ form.customer_plz.id_for_label }}" class="form-label">PLZ</label>
+            {{ form.customer_plz }}
+            {{ form.customer_plz.errors }}
+        </div>
+        <div class="mb-3">
+            <label for="{{ form.customer_ort.id_for_label }}" class="form-label">Ort</label>
+            {{ form.customer_ort }}
+            {{ form.customer_ort.errors }}
+        </div>
+        <div class="mb-3">
+            <label for="{{ form.customer_strasse.id_for_label }}" class="form-label">Straße</label>
+            {{ form.customer_strasse }}
+            {{ form.customer_strasse.errors }}
+        </div>
+
+        <!-- Feld: Startdatum -->
+        <div class="mb-3">
+            <label for="{{ form.start_date.id_for_label }}" class="form-label">Startdatum</label>
+            {{ form.start_date }}
+            {{ form.start_date.errors }}
+        </div>
+
+        <!-- Feld: Frequenz -->
+        <div class="mb-3">
+            <label for="{{ form.frequency.id_for_label }}" class="form-label">Frequenz</label>
+            {{ form.frequency }}
+            {{ form.frequency.errors }}
+        </div>
+
+        <div class="mb-3">
+            <small class="text-muted">
+                Das Fälligkeitsdatum wird basierend auf dem eingegebenen Startdatum und der gewählten Frequenz automatisch berechnet.
+            </small>
+        </div>
+
+        <!-- Optional: Weitere Felder -->
+        <div class="mb-3">
+            <label for="{{ form.notes.id_for_label }}" class="form-label">Notizen</label>
+            {{ form.notes }}
+            {{ form.notes.errors }}
+        </div>
 
         <button type="submit" class="btn btn-success">Erstellen</button>
         <a href="{% url 'maintenance_dashboard' %}" class="btn btn-secondary">Abbrechen</a>
@@ -31,6 +83,7 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
+    // Autocomplete-Funktionalität
     const input = document.getElementById("combinedSearch");
     const suggestions = document.getElementById("searchSuggestions");
 
@@ -45,17 +98,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     data.forEach(item => {
                         const li = document.createElement("li");
                         li.className = "list-group-item";
-                        // Display some info
                         li.textContent = `${item.vorname} ${item.nachname} (${item.firma}) | ${item.plz} ${item.ort}`;
                         li.addEventListener("click", () => {
-                            // Fülle die Felder
                             document.getElementById("id_customer_vorname").value = item.vorname;
                             document.getElementById("id_customer_nachname").value = item.nachname;
                             document.getElementById("id_customer_firma").value = item.firma;
                             document.getElementById("id_customer_plz").value = item.plz;
                             document.getElementById("id_customer_ort").value = item.ort;
                             document.getElementById("id_customer_strasse").value = item.strasse || "";
-
                             suggestions.style.display = "none";
                             input.value = "";
                         });

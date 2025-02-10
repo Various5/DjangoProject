@@ -7,6 +7,8 @@ import json
 import logging
 import subprocess
 import time as pytime
+import calendar
+
 from weasyprint import HTML, CSS
 # Wichtig: Wir laden die Klasse datetime, date, time, timedelta
 from datetime import datetime, date, time, timedelta
@@ -18,7 +20,7 @@ from reportlab.lib.utils import ImageReader
 
 import pytz
 from dateutil.relativedelta import relativedelta
-
+from .models import MaintenanceTask
 from django.contrib.auth.models import User
 from django.http import (FileResponse, HttpResponse, HttpResponseNotAllowed,
                          JsonResponse)
@@ -1557,35 +1559,40 @@ def autocomplete_address(request):
 #############################################
 @login_required
 def maintenance_dashboard(request):
-    """
-    Zeigt laufende / erledigte / kommende Tasks für den aktuellen Monat, etc.
-    """
     now = timezone.now()
 
-    # Offene/Claimed Tasks im aktuellen Monat:
-    open_tasks = MaintenanceTask.objects.filter(
-        status__in=['open', 'claimed'],
-        due_date__year=now.year,
-        due_date__month=now.month
+    # Zeitfenster definieren
+    window_start = now - timedelta(days=7)
+    window_end = now + timedelta(days=30)
+
+    # Wöchentliche Tasks (wie gehabt)
+    start_of_week = now - timedelta(days=now.weekday())
+    end_of_week = start_of_week + timedelta(days=6, hours=23, minutes=59, seconds=59)
+    current_week_tasks = MaintenanceTask.objects.filter(
+        config__frequency='weekly',
+        due_date__gte=start_of_week,
+        due_date__lte=end_of_week,
+        status__in=['open', 'claimed']
     )
 
-    # Erledigte Tasks diesen Monat
-    done_tasks = MaintenanceTask.objects.filter(
-        status='done',
-        due_date__year=now.year,
-        due_date__month=now.month
+    # Alle monatlichen (und 2-monatlichen) Aufgaben laden
+    all_monthly_tasks = MaintenanceTask.objects.filter(
+        config__frequency__in=['monthly', '2months'],
+        status__in=['open', 'claimed']
     )
 
-    # Kommende Tasks (nach diesem Monat)
-    start_of_next_month = (now.replace(day=1) + timezone.timedelta(days=32)).replace(day=1)
-    upcoming_tasks = MaintenanceTask.objects.filter(
-        due_date__gte=start_of_next_month
-    )
+    # Filter in Python
+    current_month_tasks = [
+        task for task in all_monthly_tasks
+        if window_start <= task.due_date <= window_end
+    ]
+
+    done_tasks = MaintenanceTask.objects.filter(status='done')
 
     context = {
-        'open_tasks': open_tasks,
+        'current_week_tasks': current_week_tasks,
+        'current_month_tasks': current_month_tasks,
         'done_tasks': done_tasks,
-        'upcoming_tasks': upcoming_tasks,
     }
     return render(request, 'maintenance/maintenance_dashboard.html', context)
 
@@ -1710,6 +1717,87 @@ def task_delete(request, task_id):
     return render(request, 'maintenance/task_confirm_delete.html', {'task': task})
 
 
+@login_required
+def maintenance_task_edit(request, task_id):
+    """
+    Diese View ermöglicht das Bearbeiten eines Maintenance-Tasks inklusive der Sub-checks.
+    Wird per AJAX (Fetch) aufgerufen, liefert sie eine JSON-Antwort zurück.
+    """
+    task = get_object_or_404(MaintenanceTask, pk=task_id)
+    logs = task.logs.all()
+    user_list = User.objects.all().order_by('username')
+
+    if request.method == "POST":
+        # Zuweisung aktualisieren
+        new_assignee_id = request.POST.get('assigned_to')
+        if new_assignee_id:
+            try:
+                new_user = User.objects.get(pk=new_assignee_id)
+                task.assigned_to = new_user
+                if task.status == 'open':
+                    task.status = 'claimed'
+                    task.claimed_at = timezone.now()
+            except User.DoesNotExist:
+                return JsonResponse({"success": False, "error": "Der angegebene Benutzer existiert nicht."})
+        else:
+            task.assigned_to = None
+
+        # Aktualisiere Start- und Fälligkeitsdatum
+        start_date_str = request.POST.get("start_date")
+        due_date_str = request.POST.get("due_date")
+        if start_date_str:
+            try:
+                task.start_date = timezone.make_aware(datetime.strptime(start_date_str, "%Y-%m-%dT%H:%M"))
+            except Exception:
+                return JsonResponse({"success": False, "error": "Ungültiges Startdatum-Format."})
+        if due_date_str:
+            try:
+                task.due_date = timezone.make_aware(datetime.strptime(due_date_str, "%Y-%m-%dT%H:%M"))
+            except Exception:
+                return JsonResponse({"success": False, "error": "Ungültiges Fälligkeitsdatum-Format."})
+
+        # Optional: Falls das Formular ein neues Status-Feld übermittelt:
+        new_status = request.POST.get("status")
+        if new_status:
+            task.status = new_status
+
+        # Optional: Aktualisiere die Dauer, falls übermittelt
+        duration = request.POST.get("duration_minutes")
+        if duration:
+            try:
+                task.duration_minutes = int(duration)
+            except ValueError:
+                pass
+
+        task.save()
+
+        # Aktualisiere die Sub-checks
+        for log_item in logs:
+            desc = request.POST.get(f"desc_{log_item.id}", "")
+            is_done = request.POST.get(f"done_{log_item.id}") == "on"
+            log_item.description = desc
+            log_item.is_done = is_done
+            if f"screenshot_{log_item.id}" in request.FILES:
+                log_item.screenshot = request.FILES[f"screenshot_{log_item.id}"]
+            log_item.save()
+
+        # Falls der Request per AJAX kommt, gib JSON zurück:
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            return JsonResponse({"success": True})
+        else:
+            messages.success(request, "Maintenance Task wurde erfolgreich aktualisiert.")
+            return redirect("maintenance_dashboard")
+
+    else:
+        context = {
+            'task': task,
+            'logs': logs,
+            'user_list': user_list,
+            'start_date_formatted': task.start_date.strftime("%Y-%m-%dT%H:%M") if task.start_date else "",
+            'due_date_formatted': task.due_date.strftime("%Y-%m-%dT%H:%M") if task.due_date else "",
+        }
+        return render(request, "maintenance/task_claim_details_edit.html", context)
+
 def task_claim_details(request, task_id):
     task = get_object_or_404(MaintenanceTask, pk=task_id)
 
@@ -1813,59 +1901,43 @@ def task_create(request):
         form = MaintenanceTaskForm()
     return render(request, 'maintenance/task_form.html', {'form': form})
 
-@login_required
 def maintenance_full_create(request):
-    """
-    Erstellt eine MaintenanceConfig und erzeugt automatisch
-    wiederkehrende Tasks bis Jahresende (oder ähnlich).
-    """
-    if request.method == 'POST':
+    if request.method == "POST":
         form = MaintenanceFullForm(request.POST)
         if form.is_valid():
+            data = form.cleaned_data
+            # Erstelle manuell ein MaintenanceConfig-Objekt
             config = MaintenanceConfig.objects.create(
-                customer_firma=form.cleaned_data['customer_firma'],
-                customer_vorname=form.cleaned_data['customer_vorname'],
-                customer_nachname=form.cleaned_data['customer_nachname'],
-                customer_strasse=form.cleaned_data['customer_strasse'],
-                customer_plz=form.cleaned_data['customer_plz'],
-                customer_ort=form.cleaned_data['customer_ort'],
-                frequency=form.cleaned_data['frequency'],
-                notes=form.cleaned_data['notes'],
-                created_by=request.user
+                customer_firma=data.get('customer_firma'),
+                customer_vorname=data.get('customer_vorname'),
+                customer_nachname=data.get('customer_nachname'),
+                customer_strasse=data.get('customer_strasse'),
+                customer_plz=data.get('customer_plz'),
+                customer_ort=data.get('customer_ort'),
+                frequency=data.get('frequency'),
+                notes=data.get('notes'),
+                created_by=request.user,
             )
+            # Berechne hier ggf. das due_date etc. und erstelle den zugehörigen Task
+            # (Siehe Beispielcode zur automatischen Berechnung)
 
-            start_date = form.cleaned_data['start_date']
-            start_datetime = datetime.combine(start_date, time(0, 0))
-            start_datetime = start_datetime.replace(tzinfo=pytz.UTC)
+            # Beispiel für wöchentliche Tasks:
+            from datetime import timedelta
+            due_date = data.get('start_date') + timedelta(days=6)
+            task = MaintenanceTask.objects.create(
+                config=config,
+                due_date=due_date,
+                status='open'
+            )
+           # task.create_default_checkpoints()
 
-            year = start_date.year
-            end_d = date(year, 12, 31)
-            end_datetime = datetime.combine(end_d, time(23, 59))
-            end_datetime = end_datetime.replace(tzinfo=pytz.UTC)
-
-            due = start_datetime
-            while due <= end_datetime:
-                t = MaintenanceTask.objects.create(
-                    config=config,
-                    due_date=due,
-                    status='open'
-                )
-                t.create_default_checkpoints()
-
-                if config.frequency == 'weekly':
-                    due = due + relativedelta(weeks=1)
-                elif config.frequency == '2months':
-                    due = due + relativedelta(months=2)
-                else:
-                    due = due + relativedelta(months=1)
-
-            messages.success(request, "Neue MaintenanceConfig + Tasks bis Jahresende angelegt!")
+            # Erfolgsmeldung und Redirect
+            messages.success(request, "Neue MaintenanceConfig und Task wurden angelegt!")
             return redirect('maintenance_dashboard')
         else:
-            messages.error(request, "Bitte die Formularfehler korrigieren.")
+            messages.error(request, "Bitte korrigiere die Formularfehler.")
     else:
         form = MaintenanceFullForm()
-
     return render(request, 'maintenance/maintenance_full_create.html', {'form': form})
 @login_required
 def maintenance_overview(request):
