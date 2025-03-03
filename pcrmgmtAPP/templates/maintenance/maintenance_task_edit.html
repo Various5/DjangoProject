@@ -1,50 +1,128 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Maintenance Task bearbeiten{% endblock %}
+{% block title %}Maintenance Task bearbeiten – Task #{{ task.id }}{% endblock %}
+
+{% block extra_js %}
+  <!-- Quill CSS -->
+  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+  <!-- Quill JS -->
+  <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+  <!-- Quill Image Paste Plugin -->
+  <script src="https://cdn.jsdelivr.net/npm/quill-image-paste@1.2.3/dist/quill.imagePaste.min.js"></script>
+  <script>
+    // Registriere das Modul imagePaste
+    Quill.register('modules/imagePaste', window.ImagePaste);
+
+    // Globales Objekt zum Speichern der Quill-Editor-Instanzen (Schlüssel: log_item.id)
+    var quillEditors = {};
+    document.addEventListener("DOMContentLoaded", function(){
+      // Initialisiere alle Quill-Editoren in den Elementen mit der Klasse "quill-editor"
+      document.querySelectorAll('.quill-editor').forEach(function(editorDiv){
+          var logId = editorDiv.getAttribute("data-log-id");
+          var quill = new Quill(editorDiv, {
+              theme: 'snow',
+              modules: {
+                  toolbar: [
+                      [{ header: [1, 2, false] }],
+                      ['bold', 'italic', 'underline'],
+                      ['link', 'image'],
+                      [{ list: 'ordered' }, { list: 'bullet' }]
+                  ],
+                  imagePaste: {}  // Standardkonfiguration – Optionen können bei Bedarf ergänzt werden
+              }
+          });
+          quillEditors[logId] = quill;
+      });
+    });
+
+    // Diese Funktion überträgt den Inhalt der Quill-Editoren in die zugehörigen versteckten Input-Felder.
+    function updateHiddenInputs() {
+      for (var key in quillEditors) {
+         if (quillEditors.hasOwnProperty(key)) {
+            var content = quillEditors[key].root.innerHTML;
+            var hiddenInput = document.getElementById("hidden_desc_" + key);
+            if (hiddenInput) {
+               hiddenInput.value = content;
+            }
+         }
+      }
+    }
+  </script>
+{% endblock %}
 
 {% block content %}
 <div class="container my-4">
-  <h1>Maintenance Task bearbeiten (Task #{{ task.id }})</h1>
-
-  <form method="POST">
+  <h1>Maintenance Task bearbeiten (Task #{{ task.id }}) – {{ task.config.customer_firma }}</h1>
+  <form id="maintenance-task-form" method="POST" enctype="multipart/form-data">
     {% csrf_token %}
-
-    <div class="mb-3">
-      <label for="start_date" class="form-label">Startdatum</label>
-      <input type="datetime-local" id="start_date" name="start_date" class="form-control"
-             value="{{ start_date_formatted }}">
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <label for="start_date" class="form-label">Startdatum</label>
+        <input type="datetime-local" id="start_date" name="start_date" class="form-control" value="{{ start_date_formatted }}">
+      </div>
+      <div class="col-md-6">
+        <label for="due_date" class="form-label">Fälligkeitsdatum</label>
+        <input type="datetime-local" id="due_date" name="due_date" class="form-control" value="{{ due_date_formatted }}">
+      </div>
     </div>
-
-    <div class="mb-3">
-      <label for="due_date" class="form-label">Fällig am</label>
-      <input type="datetime-local" id="due_date" name="due_date" class="form-control"
-             value="{{ due_date_formatted }}">
+    <div class="row mb-3">
+      <div class="col-md-4">
+        <label for="status" class="form-label">Status</label>
+        <select id="status" name="status" class="form-select">
+          <option value="open" {% if task.status == "open" %}selected{% endif %}>Open</option>
+          <option value="claimed" {% if task.status == "claimed" %}selected{% endif %}>Claimed</option>
+          <option value="done" {% if task.status == "done" %}selected{% endif %}>Done</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label for="duration_minutes" class="form-label">Dauer (Min.)</label>
+        <input type="number" id="duration_minutes" name="duration_minutes" class="form-control" value="{{ task.duration_minutes }}">
+      </div>
+      <div class="col-md-4">
+        <label for="assigned_to" class="form-label">Assigned to (User)</label>
+        <select id="assigned_to" name="assigned_to" class="form-select">
+          <option value="">(Keep current assignee)</option>
+          {% for user in user_list %}
+            <option value="{{ user.id }}" {% if task.assigned_to and task.assigned_to.id == user.id %}selected{% endif %}>{{ user.username }}</option>
+          {% endfor %}
+        </select>
+      </div>
     </div>
-
-    <div class="mb-3">
-      <label for="status" class="form-label">Status</label>
-      <select id="status" name="status" class="form-select">
-        <option value="open" {% if task.status == 'open' %}selected{% endif %}>Open</option>
-        <option value="claimed" {% if task.status == 'claimed' %}selected{% endif %}>Claimed</option>
-        <option value="done" {% if task.status == 'done' %}selected{% endif %}>Done</option>
-      </select>
+    <hr>
+    <h3>Maintenance Sub‑checks</h3>
+    <div class="accordion" id="subCheckAccordion">
+      {% for log_item in logs %}
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="heading_{{ log_item.id }}">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_{{ log_item.id }}" aria-expanded="false" aria-controls="collapse_{{ log_item.id }}">
+            {{ log_item.sub_check_name }}
+          </button>
+        </h2>
+        <div id="collapse_{{ log_item.id }}" class="accordion-collapse collapse" aria-labelledby="heading_{{ log_item.id }}" data-bs-parent="#subCheckAccordion">
+          <div class="accordion-body">
+            <label for="editor_{{ log_item.id }}" class="form-label">Beschreibung</label>
+            <!-- Quill Editor Container -->
+            <div id="editor_{{ log_item.id }}" class="quill-editor" data-log-id="{{ log_item.id }}">
+              {{ log_item.description|safe }}
+            </div>
+            <!-- Verstecktes Input-Feld -->
+            <input type="hidden" name="desc_{{ log_item.id }}" id="hidden_desc_{{ log_item.id }}">
+            <div class="form-check mt-2">
+              <input type="checkbox" class="form-check-input" name="done_{{ log_item.id }}" id="done_{{ log_item.id }}" {% if log_item.is_done %}checked{% endif %}>
+              <label class="form-check-label" for="done_{{ log_item.id }}">Done</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
     </div>
-
-    <div class="mb-3">
-      <label for="duration_minutes" class="form-label">Dauer (Min.)</label>
-      <input type="number" id="duration_minutes" name="duration_minutes" class="form-control"
-             value="{{ task.duration_minutes }}">
+    <div class="mt-4 d-flex gap-3">
+      <button type="button" id="save-button" class="btn btn-primary" onclick="updateHiddenInputs(); document.getElementById('maintenance-task-form').submit();">
+        Save Changes
+      </button>
+      <a href="{% url 'maintenance_dashboard' %}" class="btn btn-secondary">Back</a>
     </div>
-
-    <div class="mb-3">
-      <label for="assigned_to" class="form-label">Assigned (Benutzername)</label>
-      <input type="text" id="assigned_to" name="assigned_to" class="form-control"
-             value="{% if task.assigned_to %}{{ task.assigned_to.username }}{% endif %}">
-    </div>
-
-    <button type="submit" class="btn btn-success">Speichern</button>
-    <a href="{% url 'maintenance_dashboard' %}" class="btn btn-secondary">Abbrechen</a>
   </form>
 </div>
 {% endblock %}

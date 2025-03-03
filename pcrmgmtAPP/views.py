@@ -58,6 +58,17 @@ from .models import (
     MaintenanceConfig, MaintenanceTask, MaintenanceLog
 )
 
+STANDARD_SUB_CHECKS = [
+    "Eventlogs check",
+    "Windows Updates check",
+    "Backup check",
+    "Serverstorage check",
+    "Backupstorage check inkl. Systemupdates",
+    "Filesystem cleanup durchführen",
+    "Security check",
+    "Firewall check"
+]
+
 logger = logging.getLogger(__name__)
 
 script_running = False
@@ -408,7 +419,7 @@ def edit_isl_log(request, log_id):
 
         # parse the datetime-local
         try:
-            startzeit_dt = datetime.datetime.strptime(startzeit_str, "%Y-%m-%dT%H:%M")
+            startzeit_dt = datetime.strptime(startzeit_str, "%Y-%m-%dT%H:%M")
         except ValueError:
             messages.error(request, "Invalid date/time format.")
             return redirect('edit_isl_log', log_id=log_id)
@@ -1561,38 +1572,36 @@ def autocomplete_address(request):
 def maintenance_dashboard(request):
     now = timezone.now()
 
-    # Zeitfenster definieren
-    window_start = now - timedelta(days=7)
-    window_end = now + timedelta(days=30)
-
-    # Wöchentliche Tasks (wie gehabt)
+    # Berechne Start und Ende der aktuellen Woche (angenommen: Montag bis Sonntag)
     start_of_week = now - timedelta(days=now.weekday())
     end_of_week = start_of_week + timedelta(days=6, hours=23, minutes=59, seconds=59)
+
+    # Berechne Start und Ende des aktuellen Monats
+    start_of_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    last_day = calendar.monthrange(now.year, now.month)[1]
+    end_of_month = now.replace(day=last_day, hour=23, minute=59, second=59, microsecond=999999)
+
     current_week_tasks = MaintenanceTask.objects.filter(
         config__frequency='weekly',
         due_date__gte=start_of_week,
         due_date__lte=end_of_week,
         status__in=['open', 'claimed']
-    )
+    ).order_by('due_date')
 
-    # Alle monatlichen (und 2-monatlichen) Aufgaben laden
-    all_monthly_tasks = MaintenanceTask.objects.filter(
+    current_month_tasks = MaintenanceTask.objects.filter(
         config__frequency__in=['monthly', '2months'],
+        due_date__gte=start_of_month,
+        due_date__lte=end_of_month,
         status__in=['open', 'claimed']
-    )
+    ).order_by('due_date')
 
-    # Filter in Python
-    current_month_tasks = [
-        task for task in all_monthly_tasks
-        if window_start <= task.due_date <= window_end
-    ]
-
-    done_tasks = MaintenanceTask.objects.filter(status='done')
+    done_tasks = MaintenanceTask.objects.filter(status='done').order_by('-due_date')
 
     context = {
         'current_week_tasks': current_week_tasks,
         'current_month_tasks': current_month_tasks,
         'done_tasks': done_tasks,
+        'now': now,
     }
     return render(request, 'maintenance/maintenance_dashboard.html', context)
 
@@ -1798,48 +1807,61 @@ def maintenance_task_edit(request, task_id):
         }
         return render(request, "maintenance/task_claim_details_edit.html", context)
 
+
+@login_required
 def task_claim_details(request, task_id):
     task = get_object_or_404(MaintenanceTask, pk=task_id)
+    existing_logs = list(task.logs.all())
+    existing_names = {log.sub_check_name for log in existing_logs}
+    # Füge Dummy-Einträge für fehlende Standard-Checks hinzu
+    for check in STANDARD_SUB_CHECKS:
+        if check not in existing_names:
+            # Hier erzeugen wir ein Dummy-Objekt (als dict), dessen id mit "new_" beginnt.
+            dummy = {
+                'id': f"new_{check.replace(' ', '_')}",
+                'sub_check_name': check,
+                'is_done': False,
+                'description': ""
+            }
+            existing_logs.append(dummy)
 
     if request.method == 'POST':
-        # Reassign user
-        new_assignee_id = request.POST.get('assigned_to')
-        if new_assignee_id:
-            try:
-                new_user = User.objects.get(pk=new_assignee_id)
-                task.assigned_to = new_user
-                # Falls open => status = claimed
-                if task.status == 'open':
-                    task.status = 'claimed'
-                    task.claimed_at = timezone.now()
-            except User.DoesNotExist:
-                messages.error(request, "Benutzer existiert nicht.")
-        task.save()
-
-        # Update sub-checks (Logs)
-        for log_item in task.logs.all():
-            desc = request.POST.get(f"desc_{log_item.id}", "")
-            is_done = request.POST.get(f"done_{log_item.id}", "") != ""
-            log_item.description = desc
-            log_item.is_done = is_done
-
-            # Screenshot-Feld
-            file_field = f"screenshot_{log_item.id}"
-            if file_field in request.FILES:
-                log_item.screenshot = request.FILES[file_field]
-
-            log_item.save()
+        # Zuerst den neuen bzw. bestehenden Logs aktualisieren
+        # Für jeden Standard-Check:
+        for check in STANDARD_SUB_CHECKS:
+            field_done = f"done_{check.replace(' ', '_')}"
+            field_desc = f"desc_{check.replace(' ', '_')}"
+            # Prüfe, ob im POST die Checkbox gesetzt ist
+            if request.POST.get(field_done):
+                # Falls ein Log für diesen Check existiert, aktualisieren wir es; andernfalls erstellen wir es
+                log = task.logs.filter(sub_check_name=check).first()
+                if log:
+                    log.is_done = True
+                    log.description = request.POST.get(field_desc, "")
+                    log.save()
+                else:
+                    MaintenanceLog.objects.create(
+                        task=task,
+                        sub_check_name=check,
+                        is_done=True,
+                        description=request.POST.get(field_desc, "")
+                    )
+            else:
+                # Falls der Check nicht gesetzt ist, löschen wir – falls vorhanden – das Log
+                log = task.logs.filter(sub_check_name=check).first()
+                if log:
+                    log.delete()
 
         messages.success(request, "Task aktualisiert.")
         return redirect('maintenance_task_claim_details', task_id=task.id)
 
-    # GET: Template rendern
-    user_list = User.objects.all().order_by('username')
-    return render(request, 'maintenance/task_claim_details.html', {
+    # GET: Übergib eine kombinierte Liste (bestehende Logs plus Dummy-Daten)
+    context = {
         'task': task,
-        'logs': task.logs.all(),
-        'user_list': user_list,
-    })
+        'logs': existing_logs,
+        'user_list': list(User.objects.all().order_by('username')),
+    }
+    return render(request, 'maintenance/task_claim_details.html', context)
 
 def maintenance_task_complete(request, task_id):
     if request.method != 'POST':
@@ -1901,12 +1923,14 @@ def task_create(request):
         form = MaintenanceTaskForm()
     return render(request, 'maintenance/task_form.html', {'form': form})
 
+
+@login_required
 def maintenance_full_create(request):
     if request.method == "POST":
         form = MaintenanceFullForm(request.POST)
         if form.is_valid():
             data = form.cleaned_data
-            # Erstelle manuell ein MaintenanceConfig-Objekt
+            # Config ohne "notes"
             config = MaintenanceConfig.objects.create(
                 customer_firma=data.get('customer_firma'),
                 customer_vorname=data.get('customer_vorname'),
@@ -1915,23 +1939,41 @@ def maintenance_full_create(request):
                 customer_plz=data.get('customer_plz'),
                 customer_ort=data.get('customer_ort'),
                 frequency=data.get('frequency'),
-                notes=data.get('notes'),
                 created_by=request.user,
             )
-            # Berechne hier ggf. das due_date etc. und erstelle den zugehörigen Task
-            # (Siehe Beispielcode zur automatischen Berechnung)
-
-            # Beispiel für wöchentliche Tasks:
-            from datetime import timedelta
-            due_date = data.get('start_date') + timedelta(days=6)
+            start_date = data.get('start_date')
+            due_date = calculate_due_date(start_date, data.get('frequency'))
             task = MaintenanceTask.objects.create(
                 config=config,
+                start_date=start_date,
                 due_date=due_date,
                 status='open'
             )
-           # task.create_default_checkpoints()
-
-            # Erfolgsmeldung und Redirect
+            # Liste der Standard-Sub-Checks (ohne Notizen)
+            sub_checks = []
+            if data.get('eventlogs_check'):
+                sub_checks.append("Eventlogs check")
+            if data.get('windows_updates_check'):
+                sub_checks.append("Windows Updates check")
+            if data.get('backup_check'):
+                sub_checks.append("Backup check")
+            if data.get('serverstorage_check'):
+                sub_checks.append("Serverstorage check")
+            if data.get('backupstorage_check'):
+                sub_checks.append("Backupstorage check inkl. Systemupdates")
+            if data.get('filesystem_cleanup_check'):
+                sub_checks.append("Filesystem cleanup durchführen")
+            if data.get('security_check'):
+                sub_checks.append("Security check")
+            if data.get('firewall_check'):
+                sub_checks.append("Firewall check")
+            for check_name in sub_checks:
+                MaintenanceLog.objects.create(
+                    task=task,
+                    sub_check_name=check_name,
+                    is_done=False,
+                    description=""
+                )
             messages.success(request, "Neue MaintenanceConfig und Task wurden angelegt!")
             return redirect('maintenance_dashboard')
         else:
@@ -1974,3 +2016,26 @@ def maintenance_task_pdf(request, task_id):
 
     # Rückgabe des PDFs als Download
     return FileResponse(io.BytesIO(pdf_file), as_attachment=True, filename=f"Maintenance_Task_{task.id}.pdf")
+
+#Calculate Due Date
+def calculate_due_date(start_date, frequency):
+    if frequency == 'weekly':
+        # wöchentlich: 7 Tage später
+        return start_date + timedelta(days=7)
+    elif frequency == 'monthly':
+        # monatlich: letztes Datum im selben Monat
+        year = start_date.year
+        month = start_date.month
+        last_day = calendar.monthrange(year, month)[1]
+        return start_date.replace(day=last_day)
+    elif frequency == '2months':
+        # 2-monatlich: letztes Datum des Monats, der zwei Monate später liegt
+        month = start_date.month + 2
+        year = start_date.year
+        if month > 12:
+            month -= 12
+            year += 1
+        last_day = calendar.monthrange(year, month)[1]
+        return start_date.replace(year=year, month=month, day=last_day)
+    else:
+        return start_date

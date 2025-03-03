@@ -69,11 +69,40 @@
             </small>
         </div>
 
-        <!-- Optional: Weitere Felder -->
-        <div class="mb-3">
-            <label for="{{ form.notes.id_for_label }}" class="form-label">Notizen</label>
-            {{ form.notes }}
-            {{ form.notes.errors }}
+        <!-- Entferne den Bereich für Notizen -->
+
+        <h3>Zu prüfende Punkte</h3>
+        <div class="form-check">
+            {{ form.eventlogs_check }}
+            <label class="form-check-label" for="{{ form.eventlogs_check.id_for_label }}">Eventlogs check</label>
+        </div>
+        <div class="form-check">
+            {{ form.windows_updates_check }}
+            <label class="form-check-label" for="{{ form.windows_updates_check.id_for_label }}">Windows Updates check</label>
+        </div>
+        <div class="form-check">
+            {{ form.backup_check }}
+            <label class="form-check-label" for="{{ form.backup_check.id_for_label }}">Backup check</label>
+        </div>
+        <div class="form-check">
+            {{ form.serverstorage_check }}
+            <label class="form-check-label" for="{{ form.serverstorage_check.id_for_label }}">Serverstorage check</label>
+        </div>
+        <div class="form-check">
+            {{ form.backupstorage_check }}
+            <label class="form-check-label" for="{{ form.backupstorage_check.id_for_label }}">Backupstorage check inkl. Systemupdates</label>
+        </div>
+        <div class="form-check">
+            {{ form.filesystem_cleanup_check }}
+            <label class="form-check-label" for="{{ form.filesystem_cleanup_check.id_for_label }}">Filesystem cleanup durchführen</label>
+        </div>
+        <div class="form-check">
+            {{ form.security_check }}
+            <label class="form-check-label" for="{{ form.security_check.id_for_label }}">Security check</label>
+        </div>
+        <div class="form-check">
+            {{ form.firewall_check }}
+            <label class="form-check-label" for="{{ form.firewall_check.id_for_label }}">Firewall check</label>
         </div>
 
         <button type="submit" class="btn btn-success">Erstellen</button>
@@ -82,8 +111,8 @@
 </div>
 
 <script>
+// Autocomplete-Skript (wie bisher)
 document.addEventListener("DOMContentLoaded", function () {
-    // Autocomplete-Funktionalität
     const input = document.getElementById("combinedSearch");
     const suggestions = document.getElementById("searchSuggestions");
 
