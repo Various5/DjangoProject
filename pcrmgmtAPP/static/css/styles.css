@@ -276,3 +276,9 @@ body.high-contrast .table-striped tbody tr:nth-of-type(odd) {
   height: 20px;
   display: inline-block;
 }
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}

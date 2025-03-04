@@ -110,22 +110,6 @@
             </div>
         </div>
 
-        <!-- Reports Card -->
-        <div class="col">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body d-flex flex-column">
-                    <h5 class="card-title">Reports</h5>
-                    <p class="card-text text-muted">Generate PDF reports for ISL logs.</p>
-                    <button type="button" class="btn btn-outline-primary mt-auto align-self-start"
-                            data-bs-toggle="modal" data-bs-target="#reportModal">
-                        <i class="bi bi-file-earmark-text"></i> Generate Report
-                    </button>
-                </div>
-            </div>
-        </div>
-
-    </div>
-</div>
 
 <!-- pcrmgmtAPP/templates/dashboard.html -->
 <div class="col">
@@ -141,36 +125,5 @@
   </div>
 </div>
 
-<!-- Example modal for "Generate Report" -->
-<div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <form method="POST" action="{% url 'generate_report' %}">
-      {% csrf_token %}
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="reportModalLabel">Generate ISL Logs Report</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div class="mb-3">
-            <label for="timespan_days" class="form-label">Select Timespan (days):</label>
-            <input type="number" id="timespan_days" name="timespan_days"
-                   min="1" max="365" value="30" class="form-control" required>
-          </div>
-          <div class="form-check mb-3">
-            <input class="form-check-input" type="checkbox" value="include_verrechnet"
-                   id="include_verrechnet" name="include_verrechnet" checked>
-            <label class="form-check-label" for="include_verrechnet">
-              Include Verrechnet Status
-            </label>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-primary">Generate Report</button>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        </div>
-      </div>
-    </form>
-  </div>
-</div>
+
 {% endblock %}

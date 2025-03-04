@@ -24,6 +24,12 @@
         display: none;
       }
     }
+
+    @media print {
+  .no-print {
+    display: none !important;
+  }
+}
   </style>
 
   <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">

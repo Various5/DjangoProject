@@ -14,7 +14,7 @@
     <p><strong>Kommentar:</strong> {{ account.kommentar }}</p>
     <p><strong>Erstelldatum:</strong> {{ account.erstelldatum }}</p>
 
-    <button onclick="window.print()" class="btn btn-primary me-2">Print</button>
-    <a href="{% url 'office_accounts' %}" class="btn btn-secondary">Back</a>
+    <button onclick="window.print()" class="btn btn-primary me-2 no-print">Print</button>
+    <a href="{% url 'office_accounts' %}" class="btn btn-secondary no-print">Back</a>
 </div>
 {% endblock %}

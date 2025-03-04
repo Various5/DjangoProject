@@ -79,24 +79,31 @@ CONFIG_PATH = "config.json"
 #############################################
 # Helper: run script in background
 #############################################
-def run_script_in_background(interval_seconds):
+def run_script_in_background(default_interval_seconds):
     global script_running, script_start_time
     while script_running:
-        # Suppose we store this moment as the start time plus an hour offset
+        # Setze das Startzeitfeld (z. B. als nächster Lauf)
         script_start_time = timezone.now() + timedelta(hours=1)
         logger.info("Starting ISL Log Reader at %s..." % script_start_time)
 
         try:
-            run_isl_log_reader()  # your function that does the actual work
+            run_isl_log_reader()  # Hier wird die eigentliche Arbeit durchgeführt.
             logger.info("ISL Log Reader completed successfully.")
-            # If you'd like to store success in config, do so here
         except Exception as e:
             logger.error(f"Error in ISL Log Reader: {e}")
 
-        # Sleep, if still running
-        if script_running:
-            logger.info(f"Next run in {interval_seconds} seconds.")
-            pytime.sleep(interval_seconds)
+        # Lese aktuell das Intervall aus der Konfiguration
+        try:
+            with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+                conf = json.load(f)
+            interval_minutes = conf.get("isl_script_interval", default_interval_seconds // 60)
+            interval_seconds = interval_minutes * 60
+        except Exception as e:
+            logger.error(f"Error reading config: {e}")
+            interval_seconds = default_interval_seconds  # Fallback
+
+        logger.info(f"Next run in {interval_seconds} seconds.")
+        pytime.sleep(interval_seconds)
 
 def start_isl_log_reader():
     global script_running, script_thread
