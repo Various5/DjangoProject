@@ -144,14 +144,14 @@ def stop_isl_log_reader():
 #############################################
 # Dashboard
 #############################################
-@login_required
+
 def dashboard(request):
     return render(request, 'dashboard.html')
 
 #############################################
 # Settings + Themes
 #############################################
-@login_required
+
 def settings_view(request):
     profile, created = UserProfile.objects.get_or_create(user=request.user)
     valid_themes = [
@@ -686,7 +686,7 @@ def download_pdf(request, account_id):
 def garantie_tracker(request):
     return render(request, 'garantie_tracker.html')
 
-@login_required
+
 def garantie_list(request):
     # 1) Sort-Parameter abfragen
     sort_by = request.GET.get('sort', 'vorname')
@@ -974,7 +974,7 @@ def register(request):
         form = RegisterForm()
     return render(request, 'registration/register.html', {'form': form})
 
-@login_required
+
 def profile(request):
     profile, created = UserProfile.objects.get_or_create(user=request.user)
     valid_themes = [
@@ -1032,7 +1032,7 @@ def database_status(request):
 #############################################
 # Gdata Accounts
 #############################################
-@login_required
+
 def gdata_accounts(request):
     search_query = request.GET.get('search', '').strip()
     per_page = int(request.GET.get('per_page', 25))
@@ -1160,7 +1160,7 @@ def gdata_accounts(request):
 
     return render(request, 'gdata_accounts.html', context)
 
-@login_required
+
 @transaction.atomic
 def toggle_email_sent(request, account_id):
     """
@@ -1178,7 +1178,7 @@ def toggle_email_sent(request, account_id):
     return JsonResponse({'success': False}, status=400)
 
 
-@login_required
+
 @transaction.atomic
 def update_license(request, account_id):
     """
@@ -1540,7 +1540,7 @@ def generate_report(request):
     return redirect('dashboard')  # Redirect to dashboard after report generation
 
 
-@login_required
+
 def autocomplete_address(request):
     """
     Autocomplete view for Address_DB.
@@ -1575,7 +1575,7 @@ def autocomplete_address(request):
 #############################################
 # Maintenance Dashboard
 #############################################
-@login_required
+
 def maintenance_dashboard(request):
     now = timezone.now()
 
@@ -1615,12 +1615,12 @@ def maintenance_dashboard(request):
 #############################################
 # Maintenance Config CRUD
 #############################################
-@login_required
+
 def config_list(request):
     configs = MaintenanceConfig.objects.all().order_by('-id')
     return render(request, 'maintenance/config_list.html', {'configs': configs})
 
-@login_required
+
 def config_create(request):
     if request.method == 'POST':
         form = MaintenanceConfigForm(request.POST)
@@ -1634,7 +1634,7 @@ def config_create(request):
         form = MaintenanceConfigForm()
     return render(request, 'maintenance/task_form.html', {'form': form})
 
-@login_required
+
 def config_edit(request, pk):
     config = get_object_or_404(MaintenanceConfig, pk=pk)
     if request.method == 'POST':
@@ -1647,7 +1647,7 @@ def config_edit(request, pk):
         form = MaintenanceConfigForm(instance=config)
     return render(request, 'maintenance/task_form.html', {'form': form, 'config': config})
 
-@login_required
+
 def config_delete(request, pk):
     config = get_object_or_404(MaintenanceConfig, pk=pk)
     if request.method == 'POST':
@@ -1657,7 +1657,7 @@ def config_delete(request, pk):
     return render(request, 'maintenance/config_confirm_delete.html', {'config': config})
 
 
-@login_required
+
 def maintenance_report_pdf(request, config_id):
     """Erzeugt einen ausführlichen Maintenance-PDF-Report inkl. Bilder."""
     config = get_object_or_404(MaintenanceConfig, pk=config_id)
@@ -1704,7 +1704,7 @@ def maintenance_report_pdf(request, config_id):
 # Maintenance Tasks
 # ---------------------
 
-@login_required
+
 def task_list(request):
     filter_status = request.GET.get('status', '')
     tasks = MaintenanceTask.objects.select_related('config').order_by('due_date')
@@ -1715,7 +1715,7 @@ def task_list(request):
         'filter_status': filter_status,
     })
 
-@login_required
+
 def task_detail(request, task_id):
     task = get_object_or_404(MaintenanceTask, pk=task_id)
     return render(request, 'maintenance/task_detail.html', {
@@ -1723,7 +1723,7 @@ def task_detail(request, task_id):
         'logs': task.logs.all(),
     })
 
-@login_required
+
 def task_delete(request, task_id):
     task = get_object_or_404(MaintenanceTask, pk=task_id)
     if request.method == 'POST':
@@ -1733,7 +1733,7 @@ def task_delete(request, task_id):
     return render(request, 'maintenance/task_confirm_delete.html', {'task': task})
 
 
-@login_required
+
 def maintenance_task_edit(request, task_id):
     """
     Diese View ermöglicht das Bearbeiten eines Maintenance-Tasks inklusive der Sub-checks.
@@ -1815,7 +1815,7 @@ def maintenance_task_edit(request, task_id):
         return render(request, "maintenance/task_claim_details_edit.html", context)
 
 
-@login_required
+
 def task_claim_details(request, task_id):
     task = get_object_or_404(MaintenanceTask, pk=task_id)
     existing_logs = list(task.logs.all())
@@ -1915,7 +1915,7 @@ def maintenance_task_complete(request, task_id):
     return redirect('maintenance_dashboard')
 
 
-@login_required
+
 def task_create(request):
     if request.method == "POST":
         form = MaintenanceTaskForm(request.POST)
@@ -1931,7 +1931,7 @@ def task_create(request):
     return render(request, 'maintenance/task_form.html', {'form': form})
 
 
-@login_required
+
 def maintenance_full_create(request):
     if request.method == "POST":
         form = MaintenanceFullForm(request.POST)
@@ -1988,7 +1988,7 @@ def maintenance_full_create(request):
     else:
         form = MaintenanceFullForm()
     return render(request, 'maintenance/maintenance_full_create.html', {'form': form})
-@login_required
+
 def maintenance_overview(request):
     """
     Kurze Übersicht aller MaintenanceConfig-Einträge
