@@ -153,24 +153,33 @@ def dashboard(request):
 #############################################
 
 def settings_view(request):
-    profile, created = UserProfile.objects.get_or_create(user=request.user)
-    valid_themes = [
-        'light', 'dark', 'modern', 'soft-blue', 'soft-green',
-        'vintage', 'high-contrast', 'elegant', 'sunset', 'neon', 'pastel'
-    ]
+    if request.user.is_authenticated:
+        profile, created = UserProfile.objects.get_or_create(user=request.user)
+        current_theme = profile.theme
+    else:
+        # Standard-Theme, wenn kein User eingeloggt ist
+        current_theme = 'light'
 
     if request.method == 'POST':
-        theme = request.POST.get('theme')
-        if theme in valid_themes:
-            profile.theme = theme
-            profile.save()
-            messages.success(request, "Theme updated successfully.")
+        # Nur bei authentifizierten Usern kann man das Theme ändern
+        if request.user.is_authenticated:
+            valid_themes = [
+                'light', 'dark', 'modern', 'soft-blue', 'soft-green',
+                'vintage', 'high-contrast', 'elegant', 'sunset', 'neon', 'pastel'
+            ]
+            theme = request.POST.get('theme')
+            if theme in valid_themes:
+                profile.theme = theme
+                profile.save()
+                messages.success(request, "Theme updated successfully.")
+            else:
+                messages.error(request, "Invalid theme selected.")
         else:
-            messages.error(request, "Invalid theme selected.")
+            messages.error(request, "You must be logged in to change settings.")
         return redirect('settings')
 
     context = {
-        'current_theme': profile.theme,
+        'current_theme': current_theme,
     }
     return render(request, 'settings.html', context)
 
