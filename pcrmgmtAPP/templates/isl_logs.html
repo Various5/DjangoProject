@@ -1,5 +1,7 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% load static %}
+{% load custom_time %}
+
 {% block title %}ISL Logs{% endblock %}
 
 {% block content %}
@@ -83,8 +85,8 @@
                     </a>
                 </td>
 
-                <!-- 2) Startzeit -->
-                <td>{{ entry.1|date:"Y-m-d H:i" }}</td>
+                <!-- 2) Startzeit mit +2 Stunden -->
+                <td>{{ entry.1|add_hours:2|date:"Y-m-d H:i" }}</td>
 
                 <!-- 3) Dauer -->
                 <td>{{ entry.2 }}</td>
