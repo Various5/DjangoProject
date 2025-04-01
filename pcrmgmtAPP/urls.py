@@ -56,9 +56,7 @@ urlpatterns = [
     # RMA Manager
     path('rma-manager/', views.rma_manager_selection, name='rma_manager'),
     path('rma-manager/general/', views.general_rma, name='general_rma'),
-    path('rma-manager/computacenter/', views.computacenter_rma, name='computacenter_rma'),
     path('rma-manager/logs/', views.rma_logs, name='rma_logs'),
-    path('tasks/start-rma-email-import/', views.start_rma_email_import, name='start_rma_email_import'),  # if you use it
 
     # Ticket actions
     path('rma/ticket/<int:ticket_id>/close/', views.close_ticket_view, name='close_ticket_view'),

@@ -50,16 +50,7 @@
 
         <!-- Form Buttons -->
         <button type="submit" class="btn btn-primary me-2">Save Changes</button>
-
-        <!-- Cancel link:
-             If the ticket.category is "computacenter", go back to 'computacenter_rma'.
-             Otherwise, go back to 'general_rma'.
-        -->
-        {% if ticket.category == "computacenter" %}
-            <a href="{% url 'computacenter_rma' %}" class="btn btn-secondary">Cancel</a>
-        {% else %}
-            <a href="{% url 'general_rma' %}" class="btn btn-secondary">Cancel</a>
-        {% endif %}
+        <a href="{% url 'general_rma' %}" class="btn btn-secondary">Cancel</a>
     </form>
 </div>
 {% endblock %}

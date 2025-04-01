@@ -29,7 +29,7 @@
                       ['link', 'image'],
                       [{ list: 'ordered' }, { list: 'bullet' }]
                   ],
-                  imagePaste: {}  // Standardkonfiguration – Optionen können bei Bedarf ergänzt werden
+                  imagePaste: {}
               }
           });
           quillEditors[logId] = quill;
@@ -104,9 +104,9 @@
             <label for="editor_{{ log_item.id }}" class="form-label">Beschreibung</label>
             <!-- Quill Editor Container -->
             <div id="editor_{{ log_item.id }}" class="quill-editor" data-log-id="{{ log_item.id }}">
-              {{ log_item.description|safe }}
+              {{ log_item.description|default:"" | safe }}
             </div>
-            <!-- Verstecktes Input-Feld -->
+            <!-- Verstecktes Input-Feld für den Editor-Inhalt -->
             <input type="hidden" name="desc_{{ log_item.id }}" id="hidden_desc_{{ log_item.id }}">
             <div class="form-check mt-2">
               <input type="checkbox" class="form-check-input" name="done_{{ log_item.id }}" id="done_{{ log_item.id }}" {% if log_item.is_done %}checked{% endif %}>

@@ -8,13 +8,13 @@
   <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
   <!-- Quill JS -->
   <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
-  <!-- Quill Image Paste Plugin -->
-  <script src="https://cdn.jsdelivr.net/npm/quill-image-paste@1.2.3/dist/quill.imagePaste.min.js"></script>
+  <!-- Lokale Einbindung des Quill Image Paste Plugins -->
+  <script src="{% static 'js/quill.image-paste.min.js' %}"></script>
   <script>
     // Registriere das Modul "imagePaste"
     Quill.register('modules/imagePaste', window.ImagePaste);
 
-    // Globales Objekt, in dem alle Quill-Editor-Instanzen gespeichert werden (Schlüssel: log_item.id)
+    // Globales Objekt zum Speichern der Quill-Editor-Instanzen (Schlüssel: log_item.id)
     var quillEditors = {};
 
     document.addEventListener("DOMContentLoaded", function(){
@@ -30,14 +30,14 @@
                       ['link', 'image'],
                       [{ list: 'ordered' }, { list: 'bullet' }]
                   ],
-                  imagePaste: {}  // Standardkonfiguration – hier kannst du bei Bedarf weitere Optionen setzen
+                  imagePaste: {}  // Standardkonfiguration – bei Bedarf weitere Optionen
               }
           });
           quillEditors[logId] = quill;
       });
     });
 
-    // Funktion, die vor dem Submit alle Quill-Inhalte in die zugehörigen versteckten Input-Felder überträgt.
+    // Funktion, die vor dem Submit alle Inhalte der Quill-Editoren in die entsprechenden versteckten Input-Felder überträgt.
     function updateHiddenInputsFromQuill() {
       for (var logId in quillEditors) {
         if (quillEditors.hasOwnProperty(logId)) {
@@ -54,19 +54,34 @@
 
 {% block content %}
 <div class="container my-4">
-  <h1 class="mb-4">Claim Details – Task #{{ task.id }} – {{ task.config.customer_firma }}</h1>
+  <h1>Claim Details – Task #{{ task.id }} – {{ task.config.customer_firma }}</h1>
   <p><strong>Due Date:</strong> {{ task.due_date|date:"d.m.Y H:i" }}</p>
   <p><strong>Status:</strong> {{ task.status }}</p>
   <p><strong>Claimed At:</strong> {% if task.claimed_at %}{{ task.claimed_at|date:"d.m.Y H:i" }}{% else %}---{% endif %}</p>
 
   <hr>
 
-  <!-- Formularbeginn -->
+  <!-- Formular für die Bearbeitung -->
   <form id="claim-details-form" method="POST" enctype="multipart/form-data">
     {% csrf_token %}
 
-    <!-- Accordion für alle Sub‑Checks -->
-    <h3>Maintenance Sub‑checks</h3>
+    <!-- Zuweisung -->
+    <div class="form-group mb-4">
+      <label for="assigned_to" class="form-label">Reassign to User:</label>
+      <select id="assigned_to" name="assigned_to" class="form-select">
+        <option value="">(Keep current assignee)</option>
+        {% for user in user_list %}
+          <option value="{{ user.id }}" {% if task.assigned_to and task.assigned_to.id == user.id %}selected{% endif %}>
+            {{ user.username }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <hr>
+
+    <!-- Maintenance Sub‑checks -->
+    <h4>Maintenance Sub‑checks</h4>
     <div class="accordion" id="subCheckAccordion">
       {% for log_item in logs %}
       <div class="accordion-item">
@@ -78,11 +93,11 @@
         <div id="collapse_{{ log_item.id }}" class="accordion-collapse collapse" aria-labelledby="heading_{{ log_item.id }}" data-bs-parent="#subCheckAccordion">
           <div class="accordion-body">
             <label for="editor_{{ log_item.id }}" class="form-label">Notes / Description</label>
-            <!-- Quill Editor Container statt CKEditor-Textarea -->
+            <!-- Quill Editor Container -->
             <div id="editor_{{ log_item.id }}" class="quill-editor" data-log-id="{{ log_item.id }}">
               {{ log_item.description|safe }}
             </div>
-            <!-- Verstecktes Input, in das beim Submit der Editor-Inhalt kopiert wird -->
+            <!-- Verstecktes Input-Feld für den Editor-Inhalt -->
             <input type="hidden" name="desc_{{ log_item.id }}" id="desc_input_{{ log_item.id }}">
             <div class="form-check mt-2">
               <input type="checkbox" class="form-check-input" name="done_{{ log_item.id }}" id="done_{{ log_item.id }}" {% if log_item.is_done %}checked{% endif %}>
@@ -94,78 +109,13 @@
       {% endfor %}
     </div>
 
+    <!-- Action Buttons -->
     <div class="mt-4 d-flex gap-3">
-      <!-- Vor dem Absenden wird updateHiddenInputsFromQuill() aufgerufen -->
-      <button type="button" id="save-button" class="btn btn-primary"
-              onclick="updateHiddenInputsFromQuill(); document.getElementById('claim-details-form').submit();">
+      <button type="button" id="save-button" class="btn btn-primary" onclick="updateHiddenInputsFromQuill(); document.getElementById('claim-details-form').submit();">
         Save Changes
       </button>
-      <button type="button" id="complete-button" class="btn btn-success">Complete</button>
       <a href="{% url 'maintenance_dashboard' %}" class="btn btn-secondary">Back</a>
     </div>
   </form>
-  <!-- Formularende -->
 </div>
-
-<!-- Modal zur Bestätigung der Fertigstellung -->
-<div class="modal fade" id="confirmCompleteModal" tabindex="-1" aria-labelledby="confirmCompleteModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <form id="complete-form">
-      {% csrf_token %}
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="confirmCompleteModalLabel">Confirm Completion</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          Are you sure you want to mark this task as completed?
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-success">Yes, Complete</button>
-        </div>
-      </div>
-    </form>
-  </div>
-</div>
-
-<script>
-document.addEventListener("DOMContentLoaded", function(){
-  const completeButton = document.getElementById("complete-button");
-  const completeForm = document.getElementById("complete-form");
-  const confirmCompleteModal = new bootstrap.Modal(document.getElementById('confirmCompleteModal'), {});
-
-  completeButton.addEventListener("click", function(){
-      confirmCompleteModal.show();
-  });
-
-  completeForm.addEventListener("submit", function(e){
-      e.preventDefault();
-      updateHiddenInputsFromQuill();
-      fetch("{% url 'maintenance_task_complete' task.id %}", {
-          method: "POST",
-          headers: {
-              "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value,
-              "Content-Type": "application/json",
-              "X-Requested-With": "XMLHttpRequest"
-          },
-          body: JSON.stringify({})
-      })
-      .then(response => response.json())
-      .then(data => {
-          if(data.success){
-              confirmCompleteModal.hide();
-              alert("Task marked as completed.");
-              window.location.href = "{% url 'maintenance_dashboard' %}";
-          } else {
-              alert("Failed to complete task: " + data.error);
-          }
-      })
-      .catch(error => {
-          console.error("Error completing task:", error);
-          alert("An error occurred while completing the task.");
-      });
-  });
-});
-</script>
 {% endblock %}

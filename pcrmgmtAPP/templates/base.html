@@ -108,29 +108,12 @@
 
   <!-- Footer -->
   <footer class="footer">
-    <p>&copy; {% now "Y" %} PCR Management. In bugs we trust</p>
-    <!-- Das GIF-Element mit einer ID, damit es per JavaScript angesprochen werden kann -->
-    <img id="footer-gif" src="" alt="Fun little gif" style="width:150px; height:auto;">
+    <p>&copy; {% now "Y" %} PCR Management. In loops we trust</p>
   </footer>
 
   <!-- Bootstrap JS Bundle -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- Script zum zufälligen Auswählen eines GIFs beim Laden der Seite -->
-  <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      var gifList = [
-        "{% static 'img/1.gif' %}",
-        "{% static 'img/2.gif' %}",
-        "{% static 'img/3.gif' %}",
-        "{% static 'img/4.gif' %}",
-        "{% static 'img/5.gif' %}",
-        "{% static 'img/6.gif' %}"
-      ];
-      var randomGif = gifList[Math.floor(Math.random() * gifList.length)];
-      document.getElementById("footer-gif").src = randomGif;
-    });
-  </script>
 
   {% block extra_js %}{% endblock %}
 </body>

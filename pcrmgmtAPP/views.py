@@ -835,56 +835,6 @@ def general_rma(request):
     }
     return render(request, 'rma_general.html', context)
 
-def computacenter_rma(request):
-    tickets = RMATicket.objects.filter(category='computacenter').order_by('-created_at')
-    query = request.GET.get('q', '').strip()
-    if query:
-        tickets = tickets.filter(
-            Q(ticketnummer__icontains=query) |
-            Q(firma__icontains=query) |
-            Q(modell__icontains=query) |
-            Q(seriennummer__icontains=query) |
-            Q(fehler__icontains=query)
-        )
-
-    open_tickets = tickets.filter(abgeschlossen=False)
-    closed_tickets = tickets.filter(abgeschlossen=True)
-
-    if request.method == "POST":
-        ticketnummer = request.POST.get("ticketnummer", "").strip()
-        firma = request.POST.get("firma", "").strip()
-        modell = request.POST.get("modell", "").strip()
-        seriennummer = request.POST.get("seriennummer", "").strip()
-        fehler = request.POST.get("fehler", "").strip()
-
-        if not ticketnummer:
-            messages.error(request, "Bitte Ticketnummer angeben.")
-            return redirect('computacenter_rma')
-
-        from django.db import IntegrityError
-        try:
-            RMATicket.objects.create(
-                ticketnummer=ticketnummer,
-                firma=firma,
-                modell=modell,
-                seriennummer=seriennummer,
-                fehler=fehler,
-                created_at=timezone.now(),
-                abgeschlossen=False,
-                category='computacenter'
-            )
-            messages.success(request, f"Ticket '{ticketnummer}' wurde erfolgreich angelegt.")
-        except IntegrityError:
-            messages.error(request, f"Ticketnummer '{ticketnummer}' ist bereits vergeben!")
-
-        return redirect('computacenter_rma')
-
-    context = {
-        'query': query,
-        'open_tickets': open_tickets,
-        'closed_tickets': closed_tickets,
-    }
-    return render(request, 'computacenter_rma.html', context)
 
 #############################################
 # Ticket actions
@@ -896,8 +846,6 @@ def close_ticket_view(request, ticket_id):
         ticket.save()
     except RMATicket.DoesNotExist:
         pass
-    if ticket.category == 'computacenter':
-        return redirect('computacenter_rma')
     return redirect('general_rma')
 
 def reopen_ticket_view(request, ticket_id):
@@ -907,8 +855,6 @@ def reopen_ticket_view(request, ticket_id):
         ticket.save()
     except RMATicket.DoesNotExist:
         pass
-    if ticket.category == 'computacenter':
-        return redirect('computacenter_rma')
     return redirect('general_rma')
 
 def edit_ticket(request, ticket_id):
@@ -921,8 +867,6 @@ def edit_ticket(request, ticket_id):
         ticket.fehler = request.POST.get("fehler", ticket.fehler)
         ticket.save()
         messages.success(request, "Ticket updated successfully.")
-        if ticket.category == 'computacenter':
-            return redirect('computacenter_rma')
         return redirect('general_rma')
     return render(request, 'rma_edit_ticket.html', {'ticket': ticket})
 
@@ -931,8 +875,6 @@ def delete_ticket(request, ticket_id):
     if request.method == "POST":
         ticket.delete()
         messages.success(request, "Ticket deleted successfully.")
-        if ticket.category == 'computacenter':
-            return redirect('computacenter_rma')
         return redirect('general_rma')
     return render(request, 'rma_confirm_delete.html', {'ticket': ticket})
 
@@ -1413,30 +1355,6 @@ def autocomplete_customer(request):
 
     return JsonResponse(results, safe=False)
 
-def run_email_import_script():
-    """
-    Continuously run the email_import script every 15 minutes in a background thread.
-    """
-    while True:
-        try:
-            # Call the external Python script or function that handles email imports
-            subprocess.run(["python", "pcrmgmtAPP/utils/email_import.py"])
-        except Exception as e:
-            logger.error(f"Error running email import script: {e}")
-
-        # Sleep for 15 minutes between runs
-        pytime.sleep(900)  # 900 seconds = 15 minutes
-
-def start_rma_email_import(request):
-    try:
-        # Vollständigen Pfad zum Skript angeben
-        script_path = os.path.join(settings.BASE_DIR, 'pcrmgmtAPP/utils/email_import.py')
-        subprocess.Popen(["python", script_path])
-        messages.success(request, "RMA Email Import Script started.")
-    except Exception as e:
-        messages.error(request, f"Failed to start RMA Email Import script: {e}")
-    return redirect('tasks')
-
 def generate_report(request):
     if request.method == "POST":
         timespan_days = request.POST.get("timespan_days")
@@ -1587,23 +1505,22 @@ def autocomplete_address(request):
 
 def maintenance_dashboard(request):
     now = timezone.now()
-
-    # Berechne Start und Ende der aktuellen Woche (angenommen: Montag bis Sonntag)
-    start_of_week = now - timedelta(days=now.weekday())
-    end_of_week = start_of_week + timedelta(days=6, hours=23, minutes=59, seconds=59)
-
-    # Berechne Start und Ende des aktuellen Monats
-    start_of_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-    last_day = calendar.monthrange(now.year, now.month)[1]
-    end_of_month = now.replace(day=last_day, hour=23, minute=59, second=59, microsecond=999999)
-
+    # Für wöchentliche Aufgaben: zeige alle offenen Tasks, deren Fälligkeitsdatum bis zum kommenden Freitag liegt
+    # Berechne nächsten Freitag:
+    days_until_friday = (4 - now.weekday() + 7) % 7
+    if days_until_friday == 0:
+        days_until_friday = 7
+    next_friday = now + timedelta(days=days_until_friday)
     current_week_tasks = MaintenanceTask.objects.filter(
         config__frequency='weekly',
-        due_date__gte=start_of_week,
-        due_date__lte=end_of_week,
+        due_date__lte=next_friday,
         status__in=['open', 'claimed']
     ).order_by('due_date')
 
+    # Für monatliche Aufgaben: zeige alle Tasks, deren Fälligkeitsdatum im aktuellen Monat liegt
+    start_of_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    last_day = calendar.monthrange(now.year, now.month)[1]
+    end_of_month = now.replace(day=last_day, hour=23, minute=59, second=59, microsecond=999999)
     current_month_tasks = MaintenanceTask.objects.filter(
         config__frequency__in=['monthly', '2months'],
         due_date__gte=start_of_month,
@@ -1744,16 +1661,13 @@ def task_delete(request, task_id):
 
 
 def maintenance_task_edit(request, task_id):
-    """
-    Diese View ermöglicht das Bearbeiten eines Maintenance-Tasks inklusive der Sub-checks.
-    Wird per AJAX (Fetch) aufgerufen, liefert sie eine JSON-Antwort zurück.
-    """
     task = get_object_or_404(MaintenanceTask, pk=task_id)
-    logs = task.logs.all()
+    # Erhalte alle bestehenden Logs, als Dictionary, Schlüssel = log id (als String)
+    existing_logs = {str(log.id): log for log in task.logs.all()}
     user_list = User.objects.all().order_by('username')
 
     if request.method == "POST":
-        # Zuweisung aktualisieren
+        # Aktualisiere Zuweisung
         new_assignee_id = request.POST.get('assigned_to')
         if new_assignee_id:
             try:
@@ -1781,12 +1695,12 @@ def maintenance_task_edit(request, task_id):
             except Exception:
                 return JsonResponse({"success": False, "error": "Ungültiges Fälligkeitsdatum-Format."})
 
-        # Optional: Falls das Formular ein neues Status-Feld übermittelt:
+        # Optional: Aktualisiere den Status
         new_status = request.POST.get("status")
         if new_status:
             task.status = new_status
 
-        # Optional: Aktualisiere die Dauer, falls übermittelt
+        # Aktualisiere Dauer
         duration = request.POST.get("duration_minutes")
         if duration:
             try:
@@ -1796,17 +1710,35 @@ def maintenance_task_edit(request, task_id):
 
         task.save()
 
-        # Aktualisiere die Sub-checks
-        for log_item in logs:
-            desc = request.POST.get(f"desc_{log_item.id}", "")
-            is_done = request.POST.get(f"done_{log_item.id}") == "on"
-            log_item.description = desc
-            log_item.is_done = is_done
-            if f"screenshot_{log_item.id}" in request.FILES:
-                log_item.screenshot = request.FILES[f"screenshot_{log_item.id}"]
-            log_item.save()
+        # Aktualisiere bestehende Logs
+        for key, log in existing_logs.items():
+            desc = request.POST.get(f"desc_{key}", "")
+            is_done = request.POST.get(f"done_{key}") == "on"
+            log.description = desc
+            log.is_done = is_done
+            if f"screenshot_{key}" in request.FILES:
+                log.screenshot = request.FILES[f"screenshot_{key}"]
+            log.save()
 
-        # Falls der Request per AJAX kommt, gib JSON zurück:
+        # Erstelle neue Logs für Sub-Checks, die im Formular als "dummy" erscheinen.
+        # Wir gehen alle POST-Keys durch, die mit "desc_new_" beginnen.
+        for key in request.POST:
+            if key.startswith("desc_new_"):
+                # Beispiel: key = "desc_new_Eventlogs_check"
+                sub_check_identifier = key[len("desc_new_"):]  # z. B. "Eventlogs_check"
+                desc = request.POST.get(key, "")
+                is_done = request.POST.get(f"done_new_{sub_check_identifier}") == "on"
+                # Nur erstellen, wenn überhaupt Inhalte eingegeben wurden oder die Checkbox gesetzt ist.
+                if desc.strip() or is_done:
+                    # Optional: Du kannst hier noch das Format des Namens anpassen, z. B. "_" ersetzen durch Leerzeichen.
+                    sub_check_name = sub_check_identifier.replace("_", " ")
+                    MaintenanceLog.objects.create(
+                        task=task,
+                        sub_check_name=sub_check_name,
+                        is_done=is_done,
+                        description=desc
+                    )
+
         if request.headers.get("x-requested-with") == "XMLHttpRequest":
             return JsonResponse({"success": True})
         else:
@@ -1814,15 +1746,28 @@ def maintenance_task_edit(request, task_id):
             return redirect("maintenance_dashboard")
 
     else:
+        # GET: Für bestehende Logs, aber zusätzlich Dummy-Einträge für Standard-Checks, die noch nicht existieren.
+        existing_logs = list(task.logs.all())
+        existing_names = {log.sub_check_name for log in existing_logs}
+        for check in STANDARD_SUB_CHECKS:
+            if check not in existing_names:
+                # Erzeuge Dummy-Daten, deren ID mit "new_" beginnt.
+                dummy = {
+                    'id': f"new_{check.replace(' ', '_')}",
+                    'sub_check_name': check,
+                    'is_done': False,
+                    'description': ""
+                }
+                existing_logs.append(dummy)
+
         context = {
             'task': task,
-            'logs': logs,
+            'logs': existing_logs,
             'user_list': user_list,
             'start_date_formatted': task.start_date.strftime("%Y-%m-%dT%H:%M") if task.start_date else "",
             'due_date_formatted': task.due_date.strftime("%Y-%m-%dT%H:%M") if task.due_date else "",
         }
         return render(request, "maintenance/task_claim_details_edit.html", context)
-
 
 
 def task_claim_details(request, task_id):
@@ -1946,7 +1891,15 @@ def maintenance_full_create(request):
         form = MaintenanceFullForm(request.POST)
         if form.is_valid():
             data = form.cleaned_data
-            # Config ohne "notes"
+
+            # Setze created_by nur, wenn der Benutzer authentifiziert ist,
+            # sonst auf None
+            if request.user.is_authenticated:
+                created_by = request.user
+            else:
+                created_by = None
+
+            # Erstelle die MaintenanceConfig
             config = MaintenanceConfig.objects.create(
                 customer_firma=data.get('customer_firma'),
                 customer_vorname=data.get('customer_vorname'),
@@ -1955,8 +1908,9 @@ def maintenance_full_create(request):
                 customer_plz=data.get('customer_plz'),
                 customer_ort=data.get('customer_ort'),
                 frequency=data.get('frequency'),
-                created_by=request.user,
+                created_by=created_by,
             )
+
             start_date = data.get('start_date')
             due_date = calculate_due_date(start_date, data.get('frequency'))
             task = MaintenanceTask.objects.create(
@@ -1965,7 +1919,8 @@ def maintenance_full_create(request):
                 due_date=due_date,
                 status='open'
             )
-            # Liste der Standard-Sub-Checks (ohne Notizen)
+
+            # Liste der Standard-Sub-Checks
             sub_checks = []
             if data.get('eventlogs_check'):
                 sub_checks.append("Eventlogs check")
@@ -1997,6 +1952,7 @@ def maintenance_full_create(request):
     else:
         form = MaintenanceFullForm()
     return render(request, 'maintenance/maintenance_full_create.html', {'form': form})
+
 
 def maintenance_overview(request):
     """
@@ -2036,16 +1992,21 @@ def maintenance_task_pdf(request, task_id):
 #Calculate Due Date
 def calculate_due_date(start_date, frequency):
     if frequency == 'weekly':
-        # wöchentlich: 7 Tage später
-        return start_date + timedelta(days=7)
+        # Berechne das nächste Freitag-Datum
+        # In Python: Montag=0, Freitag=4
+        days_until_friday = (4 - start_date.weekday() + 7) % 7
+        # Falls heute schon Freitag ist, setze auf nächsten Freitag
+        if days_until_friday == 0:
+            days_until_friday = 7
+        return start_date + timedelta(days=days_until_friday)
     elif frequency == 'monthly':
-        # monatlich: letztes Datum im selben Monat
+        # Fälligkeitsdatum: letzter Tag des Monats
         year = start_date.year
         month = start_date.month
         last_day = calendar.monthrange(year, month)[1]
         return start_date.replace(day=last_day)
     elif frequency == '2months':
-        # 2-monatlich: letztes Datum des Monats, der zwei Monate später liegt
+        # Fälligkeitsdatum: letzter Tag des Monats, der 2 Monate später liegt
         month = start_date.month + 2
         year = start_date.year
         if month > 12:

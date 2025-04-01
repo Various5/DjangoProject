@@ -174,7 +174,7 @@ class MaintenanceConfig(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(
-        User, null=True, on_delete=models.SET_NULL, related_name='created_maint_configs'
+        User, null=True, blank=True, on_delete=models.SET_NULL, related_name='created_maint_configs'
     )
 
     def __str__(self):

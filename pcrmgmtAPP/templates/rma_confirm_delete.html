@@ -9,12 +9,7 @@
     <form method="POST">
         {% csrf_token %}
         <button type="submit" class="btn btn-danger">Yes, Delete</button>
-        <!-- Cancel link depends on the ticket's category -->
-        {% if ticket.category == 'computacenter' %}
-            <a href="{% url 'computacenter_rma' %}" class="btn btn-secondary">Cancel</a>
-        {% else %}
-            <a href="{% url 'general_rma' %}" class="btn btn-secondary">Cancel</a>
-        {% endif %}
+        <a href="{% url 'general_rma' %}" class="btn btn-secondary">Cancel</a>
     </form>
 </div>
 {% endblock %}

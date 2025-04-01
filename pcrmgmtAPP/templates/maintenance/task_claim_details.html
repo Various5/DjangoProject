@@ -1,7 +1,55 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% load static %}
 
 {% block title %}Claim Details - Task #{{ task.id }}{% endblock %}
+
+{% block extra_js %}
+  <!-- Quill CSS -->
+  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+  <!-- Quill JS -->
+  <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+  <!-- Quill Image Paste Plugin -->
+<script src="{% static 'js/quill.image-paste.min.js' %}"></script>
+  <script>
+    // Registriere das Modul imagePaste
+    Quill.register('modules/imagePaste', window.ImagePaste);
+
+    // Globales Objekt zum Speichern der Quill-Editor-Instanzen (Schlüssel: log_item.id)
+    var quillEditors = {};
+    document.addEventListener("DOMContentLoaded", function(){
+      // Initialisiere alle Editor-Container mit der Klasse "quill-editor"
+      document.querySelectorAll('.quill-editor').forEach(function(editorDiv) {
+          var logId = editorDiv.getAttribute("data-log-id");
+          var quill = new Quill(editorDiv, {
+              theme: 'snow',
+              modules: {
+                  toolbar: [
+                      [{ header: [1, 2, false] }],
+                      ['bold', 'italic', 'underline'],
+                      ['link', 'image'],
+                      [{ list: 'ordered' }, { list: 'bullet' }]
+                  ],
+                  imagePaste: {}
+              }
+          });
+          quillEditors[logId] = quill;
+      });
+    });
+
+    // Funktion, die vor dem Absenden alle Quill-Inhalte in die zugehörigen versteckten Input-Felder überträgt.
+    function updateHiddenInputsFromQuill() {
+      for (var logId in quillEditors) {
+        if (quillEditors.hasOwnProperty(logId)) {
+          var editorContent = quillEditors[logId].root.innerHTML;
+          var hiddenInput = document.getElementById('desc_input_' + logId);
+          if (hiddenInput) {
+            hiddenInput.value = editorContent;
+          }
+        }
+      }
+    }
+  </script>
+{% endblock %}
 
 {% block content %}
 <div class="container my-4">
@@ -27,20 +75,23 @@
 
     <hr>
 
-    <!-- Maintenance Sub-checks (inkl. der neuen "Security" und "Firewall" Checks) -->
-    <h4>Maintenance Sub-checks</h4>
+    <!-- Maintenance Sub‑checks -->
+    <h4>Maintenance Sub‑checks</h4>
     <div class="accordion" id="subCheckAccordion">
       {% for log_item in logs %}
       <div class="accordion-item">
-        <h2 class="accordion-header" id="heading{{ log_item.sub_check_name|slugify }}">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ log_item.sub_check_name|slugify }}" aria-expanded="false" aria-controls="collapse{{ log_item.sub_check_name|slugify }}">
+        <h2 class="accordion-header" id="heading_{{ log_item.sub_check_name|slugify }}">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_{{ log_item.sub_check_name|slugify }}" aria-expanded="false" aria-controls="collapse_{{ log_item.sub_check_name|slugify }}">
             {{ log_item.sub_check_name }}
           </button>
         </h2>
-        <div id="collapse{{ log_item.sub_check_name|slugify }}" class="accordion-collapse collapse" aria-labelledby="heading{{ log_item.sub_check_name|slugify }}" data-bs-parent="#subCheckAccordion">
+        <div id="collapse_{{ log_item.sub_check_name|slugify }}" class="accordion-collapse collapse" aria-labelledby="heading_{{ log_item.sub_check_name|slugify }}" data-bs-parent="#subCheckAccordion">
           <div class="accordion-body">
             <label for="desc_{{ log_item.sub_check_name|slugify }}" class="form-label">Notes / Description</label>
-            <textarea id="desc_{{ log_item.sub_check_name|slugify }}" name="desc_{{ log_item.sub_check_name|slugify }}" class="form-control ckeditor" rows="4">{{ log_item.description }}</textarea>
+            <!-- Hier verwenden wir eine normale Textarea (ohne CKEDITOR-Klasse) -->
+            <textarea id="desc_{{ log_item.sub_check_name|slugify }}" name="desc_{{ log_item.sub_check_name|slugify }}" class="form-control" rows="4">{{ log_item.description }}</textarea>
+            <!-- Verstecktes Input-Feld, in das der Quill-Editor-Inhalt kopiert wird -->
+            <input type="hidden" name="desc_{{ log_item.sub_check_name|slugify }}" id="desc_input_{{ log_item.id }}">
             <div class="form-check mt-2">
               <input type="checkbox" class="form-check-input" name="done_{{ log_item.sub_check_name|slugify }}" id="done_{{ log_item.sub_check_name|slugify }}" {% if log_item.is_done %}checked{% endif %}>
               <label class="form-check-label" for="done_{{ log_item.sub_check_name|slugify }}">Done</label>
@@ -53,14 +104,17 @@
 
     <!-- Action Buttons -->
     <div class="mt-4 d-flex gap-3">
-      <button type="button" id="save-button" class="btn btn-primary">Save Changes</button>
+      <button type="button" id="save-button" class="btn btn-primary"
+              onclick="updateHiddenInputsFromQuill(); document.getElementById('claim-details-form').submit();">
+        Save Changes
+      </button>
       <button type="button" id="complete-button" class="btn btn-success">Complete</button>
       <a href="{% url 'maintenance_dashboard' %}" class="btn btn-secondary">Back</a>
     </div>
   </form>
 </div>
 
-<!-- Modal für Bestätigung der Fertigstellung -->
+<!-- Modal zur Bestätigung der Fertigstellung -->
 <div class="modal fade" id="confirmCompleteModal" tabindex="-1" aria-labelledby="confirmCompleteModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <form id="complete-form">
@@ -82,7 +136,7 @@
   </div>
 </div>
 
-<!-- JavaScript: Timer, Autosave, Save & Complete -->
+<!-- JavaScript: Save & Complete (ohne Timer und ohne CKEDITOR) -->
 <script>
 document.addEventListener("DOMContentLoaded", function(){
   const saveButton = document.getElementById("save-button");
@@ -91,35 +145,14 @@ document.addEventListener("DOMContentLoaded", function(){
   const confirmCompleteModal = new bootstrap.Modal(document.getElementById('confirmCompleteModal'), {});
   const completeForm = document.getElementById("complete-form");
 
-  // Timer-Funktionalität
-  let startTime = new Date("{{ task.claimed_at|date:'Y-m-d H:i:s' }} UTC");
-  let timerInterval = setInterval(function(){
-    let now = new Date();
-    let elapsed = now - startTime;
-    let hours = Math.floor(elapsed / (1000 * 60 * 60));
-    let minutes = Math.floor((elapsed % (1000 * 60 * 60)) / (1000 * 60));
-    let seconds = Math.floor((elapsed % (1000 * 60)) / 1000);
-    document.getElementById("timer").textContent =
-      `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
-  }, 1000);
-
-  function pad(num) {
-    return num.toString().padStart(2, '0');
-  }
-
-  // Autosave-Funktionalität alle 30 Sekunden
-  let autosaveInterval = setInterval(function(){
-    saveClaimDetails();
-  }, 30000);
-
   function getCSRFToken() {
     return document.querySelector('[name=csrfmiddlewaretoken]').value;
   }
 
   function saveClaimDetails(){
-    // CKEditor-Instanzen aktualisieren
-    for (var instanceName in CKEDITOR.instances) {
-      CKEDITOR.instances[instanceName].updateElement();
+    // Statt CKEDITOR wird hier nur der Quill-Inhalt in die versteckten Felder kopiert.
+    if (typeof updateHiddenInputsFromQuill === "function") {
+      updateHiddenInputsFromQuill();
     }
     const formData = new FormData(claimDetailsForm);
     fetch("{% url 'maintenance_task_claim_details' task.id %}", {
@@ -133,19 +166,18 @@ document.addEventListener("DOMContentLoaded", function(){
     .then(response => response.json())
     .then(data => {
       if(data.success){
-        console.log("Autosaved successfully.");
+        console.log("Saved successfully.");
       } else {
-        console.error("Autosave failed:", data.error);
+        console.error("Save failed:", data.error);
       }
     })
     .catch(error => {
-      console.error("Error during autosave:", error);
+      console.error("Error during save:", error);
     });
   }
 
   saveButton.addEventListener("click", function(){
     saveClaimDetails();
-    clearInterval(autosaveInterval);
     alert("Changes saved successfully.");
   });
 
@@ -172,18 +204,13 @@ document.addEventListener("DOMContentLoaded", function(){
         alert("Task marked as completed.");
         window.location.href = "{% url 'maintenance_dashboard' %}";
       } else {
-        alert("Failed to complete the task: " + data.error);
+        alert("Failed to complete task: " + data.error);
       }
     })
     .catch(error => {
       console.error("Error completing task:", error);
       alert("An error occurred while completing the task.");
     });
-  });
-
-  window.addEventListener('beforeunload', function(){
-    clearInterval(timerInterval);
-    clearInterval(autosaveInterval);
   });
 });
 </script>
