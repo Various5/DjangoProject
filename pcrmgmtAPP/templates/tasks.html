@@ -33,32 +33,6 @@
         </div>
     </div>
 
-    <!-- RMA Email Import Panel -->
-    <div class="card mb-4">
-        <div class="card-header bg-secondary text-white">RMA Email Import</div>
-        <div class="card-body">
-            <p>Automatically imports tickets from the Computacenter email inbox.</p>
-            <form method="POST" action="{% url 'tasks' %}">
-                {% csrf_token %}
-                <div class="mb-3">
-                    <label for="rma_script_interval" class="form-label">Script Interval (minutes):</label>
-                    <input type="number" id="rma_script_interval" name="rma_script_interval"
-                           value="{{ rma_script_interval }}"
-                           class="form-control" min="1" max="1440" required>
-                </div>
-                <button type="submit" name="set_rma_interval" class="btn btn-primary">Set Interval</button>
-                <button type="submit" name="start_rma_script" class="btn btn-success">Start Script</button>
-                <button type="submit" name="stop_rma_script" class="btn btn-danger">Stop Script</button>
-            </form>
-            <hr>
-            {% if rma_script_running %}
-                <p class="text-success mb-0">Status: Running</p>
-                <p>Next run in: <span id="rma-countdown"></span></p>
-            {% else %}
-                <p class="text-danger mb-0">Status: Stopped</p>
-            {% endif %}
-        </div>
-    </div>
 
     <!-- Overall Status -->
     <div class="card">
@@ -72,14 +46,7 @@
                     <span class="text-danger">Stopped</span>
                 {% endif %}
             </p>
-            <p>
-                <strong>RMA Email Import:</strong>
-                {% if rma_script_running %}
-                    <span class="text-success">Running</span>
-                {% else %}
-                    <span class="text-danger">Stopped</span>
-                {% endif %}
-            </p>
+
             <p>
                 <strong>Last ISL Run:</strong>
                 {% if last_script_success %}
@@ -88,14 +55,7 @@
                     <span class="text-danger">Failed</span>
                 {% endif %}
             </p>
-            <p>
-                <strong>Last RMA Run:</strong>
-                {% if last_rma_success %}
-                    <span class="text-success">Success</span>
-                {% else %}
-                    <span class="text-danger">Failed</span>
-                {% endif %}
-            </p>
+
         </div>
     </div>
 </div>
@@ -127,24 +87,9 @@ function updateCountdowns() {
         }
     }
     {% endif %}
-
-    // RMA Countdown
-    {% if rma_script_running %}
-    if (nextRmaRunEpoch > 0) {
-        const now2 = Math.floor(Date.now() / 1000);
-        let rmaSecondsLeft = (nextRmaRunEpoch + offsetSec) - now2;
-        if (rmaSecondsLeft < 0) rmaSecondsLeft = 0;
-        const rm = Math.floor(rmaSecondsLeft / 60);
-        const rs = rmaSecondsLeft % 60;
-        const rmaEl = document.getElementById("rma-countdown");
-        if (rmaEl) {
-            rmaEl.textContent = rm + "m " + rs + "s";
-        }
-    }
-    {% endif %}
 }
 
-{% if script_running or rma_script_running %}
+{% if script_running %}
 setInterval(updateCountdowns, 1000);
 {% endif %}
 </script>
