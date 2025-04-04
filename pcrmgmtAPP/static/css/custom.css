@@ -1,23 +1,29 @@
+/* =================================================================
+   Modern Custom CSS – Enhanced 3D Effects, Harmonized Colors
+   und Drop-In Animation für Dashboard-Boxen
+================================================================= */
+
 /* -----------------------------------------------------------------
-   Modern Enhancements / CSS-Variablen
+   CSS-Variablen
 ----------------------------------------------------------------- */
 :root {
-  --primary-color: #007bff;
-  --secondary-color: #6c757d;
+  --primary-color: #4a90e2;      /* Sanftes Blau */
+  --secondary-color: #50e3c2;    /* Frisches Mint */
   --success-color: #28a745;
   --danger-color: #dc3545;
   --warning-color: #ffc107;
   --info-color: #17a2b8;
-  --light-color: rgba(255, 255, 255, 0.8);
-  --dark-color: rgba(0, 0, 0, 0.8);
-  /* Standard-Hintergrund – wird von den Theme-Klassen überschrieben */
-  --background-gradient: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+  --light-color: #ffffff;
+  --dark-color: #212121;
+  --background-gradient: linear-gradient(135deg, #e0eafc, #f0f0f5);
   --font-family: 'Roboto', Arial, sans-serif;
   --transition-speed: 0.3s;
+  --btn-radius: 4px;
+  --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* -----------------------------------------------------------------
-   Common resets / base
+   Globaler Reset & Basisstile
 ----------------------------------------------------------------- */
 * {
   margin: 0;
@@ -27,27 +33,211 @@
 
 body {
   font-family: var(--font-family);
-  background: var(--background-gradient, #ffffff);
-  color: #212529;
-  transition: background-color 0.3s, color 0.3s;
+  background: var(--background-gradient);
+  color: var(--dark-color);
+  transition: background 0.3s, color 0.3s;
 }
 
-.dashboard .card {
-  border-radius: 6px;
-}
-
-.dashboard .card .card-body {
-  padding: 1rem 1rem;
+/* Alle Elemente ohne abgerundete Ecken */
+*, *::before, *::after {
+  border-radius: 0 !important;
 }
 
 /* -----------------------------------------------------------------
-   Theme classes
-   (Hier wird der Hintergrund mit !important gesetzt, damit er die
-     globalen Einstellungen überschreibt, und die Schriftfarbe wird
-     so gewählt, dass sie einen guten Kontrast bietet.)
+   Keyframes für Drop-In Animation
+----------------------------------------------------------------- */
+@keyframes dropIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+  80% {
+    opacity: 1;
+    transform: translateY(10px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+/* -----------------------------------------------------------------
+   Enhanced 3D Effects & Layout
 ----------------------------------------------------------------- */
 
-/* 1) Light */
+/* Navbar */
+.navbar {
+  background-color: var(--light-color);
+  border-bottom: 1px solid #ddd;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform var(--transition-speed);
+}
+.navbar:hover {
+  transform: translateY(-2px);
+}
+
+/* Cards – sanfte 3D-Hover-Effekte */
+.card {
+  background-color: var(--light-color);
+  border: 1px solid #ddd;
+  box-shadow: var(--box-shadow);
+  transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+  margin-bottom: 1rem;
+}
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Buttons – mit leichten Skalierungseffekten */
+.btn {
+  border-radius: var(--btn-radius);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+}
+.btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Formularfelder */
+.form-control,
+.form-select {
+  border: 1px solid #ccc;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: border-color var(--transition-speed);
+}
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 8px rgba(74, 144, 226, 0.3);
+}
+
+/* Tabellen */
+.table {
+  background-color: var(--light-color);
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.table thead th {
+  background-color: var(--primary-color);
+  color: var(--light-color);
+  padding: 0.75rem;
+}
+.table td {
+  padding: 0.75rem;
+}
+
+/* Pagination Buttons */
+.pagination .btn {
+  border-radius: var(--btn-radius);
+}
+
+/* Alerts & Modal Content */
+.alert,
+.modal-content {
+  border-radius: var(--btn-radius);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Accordions */
+.accordion-button {
+  background-color: #f8f8f8;
+  border: 1px solid #ddd;
+  color: var(--dark-color);
+  font-weight: bold;
+}
+.accordion-button:not(.collapsed) {
+  background-color: #eaeaea;
+}
+
+/* Footer */
+.footer {
+  padding: 20px 0;
+  text-align: center;
+  background-color: var(--light-color);
+  border-top: 1px solid #ddd;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Utility Klassen für Abstände */
+.my-4 { margin: 1.5rem 0 !important; }
+.mb-3 { margin-bottom: 1rem !important; }
+.mb-4 { margin-bottom: 1.5rem !important; }
+.mt-auto { margin-top: auto !important; }
+
+/* -----------------------------------------------------------------
+   Drop-In Animation für Dashboard-Boxen (korrigiert)
+----------------------------------------------------------------- */
+@keyframes dropIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+  80% {
+    opacity: 1;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1; /* Neu: Opacity explizit auf 1 setzen */
+    transform: translateY(0);
+  }
+}
+
+/* Wende die Animation auf alle Spalten in der Dashboard-Reihe an.
+   "forwards" sorgt dafür, dass der Endzustand (100% Keyframe) beibehalten wird. */
+.dashboard .row > .col {
+  opacity: 0;
+  animation: dropIn 0.8s ease-out forwards;
+}
+
+/* Optionale Verzögerungen für einen sequenziellen Effekt */
+.dashboard .row > .col:nth-child(1) { animation-delay: 0.2s; }
+.dashboard .row > .col:nth-child(2) { animation-delay: 0.4s; }
+.dashboard .row > .col:nth-child(3) { animation-delay: 0.6s; }
+.dashboard .row > .col:nth-child(4) { animation-delay: 0.8s; }
+.dashboard .row > .col:nth-child(5) { animation-delay: 1.0s; }
+.dashboard .row > .col:nth-child(6) { animation-delay: 1.2s; }
+.dashboard .row > .col:nth-child(7) { animation-delay: 1.4s; }
+.dashboard .row > .col:nth-child(8) { animation-delay: 1.6s; }
+.dashboard .row > .col:nth-child(9) { animation-delay: 1.8s; }
+
+
+/* -----------------------------------------------------------------
+   Indicators für "Verrechnet" toggles (3D Effekt)
+----------------------------------------------------------------- */
+.square-indicator {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+.square-verrechnet {
+  background-color: var(--success-color) !important;
+  border: 2px solid #0c0 !important;
+}
+.square-nicht-verrechnet {
+  background-color: var(--danger-color) !important;
+  border: 2px solid #c00 !important;
+}
+.square-indicator:hover {
+  transform: scale(1.1);
+}
+
+/* -----------------------------------------------------------------
+   Print Media Query
+----------------------------------------------------------------- */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* -----------------------------------------------------------------
+   Theme-Klassen
+----------------------------------------------------------------- */
+
+/* Light Theme */
 body.light {
   background: #f8f9fa !important;
   color: #212529;
@@ -57,11 +247,14 @@ body.light .card,
 body.light .modal-content,
 body.light .table,
 body.light .alert {
-  background: #fff !important;
+  background: var(--light-color) !important;
   color: #212529;
 }
 
-/* 2) Dark */
+/* Dark Theme – Dark Mode standardmäßig aktiv:
+   Um Dark Mode als Standard zu setzen, stelle in deinem Context Processor
+   oder in der base.html sicher, dass der body die Klasse "dark" besitzt.
+*/
 body.dark {
   background: #2b2b2b !important;
   color: #e0e0e0;
@@ -86,7 +279,7 @@ body.dark .modal-title {
   color: #e0e0e0 !important;
 }
 
-/* 3) Modern */
+/* Modern Theme */
 body.modern {
   background: #f0f0f5 !important;
   color: #333;
@@ -103,9 +296,9 @@ body.modern .navbar {
   background: #7f8c8d !important;
 }
 
-/* 4) Soft-Blue */
+/* Soft-Blue Theme */
 body.soft-blue {
-  background: #e3f2fd !important; /* pale blue */
+  background: #e3f2fd !important;
   color: #0d47a1;
 }
 body.soft-blue .navbar,
@@ -113,13 +306,13 @@ body.soft-blue .card,
 body.soft-blue .modal-content,
 body.soft-blue .table,
 body.soft-blue .alert {
-  background: #fff !important;
+  background: var(--light-color) !important;
   color: #0d47a1;
 }
 
-/* 5) Soft-Green */
+/* Soft-Green Theme */
 body.soft-green {
-  background: #e8f5e9 !important; /* pale green */
+  background: #e8f5e9 !important;
   color: #1b5e20;
 }
 body.soft-green .navbar,
@@ -127,11 +320,11 @@ body.soft-green .card,
 body.soft-green .modal-content,
 body.soft-green .table,
 body.soft-green .alert {
-  background: #fff !important;
+  background: var(--light-color) !important;
   color: #1b5e20;
 }
 
-/* 6) Vintage */
+/* Vintage Theme */
 body.vintage {
   background: #faf4e6 !important;
   color: #5b4636;
@@ -145,7 +338,7 @@ body.vintage .alert {
   color: #5b4636;
 }
 
-/* 7) High-Contrast */
+/* High-Contrast Theme */
 body.high-contrast {
   background: #000000 !important;
   color: #ffffff;
@@ -155,11 +348,11 @@ body.high-contrast .card,
 body.high-contrast .modal-content,
 body.high-contrast .table,
 body.high-contrast .alert {
-  background: #000 !important;
+  background: #000000 !important;
   color: #fff;
 }
 
-/* 8) Elegant */
+/* Elegant Theme */
 body.elegant {
   background: #fafafa !important;
   color: #333;
@@ -177,9 +370,9 @@ body.elegant a.navbar-brand {
   font-style: italic;
 }
 
-/* 9) Sunset */
+/* Sunset Theme */
 body.sunset {
-  background: #fce4ec !important; /* pinkish hue */
+  background: #fce4ec !important;
   color: #ad1457;
 }
 body.sunset .navbar,
@@ -191,10 +384,9 @@ body.sunset .alert {
   color: #ad1457;
 }
 
-/* 10) Neon */
+/* Neon Theme */
 body.neon {
   background: #000000 !important;
-  /* Falls #00ff99 als Textfarbe zu grell sein sollte, kann hier auch #ffffff gewählt werden */
   color: #00ff99;
 }
 body.neon .navbar,
@@ -206,7 +398,7 @@ body.neon .alert {
   color: #00ff99;
 }
 
-/* 11) Pastel */
+/* Pastel Theme */
 body.pastel {
   background: #fef1e1 !important;
   color: #4a4a4a;
@@ -220,111 +412,70 @@ body.pastel .alert {
   color: #4a4a4a;
 }
 
-/* -----------------------------------------------------------------
-   Utility styles for layout, spacing, etc.
------------------------------------------------------------------ */
-.card {
-  border: none;
-  border-radius: 8px;
-  margin-bottom: 1rem;
-  background-color: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transition: transform var(--transition-speed) ease;
-}
-.card:hover {
-  transform: translateY(-5px);
+/* =========================
+   Dark Mode Table Overrides
+   ========================= */
+
+/* Hintergrund & Textfarbe der gesamten Tabelle */
+body.dark .table {
+  background-color: #3a3a3a !important; /* dunkles Grau, passt zu #2b2b2b */
+  color: #e0e0e0 !important; /* helle Schrift */
+  border-color: #444 !important;
 }
 
-.my-4 {
-  margin-top: 1.5rem !important;
-  margin-bottom: 1.5rem !important;
-}
-.mb-3 {
-  margin-bottom: 1rem !important;
-}
-.mb-4 {
-  margin-bottom: 1.5rem !important;
-}
-.mt-auto {
-  margin-top: auto !important;
+/* Tabellenkopf etwas dunkler machen */
+body.dark .table thead th {
+  background-color: #444 !important; /* abgesetztes Dunkelgrau */
+  color: #fff !important;
 }
 
-/* Tabellen – leicht transparente Hintergründe und abgerundete Ecken */
-.table {
-  background-color: rgba(255, 255, 255, 0.95);
-  border-radius: 8px;
-  overflow: hidden;
-}
-.table thead th {
-  background-color: var(--primary-color);
-  color: #fff;
-}
-.table-striped tbody tr:nth-of-type(odd) {
-  background-color: rgba(0, 0, 0, 0.05);
-}
-/* Für dunkle Themes etwas hellere Streifen */
-body.dark .table-striped tbody tr:nth-of-type(odd),
-body.neon .table-striped tbody tr:nth-of-type(odd),
-body.high-contrast .table-striped tbody tr:nth-of-type(odd) {
-  background-color: rgba(255, 255, 255, 0.05);
+/* Tabellenzellen */
+body.dark .table td,
+body.dark .table th {
+  background-color: transparent !important; /* oder #3a3a3a, je nach Geschmack */
+  color: #e0e0e0 !important;
+  border-color: #444 !important;
 }
 
-/* Formular-Inputs */
-.form-control, .form-select {
-  border-radius: 4px;
-  transition: border-color var(--transition-speed) ease;
-}
-.form-control:focus {
-  border-color: var(--primary-color);
-  box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+/* Für Zebra-Streifen in .table-striped */
+body.dark .table-striped tbody tr:nth-of-type(odd) {
+  background-color: rgba(255, 255, 255, 0.05) !important; /* dezente Abwechslung */
 }
 
-/* Buttons */
-.btn {
-  border-radius: 50px;
-  transition: background-color var(--transition-speed) ease, transform var(--transition-speed) ease;
-}
-.btn:hover {
-  transform: scale(1.05);
-}
-.btn-outline-primary {
-  border-color: #007bff;
-  color: #007bff;
-}
-.btn-outline-primary:hover {
-  background-color: #007bff;
-  color: #fff;
+/* =========================
+   Dark Mode Button Overrides
+   ========================= */
+
+/* Generische Buttons (um dunkle Hintergründe zu vermeiden) */
+body.dark .btn {
+  background-color: #444 !important; /* oder transparent, je nach Geschmack */
+  color: #fff !important;
+  border-color: #666 !important;
+  box-shadow: none !important; /* ggf. Schatten entfernen */
 }
 
-/* -----------------------------------------------------------------
-   Indicators for "Verrechnet" toggles, etc.
------------------------------------------------------------------ */
-.indicator-cell-verrechnet {
-  background-color: #d4edda !important;
-}
-.indicator-cell-nicht-verrechnet {
-  background-color: #f8d7da !important;
+/* Buttons mit Icon (z. B. "btn-icon"), damit sie nicht schwarz wirken */
+body.dark .btn-icon {
+  background-color: #444 !important;
+  border-color: #666 !important;
+  color: #fff !important;
 }
 
-.square-verrechnet {
-  background-color: green !important;
-  border: 2px solid #0c0 !important;
-  width: 20px;
-  height: 20px;
-  display: inline-block;
+/* Hover-Effekt: etwas aufhellen, damit man erkennt, dass man drüber hovert */
+body.dark .btn:hover,
+body.dark .btn-icon:hover {
+  background-color: #555 !important;
+  border-color: #777 !important;
 }
 
-.square-nicht-verrechnet {
-  background-color: red !important;
-  border: 2px solid #c00 !important;
-  width: 20px;
-  height: 20px;
-  display: inline-block;
+/* =========================
+   Optional: Verrechnet-Indicator
+   ========================= */
+body.dark .square-indicator.square-verrechnet {
+  background-color: #28a745 !important; /* "Success"-Grün */
+  border-color: #1e7e34 !important;
 }
-
-@media print {
-  .no-print {
-    display: none !important;
-  }
+body.dark .square-indicator.square-nicht-verrechnet {
+  background-color: #dc3545 !important; /* "Danger"-Rot */
+  border-color: #bd2130 !important;
 }
-

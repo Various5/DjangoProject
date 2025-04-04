@@ -1,131 +1,179 @@
 {% extends 'base.html' %}
 {% block title %}Dashboard{% endblock %}
 
+{% block extra_css %}
+<style>
+/* Drop-In Animation: Elemente fallen von oben herein und bleiben sichtbar */
+@keyframes dropIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Wende die Animation auf alle Spalten (Boxen) in der Dashboard-Reihe an.
+   Mit "forwards" wird der Endzustand (opacity: 1, translateY(0)) beibehalten. */
+.dashboard .row > .col {
+  animation: dropIn 0.8s ease-out forwards;
+}
+
+/* Optionale Verzögerungen für einen sequenziellen Effekt */
+.dashboard .row > .col:nth-child(1) { animation-delay: 0.2s; }
+.dashboard .row > .col:nth-child(2) { animation-delay: 0.4s; }
+.dashboard .row > .col:nth-child(3) { animation-delay: 0.6s; }
+.dashboard .row > .col:nth-child(4) { animation-delay: 0.8s; }
+.dashboard .row > .col:nth-child(5) { animation-delay: 1.0s; }
+.dashboard .row > .col:nth-child(6) { animation-delay: 1.2s; }
+.dashboard .row > .col:nth-child(7) { animation-delay: 1.4s; }
+.dashboard .row > .col:nth-child(8) { animation-delay: 1.6s; }
+.dashboard .row > .col:nth-child(9) { animation-delay: 1.8s; }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="dashboard my-4">
-    <h1 class="mb-4">Dashboard</h1>
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+  <h1 class="mb-4">Dashboard</h1>
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
 
-        <!-- ISL Logs Card -->
-        <div class="col">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body d-flex flex-column">
-                    <h5 class="card-title">ISL Logs</h5>
-                    <p class="card-text text-muted">View and manage ISL log entries, generate PDFs, etc.</p>
-                    <a href="{% url 'isl_logs' %}" class="btn btn-primary mt-auto align-self-start">
-                        <i class="bi bi-file-earmark-text"></i> ISL Logs
-                    </a>
-                </div>
-            </div>
+    <!-- ISL Logs Card -->
+    <div class="col">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">ISL Logs</h5>
+          <p class="card-text text-muted">
+            View and manage ISL log entries, generate PDFs, etc.
+          </p>
+          <a href="{% url 'isl_logs' %}" class="btn btn-primary mt-auto align-self-start">
+            <i class="bi bi-file-earmark-text"></i> ISL Logs
+          </a>
         </div>
-
-        <!-- RMA Manager Card -->
-        <div class="col">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body d-flex flex-column">
-                    <h5 class="card-title">RMA Manager</h5>
-                    <p class="card-text text-muted">Manage RMAs, track open/closed tickets.</p>
-                    <a href="{% url 'rma_manager' %}" class="btn btn-secondary mt-auto align-self-start">
-                        <i class="bi bi-box-arrow-in-down"></i> RMA Manager
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Office Accounts Card -->
-        <div class="col">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body d-flex flex-column">
-                    <h5 class="card-title">Office Accounts</h5>
-                    <p class="card-text text-muted">Store encrypted passwords, manage user info.</p>
-                    <a href="{% url 'office_accounts' %}" class="btn btn-success mt-auto align-self-start">
-                        <i class="bi bi-person-fill"></i> Office Accounts
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- GData Accounts Card -->
-        <div class="col">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body d-flex flex-column">
-                    <h5 class="card-title">GData Accounts</h5>
-                    <p class="card-text text-muted">Manage antivirus accounts, activate licenses, and track expirations.</p>
-                    <a href="{% url 'gdata_accounts' %}" class="btn btn-info mt-auto align-self-start">
-                        <i class="bi bi-shield-lock-fill"></i> GData Accounts
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Garantie Tracker Card -->
-        <div class="col">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body d-flex flex-column">
-                    <h5 class="card-title">Garantie Tracker</h5>
-                    <p class="card-text text-muted">Track warranties and licenses easily.</p>
-                    <a href="{% url 'garantie_list' %}" class="btn btn-info mt-auto align-self-start">
-                        <i class="bi bi-card-checklist"></i> Garantie Tracker
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Settings Card -->
-        <div class="col">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body d-flex flex-column">
-                    <h5 class="card-title">Settings</h5>
-                    <p class="card-text text-muted">Change theme, personal preferences.</p>
-                    <a href="{% url 'settings' %}" class="btn btn-warning mt-auto align-self-start">
-                        <i class="bi bi-gear-fill"></i> Settings
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Tasks Card -->
-        <div class="col">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body d-flex flex-column">
-                    <h5 class="card-title">Tasks</h5>
-                    <p class="card-text text-muted">Manage background scripts (ISL Log Reader, RMA Import).</p>
-                    <a href="{% url 'tasks' %}" class="btn btn-dark mt-auto align-self-start">
-                        <i class="bi bi-hourglass-split"></i> Tasks
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Logs Card -->
-        <div class="col">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body d-flex flex-column">
-                    <h5 class="card-title">Logs</h5>
-                    <p class="card-text text-muted">Check recent log files for debugging.</p>
-                    <a href="{% url 'logs' %}" class="btn btn-secondary mt-auto align-self-start">
-                        <i class="bi bi-file-earmark-bar-graph"></i> Logs
-                    </a>
-                </div>
-            </div>
-        </div>
-
-
-<!-- pcrmgmtAPP/templates/dashboard.html -->
-<div class="col">
-  <div class="card h-100 shadow-sm">
-    <div class="card-body d-flex flex-column">
-      <h5 class="card-title">Server Maintenance</h5>
-      <p class="card-text text-muted">Manage weekly/monthly tasks and backups.</p>
-      <a href="{% url 'maintenance_dashboard' %}"
-         class="btn btn-info mt-auto align-self-start">
-         <i class="bi bi-server"></i> Maintenance
-      </a>
+      </div>
     </div>
+
+    <!-- RMA Manager Card -->
+    <div class="col">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">RMA Manager</h5>
+          <p class="card-text text-muted">
+            Manage RMAs, track open/closed tickets.
+          </p>
+          <a href="{% url 'rma_manager' %}" class="btn btn-secondary mt-auto align-self-start">
+            <i class="bi bi-box-arrow-in-down"></i> RMA Manager
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Office Accounts Card -->
+    <div class="col">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">Office Accounts</h5>
+          <p class="card-text text-muted">
+            Store encrypted passwords, manage user info.
+          </p>
+          <a href="{% url 'office_accounts' %}" class="btn btn-success mt-auto align-self-start">
+            <i class="bi bi-person-fill"></i> Office Accounts
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- GData Accounts Card -->
+    <div class="col">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">GData Accounts</h5>
+          <p class="card-text text-muted">
+            Manage antivirus accounts, activate licenses, and track expirations.
+          </p>
+          <a href="{% url 'gdata_accounts' %}" class="btn btn-info mt-auto align-self-start">
+            <i class="bi bi-shield-lock-fill"></i> GData Accounts
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Garantie Tracker Card -->
+    <div class="col">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">Garantie Tracker</h5>
+          <p class="card-text text-muted">
+            Track warranties and licenses easily.
+          </p>
+          <a href="{% url 'garantie_list' %}" class="btn btn-info mt-auto align-self-start">
+            <i class="bi bi-card-checklist"></i> Garantie Tracker
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings Card -->
+    <div class="col">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">Settings</h5>
+          <p class="card-text text-muted">
+            Change theme, personal preferences.
+          </p>
+          <a href="{% url 'settings' %}" class="btn btn-warning mt-auto align-self-start">
+            <i class="bi bi-gear-fill"></i> Settings
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tasks Card -->
+    <div class="col">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">Tasks</h5>
+          <p class="card-text text-muted">
+            Manage background scripts (ISL Log Reader, RMA Import).
+          </p>
+          <a href="{% url 'tasks' %}" class="btn btn-dark mt-auto align-self-start">
+            <i class="bi bi-hourglass-split"></i> Tasks
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Logs Card -->
+    <div class="col">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">Logs</h5>
+          <p class="card-text text-muted">
+            Check recent log files for debugging.
+          </p>
+          <a href="{% url 'logs' %}" class="btn btn-secondary mt-auto align-self-start">
+            <i class="bi bi-file-earmark-bar-graph"></i> Logs
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Server Maintenance Card -->
+    <div class="col">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">Server Maintenance</h5>
+          <p class="card-text text-muted">
+            Manage weekly/monthly tasks and backups.
+          </p>
+          <a href="{% url 'maintenance_dashboard' %}" class="btn btn-info mt-auto align-self-start">
+            <i class="bi bi-server"></i> Maintenance
+          </a>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
-        </div>
-</div>
-
-
 {% endblock %}

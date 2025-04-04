@@ -1,10 +1,7 @@
 {
-    "theme": "light",
+    "theme": "dark",
     "isl_script_interval": 10,
-    "rma_script_interval": 15,
     "timespan_days": 30,
     "script_running": false,
-    "rma_script_running": false,
     "script_start_time": null,
-    "rma_script_start_time": null
 }
