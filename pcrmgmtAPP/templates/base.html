@@ -17,25 +17,44 @@
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
   <link rel="stylesheet" href="{% static 'css/custom.css' %}">
 
+  <!-- Inline CSS für Footer-Fix und Flexbox-Layout -->
+  <style>
+    /* html und body sollen den gesamten Viewport einnehmen */
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+    /* Flexbox-Layout: Body als Column-Container */
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+    /* Der Hauptinhalt füllt den verfügbaren Platz */
+    .main-content {
+      flex: 1;
+    }
+    /* Footer erhält automatischen oberen Abstand */
+    .footer {
+      margin-top: auto;
+    }
+  </style>
+
   <!-- Print-spezifisches CSS -->
   <style>
     @media print {
       footer {
         display: none;
       }
+      .no-print {
+        display: none !important;
+      }
     }
-
-    @media print {
-  .no-print {
-    display: none !important;
-  }
-}
   </style>
 
   <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+  {% block extra_css %}{% endblock %}
 </head>
 <body class="{{ current_theme }}">
-
   <!-- Navigation Bar -->
   <nav class="navbar navbar-expand-lg">
     <div class="container-fluid">
@@ -44,7 +63,6 @@
               aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
-
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
           {% if user.is_authenticated %}
@@ -93,8 +111,8 @@
     </div>
   </nav>
 
-  <!-- Main Content -->
-  <div class="container">
+  <!-- Hauptinhalt -->
+  <div class="container main-content">
     {% if messages %}
       {% for message in messages %}
         <div class="alert alert-{{ message.tags }} alert-dismissible fade-in" role="alert">
@@ -113,8 +131,6 @@
 
   <!-- Bootstrap JS Bundle -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-
   {% block extra_js %}{% endblock %}
 </body>
 </html>

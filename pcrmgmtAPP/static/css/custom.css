@@ -479,3 +479,102 @@ body.dark .square-indicator.square-nicht-verrechnet {
   background-color: #dc3545 !important; /* "Danger"-Rot */
   border-color: #bd2130 !important;
 }
+
+
+/* =================================================================
+   Modern Custom CSS – Enhanced 3D Effects, Harmonized Colors
+   und Drop-In Animation für Dashboard-Boxen
+================================================================= */
+
+/* CSS-Variablen */
+:root {
+  --primary-color: #4a90e2;
+  --secondary-color: #50e3c2;
+  --success-color: #28a745;
+  --danger-color: #dc3545;
+  --warning-color: #ffc107;
+  --info-color: #17a2b8;
+  --light-color: #ffffff;
+  --dark-color: #212121;
+  --background-gradient: linear-gradient(135deg, #e0eafc, #f0f0f5);
+  --font-family: 'Roboto', Arial, sans-serif;
+  --transition-speed: 0.3s;
+  --btn-radius: 4px;
+  --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Globaler Reset & Basisstile */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-family);
+  background: var(--background-gradient);
+  color: var(--dark-color);
+  transition: background 0.3s, color 0.3s;
+}
+
+/* Alle Elemente ohne abgerundete Ecken */
+*, *::before, *::after {
+  border-radius: 0 !important;
+}
+
+/* Keyframes für Drop-In Animation */
+@keyframes dropIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+  80% {
+    opacity: 1;
+    transform: translateY(10px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+/* Navbar, Cards, Buttons, Formularfelder, etc. */
+/* ... (Dein bestehender Stilcode hier, wie oben gepostet) ... */
+
+/* Drop-In Animation für Dashboard-Boxen */
+.dashboard .row > .col {
+  opacity: 0;
+  animation: dropIn 0.8s forwards;
+}
+
+/* Verzögerungen für sequenzielle Animation */
+.dashboard .row > .col:nth-child(1) { animation-delay: 0.2s; }
+.dashboard .row > .col:nth-child(2) { animation-delay: 0.4s; }
+.dashboard .row > .col:nth-child(3) { animation-delay: 0.6s; }
+.dashboard .row > .col:nth-child(4) { animation-delay: 0.8s; }
+
+/* Indicators für "Verrechnet" toggles */
+.square-indicator {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+.square-verrechnet {
+  background-color: var(--success-color) !important;
+  border: 2px solid #0c0 !important;
+}
+.square-nicht-verrechnet {
+  background-color: var(--danger-color) !important;
+  border: 2px solid #c00 !important;
+}
+.square-indicator:hover {
+  transform: scale(1.1);
+}
+
+/* Print Media Query */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
